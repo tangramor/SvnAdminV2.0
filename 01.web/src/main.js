@@ -7,6 +7,10 @@ import App from './app.vue';
 import i18n from './i18n';
 import 'view-design/dist/styles/iview.css';
 
+import global from './global';
+
+Vue.prototype.GLOBAL = global;
+
 /**
  * 以下为手动安装配置的依赖
  * 通过 Vue.prototype.$name 的方式 使$name在所有的Vue实例中可用

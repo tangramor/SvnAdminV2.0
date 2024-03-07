@@ -38,9 +38,19 @@ return [
     'svn_conf_file' => $home . 'svnserve.conf',
 
     /**
+     * 是否启用单一authz文件
+     */
+    'svn_single_authz' => true,
+
+    /**
      * authz文件
      */
     'svn_authz_file' => $home . 'authz',
+
+    /**
+     * 每个仓库使用各自的authz文件，此时 svn_single_authz 必须为 false
+     */
+    'svn_standalone_authz_file' => 'conf/authz',
 
     /**
      * passwd文件

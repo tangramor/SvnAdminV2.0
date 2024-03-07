@@ -1445,7 +1445,7 @@ class Base
         /**
          * 2、获取authz和passwd的配置文件信息
          */
-        $this->authzContent = file_get_contents($this->configSvn['svn_authz_file']);
+        $this->authzContent = $this->configSvn['svn_single_authz'] ? file_get_contents($this->configSvn['svn_authz_file']) : '';
         $this->passwdContent = file_get_contents($this->configSvn['svn_passwd_file']);
         $this->httpPasswdContent = file_get_contents($this->configSvn['http_passwd_file']);
         $this->svnserveContent = file_get_contents($this->configSvn['svn_conf_file']);

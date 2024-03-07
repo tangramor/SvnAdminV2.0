@@ -192,8 +192,16 @@ class Setting extends Base
                 'value' => $this->configSvn['svn_conf_file']
             ],
             [
+                'key' => 'svn_single_authz',    //'启用单一仓库权限文件',
+                'value' => $this->configSvn['svn_single_authz']
+            ],
+            [
                 'key' => '仓库权限文件',
                 'value' => $this->configSvn['svn_authz_file']
+            ],
+            [
+                'key' => '每个仓库使用各自的authz文件',
+                'value' => $this->configSvn['svn_standalone_authz_file']
             ],
             [
                 'key' => '用户账号文件',

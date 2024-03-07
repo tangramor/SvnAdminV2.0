@@ -262,9 +262,12 @@
 //SVN对象列表组件
 import ModalSvnObject from "@/components/modalSvnObject.vue";
 import i18n from "@/i18n";
+import Vue from 'vue';
+
 export default {
   data() {
     return {
+      single_authz: Vue.prototype.GLOBAL.svn_single_authz,
       /**
        * 权限函数
        */
@@ -424,7 +427,9 @@ export default {
         },
       ]},
   },
-  created() {},
+  created() {
+    Vue.prototype.GLOBAL.GetAuthzConfig();
+  },
   mounted() {
     this.GetGroupList();
   },

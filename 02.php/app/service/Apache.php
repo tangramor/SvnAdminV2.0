@@ -63,6 +63,9 @@ class Apache extends Base
 
         if ($dataSource['user_source'] == 'httpPasswd') {
             $templeteSubversionPath = BASE_PATH . '/templete/apache/subversion.conf';
+            if (!$this->configSvn['svn_single_authz']) {
+                $templeteSubversionPath = BASE_PATH . '/templete/apache/subversion-multi-authz.conf';
+            }
             if (!is_readable($templeteSubversionPath)) {
                 return message(200, 0, sprintf('文件[%s]不可读或不存在', $templeteSubversionPath));
             }
@@ -73,7 +76,7 @@ class Apache extends Base
             $AuthType = 'Basic';
             $AuthName = "SVN Repo";
             $AuthUserFile = $this->configSvn['http_passwd_file'];
-            $AuthzSVNAccessFile = $this->configSvn['svn_authz_file'];
+            $AuthzSVNAccessFile = $this->configSvn['svn_single_authz'] ?$this->configSvn['svn_authz_file'] : $this->configSvn['svn_standalone_authz_file'];
             $Require = 'valid-user';
 
             $subversion = sprintf(
@@ -112,6 +115,9 @@ class Apache extends Base
             return message();
         } else {
             $templeteSubversionPath = BASE_PATH . '/templete/apache/subversion-ldap.conf';
+            if (!$this->configSvn['svn_single_authz']) {
+                $templeteSubversionPath = BASE_PATH . '/templete/apache/subversion-ldap-multi-authz.conf';
+            }
             if (!is_readable($templeteSubversionPath)) {
                 return message(200, 0, sprintf('文件[%s]不可读或不存在', $templeteSubversionPath));
             }
@@ -124,7 +130,7 @@ class Apache extends Base
             $AuthBasicProvider = 'ldap';
             $AuthLDAPBindAuthoritative = 'off';
             $AuthUserFile = $this->configSvn['http_passwd_file'];
-            $AuthzSVNAccessFile = $this->configSvn['svn_authz_file'];
+            $AuthzSVNAccessFile = $this->configSvn['svn_single_authz'] ?$this->configSvn['svn_authz_file'] : $this->configSvn['svn_standalone_authz_file'];
             $Require = 'ldap-user';
 
             //base sub on
