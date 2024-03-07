@@ -76,7 +76,7 @@ class Apache extends Base
             $AuthType = 'Basic';
             $AuthName = "SVN Repo";
             $AuthUserFile = $this->configSvn['http_passwd_file'];
-            $AuthzSVNAccessFile = $this->configSvn['svn_single_authz'] ?$this->configSvn['svn_authz_file'] : $this->configSvn['svn_standalone_authz_file'];
+            $AuthzSVNAccessFile = $this->configSvn['svn_single_authz'] ? $this->configSvn['svn_authz_file'] : $this->configSvn['svn_standalone_authz_file'];
             $Require = 'valid-user';
 
             $subversion = sprintf(

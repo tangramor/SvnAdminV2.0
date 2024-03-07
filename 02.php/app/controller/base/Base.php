@@ -160,7 +160,9 @@ class Base
                 'httpd_pid_file',
                 'saslauthd_pid_file',
                 'apache_modules_path',
-                'apache_subversion_file'
+                'apache_subversion_file',
+                'svn_single_authz',
+                'svn_standalone_authz_file'
             ];
             foreach ($configSvn as $key => $value) {
                 if (is_array($value)) {
