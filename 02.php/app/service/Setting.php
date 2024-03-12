@@ -78,6 +78,36 @@ class Setting extends Base
     }
 
     /**
+     * 修改是否启用单一authz文件
+     */
+    public function UpdSvnAuthzSingle()
+    {
+        //检查表单
+        $checkResult = funCheckForm($this->payload, [
+            'svn_single_authz' => ['type' => 'boolean', 'notNull' => true]
+        ]);
+        if ($checkResult['status'] == 0) {
+            return message($checkResult['code'], $checkResult['status'], $checkResult['message'] . ': ' . $checkResult['data']['column']);
+        }
+
+        if ($this->payload['svn_single_authz'] == $this->configSvn['svn_single_authz']) {
+            return message(200, 0, '无需修改');
+        }
+
+        define('BASE_PATH', __DIR__);
+        
+        $svn_config_file = BASE_PATH . '/../../config/svn.php';
+
+        $config = file_get_contents($svn_config_file);
+        
+        $config = str_replace('\'svn_single_authz\' => ' . $this->configSvn['svn_single_authz'], '\'svn_single_authz\' => ' . $this->payload['svn_single_authz'], $config);
+        
+        funFilePutContents($svn_config_file, $config);
+
+        return message();
+    }
+
+    /**
      * 修改 svnserve 监听端口
      */
     public function UpdSvnservePort()
