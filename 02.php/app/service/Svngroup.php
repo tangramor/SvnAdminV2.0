@@ -78,12 +78,14 @@ class Svngroup extends Base
         $dbGroupList = $this->database->select('svn_groups', [
             'svn_group_id',
             'svn_group_name',
+            'rep_name',
             'svn_group_note',
             'include_user_count [Int]',
             'include_group_count [Int]',
             'include_aliase_count [Int]'
         ], [
             'GROUP' => [
+                'rep_name',
                 'svn_group_name'
             ]
         ]);
@@ -105,57 +107,134 @@ class Svngroup extends Base
         $old = array_column($dbGroupList, 'svn_group_name');
         $oldCombin = array_combine($old, $dbGroupList);
 
-        $svnGroupList = $this->SVNAdmin->GetGroupInfo($this->authzContent);
-        if (is_numeric($svnGroupList)) {
-            if ($svnGroupList == 612) {
-                return message(200, 0, '文件格式错误(不存在[groups]标识)');
-            } else {
-                return message(200, 0, "错误码$svnGroupList");
+        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+
+            $svnGroupList = $this->SVNAdmin->GetGroupInfo($this->authzContent);
+            if (is_numeric($svnGroupList)) {
+                if ($svnGroupList == 612) {
+                    return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                } else {
+                    return message(200, 0, "错误码$svnGroupList");
+                }
             }
-        }
 
-        $new = array_column($svnGroupList, 'groupName');
-        $newCombin = array_combine($new, $svnGroupList);
+            $new = array_column($svnGroupList, 'groupName');
+            $newCombin = array_combine($new, $svnGroupList);
 
-        //删除
-        $delete = array_diff($old, $new);
-        foreach ($delete as $value) {
-            $this->database->delete('svn_groups', [
-                'svn_group_name' => $value,
-            ]);
-        }
-
-        //新增
-        $create = array_diff($new, $old);
-        foreach ($create as $value) {
-            $this->database->insert('svn_groups', [
-                'svn_group_name' => $value,
-                'include_user_count' => $newCombin[$value]['include']['users']['count'],
-                'include_group_count' => $newCombin[$value]['include']['groups']['count'],
-                'include_aliase_count' => $newCombin[$value]['include']['aliases']['count'],
-                'svn_group_note' => '',
-            ]);
-        }
-
-        //更新
-        $update = array_intersect($old, $new);
-        foreach ($update as $value) {
-            if (
-                $oldCombin[$value]['include_user_count'] !=  $newCombin[$value]['include']['users']['count'] ||
-                $oldCombin[$value]['include_group_count'] !=  $newCombin[$value]['include']['groups']['count'] ||
-                $oldCombin[$value]['include_aliase_count'] !=  $newCombin[$value]['include']['aliases']['count']
-            ) {
-                $this->database->update('svn_groups', [
-                    'include_user_count' => $newCombin[$value]['include']['users']['count'],
-                    'include_group_count' => $newCombin[$value]['include']['groups']['count'],
-                    'include_aliase_count' => $newCombin[$value]['include']['aliases']['count']
-                ], [
-                    'svn_group_name' => $value
+            //删除
+            $delete = array_diff($old, $new);
+            foreach ($delete as $value) {
+                $this->database->delete('svn_groups', [
+                    'svn_group_name' => $value,
                 ]);
             }
-        }
 
-        return message();
+            //新增
+            $create = array_diff($new, $old);
+            foreach ($create as $value) {
+                $this->database->insert('svn_groups', [
+                    'svn_group_name' => $value,
+                    'include_user_count' => $newCombin[$value]['include']['users']['count'],
+                    'include_group_count' => $newCombin[$value]['include']['groups']['count'],
+                    'include_aliase_count' => $newCombin[$value]['include']['aliases']['count'],
+                    'svn_group_note' => '',
+                ]);
+            }
+
+            //更新
+            $update = array_intersect($old, $new);
+            foreach ($update as $value) {
+                if (
+                    $oldCombin[$value]['include_user_count'] !=  $newCombin[$value]['include']['users']['count'] ||
+                    $oldCombin[$value]['include_group_count'] !=  $newCombin[$value]['include']['groups']['count'] ||
+                    $oldCombin[$value]['include_aliase_count'] !=  $newCombin[$value]['include']['aliases']['count']
+                ) {
+                    $this->database->update('svn_groups', [
+                        'include_user_count' => $newCombin[$value]['include']['users']['count'],
+                        'include_group_count' => $newCombin[$value]['include']['groups']['count'],
+                        'include_aliase_count' => $newCombin[$value]['include']['aliases']['count']
+                    ], [
+                        'svn_group_name' => $value
+                    ]);
+                }
+            }
+
+            return message();
+
+        } else {    //仓库使用各自的 authz 文件
+
+            $repList = $this->database->select('svn_reps', [
+                'rep_name'
+            ]);
+
+            $svnGroupList = [];
+            foreach ($repList as $rep) {
+                $repName = $rep['rep_name'];
+
+                //获取仓库 authz 文件内容
+                $authzPath = $this->configSvn['rep_base_path'] . $repName . '/' . $this->configSvn['svn_standalone_authz_file'];
+                $authzContent = file_get_contents($authzPath);
+
+                $repGroupList = $this->SVNAdmin->GetGroupInfo($authzContent);
+                
+                if (is_numeric($repGroupList)) {
+                    if ($repGroupList == 612) {
+                        return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                    } else {
+                        return message(200, 0, "错误码$repGroupList");
+                    }
+                }
+                $repGroupList = array_push($repGroupList, ['repName' => $repName]);
+
+                $svnGroupList = array_merge($svnGroupList, $repGroupList);
+            }
+
+            $new = array_column($svnGroupList, 'groupName');
+            $newCombin = array_combine($new, $svnGroupList);
+
+            //删除
+            $delete = array_diff($old, $new);
+            foreach ($delete as $value) {
+                $this->database->delete('svn_groups', [
+                    'svn_group_name' => $value,
+                ]);
+            }
+
+            //新增
+            $create = array_diff($new, $old);
+            foreach ($create as $value) {
+                $this->database->insert('svn_groups', [
+                    'svn_group_name' => $value,
+                    'rep_name' => $newCombin[$value]['repName'],
+                    'include_user_count' => $newCombin[$value]['include']['users']['count'],
+                    'include_group_count' => $newCombin[$value]['include']['groups']['count'],
+                    'include_aliase_count' => $newCombin[$value]['include']['aliases']['count'],
+                    'svn_group_note' => '',
+                ]);
+            }
+
+            //更新
+            $update = array_intersect($old, $new);
+            foreach ($update as $value) {
+                if (
+                    $oldCombin[$value]['include_user_count'] !=  $newCombin[$value]['include']['users']['count'] ||
+                    $oldCombin[$value]['include_group_count'] !=  $newCombin[$value]['include']['groups']['count'] ||
+                    $oldCombin[$value]['include_aliase_count'] !=  $newCombin[$value]['include']['aliases']['count']
+                ) {
+                    $this->database->update('svn_groups', [
+                        'include_user_count' => $newCombin[$value]['include']['users']['count'],
+                        'include_group_count' => $newCombin[$value]['include']['groups']['count'],
+                        'include_aliase_count' => $newCombin[$value]['include']['aliases']['count']
+                    ], [
+                        'svn_group_name' => $value,
+                        'rep_name' => $oldCombin[$value]['rep_name']
+                    ]);
+                }
+            }
+
+            return message();
+
+        }
     }
 
     /**
@@ -206,6 +285,7 @@ class Svngroup extends Base
             $result = $this->database->select('svn_groups', [
                 'svn_group_id',
                 'svn_group_name',
+                'rep_name',
                 'svn_group_note',
                 'include_user_count [Int]',
                 'include_group_count [Int]',
@@ -226,6 +306,7 @@ class Svngroup extends Base
             $result = $this->database->select('svn_groups', [
                 'svn_group_id',
                 'svn_group_name',
+                'rep_name',
                 'svn_group_note',
                 'include_user_count [Int]',
                 'include_group_count [Int]',
@@ -316,41 +397,89 @@ class Svngroup extends Base
             return message($checkResult['code'], $checkResult['status'], $checkResult['message'], $checkResult['data']);
         }
 
-        //检查分组是否已存在
-        $result = $this->SVNAdmin->AddGroup($this->authzContent, $this->payload['svn_group_name']);
-        if (is_numeric($result)) {
-            if ($result == 612) {
-                return message(200, 0, '文件格式错误(不存在[groups]标识)');
-            } elseif ($result == 820) {
-                return message(200, 0, '分组已存在');
-            } else {
-                return message(200, 0, "错误码$result");
+        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+            //检查分组是否已存在
+            $result = $this->SVNAdmin->AddGroup($this->authzContent, $this->payload['svn_group_name']);
+            if (is_numeric($result)) {
+                if ($result == 612) {
+                    return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                } elseif ($result == 820) {
+                    return message(200, 0, '分组已存在');
+                } else {
+                    return message(200, 0, "错误码$result");
+                }
             }
+
+            //写入配置文件
+            funFilePutContents($this->configSvn['svn_authz_file'], $result);
+
+            //写入数据库
+            $this->database->delete('svn_groups', [
+                'svn_group_name' => $this->payload['svn_group_name']
+            ]);
+            $this->database->insert('svn_groups', [
+                'svn_group_name' => $this->payload['svn_group_name'],
+                'include_user_count' => 0,
+                'include_group_count' => 0,
+                'include_aliase_count' => 0,
+                'svn_group_note' => $this->payload['svn_group_note'],
+            ]);
+
+            //日志
+            $this->ServiceLogs->InsertLog(
+                '创建分组',
+                sprintf("分组名:%s", $this->payload['svn_group_name']),
+                $this->userName
+            );
+
+            return message();
+
+        } else {    //仓库使用各自的 authz 文件
+
+            //检查输入参数包含svn仓库名
+            if (!isset($this->payload['rep_name'])) {
+                return message(200, 0, '缺少svn仓库名');
+            }
+            $repName = $this->payload['rep_name'];
+
+            //检查分组是否已存在
+            $result = $this->SVNAdmin->AddGroup($this->authzContent, $this->payload['svn_group_name']);
+            if (is_numeric($result)) {
+                if ($result == 612) {
+                    return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                } elseif ($result == 820) {
+                    return message(200, 0, '分组已存在');
+                } else {
+                    return message(200, 0, "错误码$result");
+                }
+            }
+
+            //写入配置文件
+            funFilePutContents($this->authzPath, $result);
+
+            //写入数据库
+            $this->database->delete('svn_groups', [
+                'svn_group_name' => $this->payload['svn_group_name'],
+                'rep_name' => $repName
+            ]);
+            $this->database->insert('svn_groups', [
+                'svn_group_name' => $this->payload['svn_group_name'],
+                'rep_name' => $repName,
+                'include_user_count' => 0,
+                'include_group_count' => 0,
+                'include_aliase_count' => 0,
+                'svn_group_note' => $this->payload['svn_group_note'],
+            ]);
+
+            //日志
+            $this->ServiceLogs->InsertLog(
+                '创建分组',
+                sprintf("仓库名:%s, 分组名:%s", $repName, $this->payload['svn_group_name']),
+                $this->userName
+            );
+
+            return message();
         }
-
-        //写入配置文件
-        funFilePutContents($this->configSvn['svn_authz_file'], $result);
-
-        //写入数据库
-        $this->database->delete('svn_groups', [
-            'svn_group_name' => $this->payload['svn_group_name']
-        ]);
-        $this->database->insert('svn_groups', [
-            'svn_group_name' => $this->payload['svn_group_name'],
-            'include_user_count' => 0,
-            'include_group_count' => 0,
-            'include_aliase_count' => 0,
-            'svn_group_note' => $this->payload['svn_group_note'],
-        ]);
-
-        //日志
-        $this->ServiceLogs->InsertLog(
-            '创建分组',
-            sprintf("分组名:%s", $this->payload['svn_group_name']),
-            $this->userName
-        );
-
-        return message();
     }
 
     /**
@@ -368,33 +497,73 @@ class Svngroup extends Base
             return message(200, 0, '当前SVN分组来源为LDAP-不支持此操作');
         }
 
-        //从authz文件删除
-        $result = $this->SVNAdmin->DelObjectFromAuthz($this->authzContent, $this->payload['svn_group_name'], 'group');
-        if (is_numeric($result)) {
-            if ($result == 612) {
-                return message(200, 0, '文件格式错误(不存在[groups]标识)');
-            } elseif ($result == 901) {
-                return message(200, 0, '不支持的授权对象类型');
-            } else {
-                return message(200, 0, "错误码$result");
+        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+
+            //从authz文件删除
+            $result = $this->SVNAdmin->DelObjectFromAuthz($this->authzContent, $this->payload['svn_group_name'], 'group');
+            if (is_numeric($result)) {
+                if ($result == 612) {
+                    return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                } elseif ($result == 901) {
+                    return message(200, 0, '不支持的授权对象类型');
+                } else {
+                    return message(200, 0, "错误码$result");
+                }
             }
+
+            funFilePutContents($this->configSvn['svn_authz_file'], $result);
+
+            //从数据库删除
+            $this->database->delete('svn_groups', [
+                'svn_group_name' => $this->payload['svn_group_name']
+            ]);
+
+            //日志
+            $this->ServiceLogs->InsertLog(
+                '删除分组',
+                sprintf("分组名:%s", $this->payload['svn_group_name']),
+                $this->userName
+            );
+
+            return message();
+
+        } else {    //仓库使用各自的 authz 文件
+
+            //检查输入参数包含svn仓库名
+            if (!isset($this->payload['rep_name'])) {
+                return message(200, 0, '缺少svn仓库名');
+            }
+            $repName = $this->payload['rep_name'];
+
+            //从authz文件删除
+            $result = $this->SVNAdmin->DelObjectFromAuthz($this->authzContent, $this->payload['svn_group_name'], 'group');
+            if (is_numeric($result)) {
+                if ($result == 612) {
+                    return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                } elseif ($result == 901) {
+                    return message(200, 0, '不支持的授权对象类型');
+                } else {
+                    return message(200, 0, "错误码$result");
+                }
+            }
+
+            funFilePutContents($this->authzPath, $result);
+
+            //从数据库删除
+            $this->database->delete('svn_groups', [
+                'svn_group_name' => $this->payload['svn_group_name'],
+                'rep_name' => $repName
+            ]);
+
+            //日志
+            $this->ServiceLogs->InsertLog(
+                '删除分组',
+                sprintf("仓库名:%s, 分组名:%s", $repName, $this->payload['svn_group_name']),
+                $this->userName
+            );
+
+            return message();
         }
-
-        funFilePutContents($this->configSvn['svn_authz_file'], $result);
-
-        //从数据库删除
-        $this->database->delete('svn_groups', [
-            'svn_group_name' => $this->payload['svn_group_name']
-        ]);
-
-        //日志
-        $this->ServiceLogs->InsertLog(
-            '删除分组',
-            sprintf("分组名:%s", $this->payload['svn_group_name']),
-            $this->userName
-        );
-
-        return message();
     }
 
     /**
@@ -424,6 +593,10 @@ class Svngroup extends Base
             return message($syncResult['code'], $syncResult['status'], $syncResult['message'], $syncResult['data']);
         }
 
+        if ($this->authzContent == '') {
+            return message(200, 0, '缺少SVN仓库名rep_name参数');
+        }
+
         $result = $this->SVNAdmin->UpdObjectFromAuthz($this->authzContent, $this->payload['groupNameOld'], $this->payload['groupNameNew'], 'group');
         if (is_numeric($result)) {
             if ($result == 611) {
@@ -443,7 +616,7 @@ class Svngroup extends Base
             }
         }
 
-        funFilePutContents($this->configSvn['svn_authz_file'], $result);
+        funFilePutContents($this->authzPath, $result);
 
         //修改后同步下
         parent::RereadAuthz();
@@ -489,6 +662,10 @@ class Svngroup extends Base
             ], $filters)) {
                 return message(200, 0, '无权限的操作对象');
             }
+        }
+
+        if ($this->authzContent == '') {
+            return message(200, 0, '缺少SVN仓库名rep_name参数');
         }
 
         $list = $this->SVNAdmin->GetGroupInfo($this->authzContent, $this->payload['svn_group_name']);
@@ -547,6 +724,10 @@ class Svngroup extends Base
             return message(200, 0, '当前SVN分组来源为LDAP-不支持此操作');
         }
 
+        if ($this->authzContent == '') {
+            return message(200, 0, '缺少SVN仓库名rep_name参数');
+        }
+
         $result = $this->SVNAdmin->UpdGroupMember($this->authzContent, $this->payload['svn_group_name'], $this->payload['objectName'], $this->payload['objectType'], $this->payload['actionType']);
         if (is_numeric($result)) {
             if ($result == 612) {
@@ -577,7 +758,7 @@ class Svngroup extends Base
             }
         }
 
-        funFilePutContents($this->configSvn['svn_authz_file'], $result);
+        funFilePutContents($this->authzPath, $result);
 
         //修改后同步下
         parent::RereadAuthz();

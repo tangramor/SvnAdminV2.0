@@ -134,16 +134,18 @@ class Svnrep extends Base
             return message(200, 0, '创建仓库失败');
         }
 
-        //向authz写入仓库信息
-        $result = $this->SVNAdmin->WriteRepPathToAuthz($this->authzContent, $repName, '/');
-        if (is_numeric($result)) {
-            if ($result == 851) {
-                $result = $this->authzContent;
-            } else {
-                return message(200, 0, "同步到配置文件错误$result");
+        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+            //向authz写入仓库信息
+            $result = $this->SVNAdmin->WriteRepPathToAuthz($this->authzContent, $repName, '/');
+            if (is_numeric($result)) {
+                if ($result == 851) {
+                    $result = $this->authzContent;
+                } else {
+                    return message(200, 0, "同步到配置文件错误$result");
+                }
             }
+            funFilePutContents($this->configSvn['svn_authz_file'], $result);
         }
-        funFilePutContents($this->configSvn['svn_authz_file'], $result);
 
         //写入数据库
         $this->database->delete('svn_reps', [
@@ -251,42 +253,44 @@ class Svnrep extends Base
      */
     public function SyncRep2Authz()
     {
-        $svnRepList = $this->GetSimpleRepList();
+        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+            $svnRepList = $this->GetSimpleRepList();
 
-        $svnRepAuthzList = $this->SVNAdmin->GetRepListFromAuthz($this->authzContent);
+            $svnRepAuthzList = $this->SVNAdmin->GetRepListFromAuthz($this->authzContent);
 
-        $authzContet = $this->authzContent;
+            $authzContet = $this->authzContent;
 
-        foreach ($svnRepList as $key => $value) {
-            if (!in_array($value, $svnRepAuthzList)) {
-                $result = $this->SVNAdmin->WriteRepPathToAuthz($authzContet, $value, '/');
-                if (is_numeric($result)) {
-                    if ($result == 851) {
+            foreach ($svnRepList as $key => $value) {
+                if (!in_array($value, $svnRepAuthzList)) {
+                    $result = $this->SVNAdmin->WriteRepPathToAuthz($authzContet, $value, '/');
+                    if (is_numeric($result)) {
+                        if ($result == 851) {
+                        } else {
+                            json1(200, 0, "同步到配置文件错误$authzContet");
+                        }
                     } else {
-                        json1(200, 0, "同步到配置文件错误$authzContet");
+                        $authzContet = $result;
                     }
-                } else {
-                    $authzContet = $result;
                 }
             }
-        }
 
-        foreach ($svnRepAuthzList as $key => $value) {
-            if (!in_array($value, $svnRepList)) {
-                $result = $this->SVNAdmin->DelRepFromAuthz($authzContet, $value);
-                if (is_numeric($result)) {
-                    if ($result == 751) {
+            foreach ($svnRepAuthzList as $key => $value) {
+                if (!in_array($value, $svnRepList)) {
+                    $result = $this->SVNAdmin->DelRepFromAuthz($authzContet, $value);
+                    if (is_numeric($result)) {
+                        if ($result == 751) {
+                        } else {
+                            json1(200, 0, "同步到配置文件错误$authzContet");
+                        }
                     } else {
-                        json1(200, 0, "同步到配置文件错误$authzContet");
+                        $authzContet = $result;
                     }
-                } else {
-                    $authzContet = $result;
                 }
             }
-        }
 
-        if ($authzContet != $this->authzContent) {
-            funFilePutContents($this->configSvn['svn_authz_file'], $authzContet);
+            if ($authzContet != $this->authzContent) {
+                funFilePutContents($this->configSvn['svn_authz_file'], $authzContet);
+            }
         }
     }
 
@@ -342,8 +346,32 @@ class Svnrep extends Base
      */
     private function SyncUserRepAndDb()
     {
-        //获取用户有权限的仓库路径列表
-        $userRepList = $this->SVNAdmin->GetUserAllPri($this->authzContent, $this->userName);
+        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+
+            //获取用户有权限的仓库路径列表
+            $userRepList = $this->SVNAdmin->GetUserAllPri($this->authzContent, $this->userName);
+
+        } else {    //仓库使用各自的 authz 文件
+            
+            $userRepList = [];
+            $svnRepList = $this->GetSimpleRepList();
+
+            foreach ($svnRepList as $repName) {
+
+                //获取仓库 authz 文件内容
+                $authzPath = $this->configSvn['rep_base_path'] . $repName . '/' . $this->configSvn['svn_standalone_authz_file'];
+                $authzContent = file_get_contents($authzPath);
+
+                $repUserRepList = $this->SVNAdmin->GetUserAllPri($authzContent, $this->userName);
+                
+                if (is_numeric($repUserRepList)) {
+                    // do nothing
+                }
+
+                $userRepList = array_merge($userRepList, $repUserRepList);
+            }
+        }
+
         if (is_numeric($userRepList)) {
             if ($userRepList == 612) {
                 json1(200, 0, '文件格式错误(不存在[groups]标识)');

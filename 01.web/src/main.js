@@ -7,10 +7,6 @@ import App from './app.vue';
 import i18n from './i18n';
 import 'view-design/dist/styles/iview.css';
 
-import global from './global';
-
-Vue.prototype.GLOBAL = global;
-
 /**
  * 以下为手动安装配置的依赖
  * 通过 Vue.prototype.$name 的方式 使$name在所有的Vue实例中可用
@@ -123,6 +119,39 @@ function routerChildren(children) {
 //对路由的component解析
 function routerCom(path) {
     return (resolve) => require([`@/views/${path}`], resolve);
+}
+
+
+Vue.prototype.getAuthzConfig = function () {
+    var that = this;
+    var configList = [];
+    var data = {};
+    if (localStorage.getItem("authzConfig") == null || localStorage.getItem("authzConfig") == "undefined") {
+        that.$axios
+            .post("api.php?c=Setting&a=GetDirInfo&t=web", data)
+            .then(function (response) {
+                var result = response.data;
+                if (result.status == 1) {
+                    configList = result.data;
+                    console.log(configList[3].key);
+                    console.log(configList[3].value);
+                    if (configList[3].key == "svn_single_authz") {
+                        localStorage.setItem("authzConfig", configList[3].value);
+                        return configList[3].value;
+                    }
+                    return true;
+                } else {
+                    console.log({ content: result.message });
+                    return true;
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                return true;
+            });
+    } else {
+        return JSON.parse(localStorage.getItem("authzConfig"));
+    }
 }
 
 new Vue({

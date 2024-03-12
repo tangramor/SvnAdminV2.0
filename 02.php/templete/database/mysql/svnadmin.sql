@@ -203,6 +203,7 @@ DROP TABLE IF EXISTS `svn_groups`;
 CREATE TABLE `svn_groups` (
   `svn_group_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '分组id',
   `svn_group_name` varchar(200) NOT NULL COMMENT '分组名称',
+  `rep_name` varchar(1000) DEFAULT NULL COMMENT '仓库名称',
   `include_user_count` int(11) NOT NULL,
   `include_group_count` int(11) NOT NULL,
   `include_aliase_count` int(11) NOT NULL,

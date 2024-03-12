@@ -156,6 +156,7 @@ DROP TABLE IF EXISTS "svn_groups";
 CREATE TABLE "svn_groups" (
   "svn_group_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   "svn_group_name" TEXT(200) NOT NULL,
+  "rep_name" TEXT(1000),
   "include_user_count" integer NOT NULL,
   "include_group_count" integer NOT NULL,
   "include_aliase_count" integer NOT NULL,

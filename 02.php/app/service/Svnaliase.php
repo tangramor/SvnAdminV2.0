@@ -32,7 +32,30 @@ class Svnaliase extends Base
 
         $searchKeyword = trim($this->payload['searchKeyword']);
 
-        $result = $this->SVNAdmin->GetAliaseInfo($this->authzContent);
+        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+
+            $result = $this->SVNAdmin->GetAliaseInfo($this->authzContent);
+
+        } else {    //仓库使用各自的 authz 文件
+
+            $repList = $this->database->select('svn_reps', [
+                'rep_name'
+            ]);
+
+            $result = [];
+            foreach ($repList as $rep) {
+                $repName = $rep['rep_name'];
+
+                //获取仓库 authz 文件内容
+                $authzPath = $this->configSvn['rep_base_path'] . $repName . '/' . $this->configSvn['svn_standalone_authz_file'];
+                $authzContent = file_get_contents($authzPath);
+
+                $repAliaseList = $this->SVNAdmin->GetAliaseInfo($authzContent);
+                if(!is_numeric($repAliaseList)) {
+                    $result = array_merge($result, $repAliaseList);
+                }
+            }
+        }
 
         if ($searchKeyword != '') {
             foreach ($result as $key => $value) {

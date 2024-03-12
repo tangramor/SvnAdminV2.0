@@ -73,6 +73,7 @@ class Base
     public $userRoleId;
 
     //svn配置文件
+    public $authzPath;
     public $authzContent;
     public $passwdContent;
     public $httpPasswdContent;
@@ -1445,7 +1446,25 @@ class Base
         /**
          * 2、获取authz和passwd的配置文件信息
          */
-        $this->authzContent = $this->configSvn['svn_single_authz'] ? file_get_contents($this->configSvn['svn_authz_file']) : '';
+        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
+
+            $this->authzContent = file_get_contents($this->configSvn['svn_authz_file']);
+            $this->authzPath = $this->configSvn['svn_authz_file'];
+
+        } else {    //仓库使用各自的 authz 文件
+
+            //检查输入参数包含svn仓库名
+            if (isset($this->payload['rep_name'])) {
+                //获取仓库 authz 文件内容
+                $this->authzPath = $this->configSvn['rep_base_path'] . $this->payload['rep_name'] . '/' . $this->configSvn['svn_standalone_authz_file'];
+                $this->authzContent = file_get_contents($this->authzPath);
+
+            } else {
+                $this->authzContent = '';
+                $this->authzPath = '';
+            }  
+        }
+
         $this->passwdContent = file_get_contents($this->configSvn['svn_passwd_file']);
         $this->httpPasswdContent = file_get_contents($this->configSvn['http_passwd_file']);
         $this->svnserveContent = file_get_contents($this->configSvn['svn_conf_file']);
@@ -1752,7 +1771,23 @@ class Base
      */
     public function RereadAuthz()
     {
-        $this->authzContent = file_get_contents($this->configSvn['svn_authz_file']);
+        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+
+            $this->authzContent = file_get_contents($this->configSvn['svn_authz_file']);
+
+        } else {    //仓库使用各自的 authz 文件
+            
+            //检查输入参数包含svn仓库名
+            if (!isset($this->payload['rep_name'])) {
+                return message(200, 0, '缺少svn仓库名');
+            }
+            $repName = $this->payload['rep_name'];
+
+            //获取仓库 authz 文件内容
+            $authzPath = $this->configSvn['rep_base_path'] . $repName . '/' . $this->configSvn['svn_standalone_authz_file'];
+            $this->authzContent = file_get_contents($authzPath);
+
+        }
     }
 
     /**

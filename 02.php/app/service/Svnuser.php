@@ -931,6 +931,10 @@ class Svnuser extends Base
             }
         }
 
+        if ($this->authzContent == '') {
+            return message(200, 0, '缺少SVN仓库名rep_name参数');
+        }
+
         //从authz文件中删除
         $resultAuthz = $this->SVNAdmin->DelObjectFromAuthz($this->authzContent, $this->payload['svn_user_name'], 'user');
         if (is_numeric($resultAuthz)) {
@@ -948,7 +952,7 @@ class Svnuser extends Base
             'svn_user_name' => $this->payload['svn_user_name']
         ]);
 
-        funFilePutContents($this->configSvn['svn_authz_file'], $resultAuthz);
+        funFilePutContents($this->authzPath, $resultAuthz);
 
         //日志
         $this->ServiceLogs->InsertLog(

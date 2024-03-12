@@ -259,11 +259,34 @@ class Statistics extends Base
             }
         }
 
-        $aliaseCount = $this->SVNAdmin->GetAliaseInfo($this->authzContent);
-        if (is_numeric($aliaseCount)) {
-            $aliaseCount = -1;
-        } else {
-            $aliaseCount = count($aliaseCount);
+        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+            $aliaseCount = $this->SVNAdmin->GetAliaseInfo($this->authzContent);
+            if (is_numeric($aliaseCount)) {
+                $aliaseCount = -1;
+            } else {
+                $aliaseCount = count($aliaseCount);
+            }
+        } else {    //仓库使用各自的 authz 文件
+
+            $repList = $this->database->select('svn_reps', [
+                'rep_name'
+            ]);
+
+            $aliaseCount = 0;
+            foreach ($repList as $rep) {
+                $repName = $rep['rep_name'];
+
+                //获取仓库 authz 文件内容
+                $authzPath = $this->configSvn['rep_base_path'] . $repName . '/' . $this->configSvn['svn_standalone_authz_file'];
+                $authzContent = file_get_contents($authzPath);
+
+                $aliaseCount = $this->SVNAdmin->GetAliaseInfo($authzContent);
+                if (is_numeric($aliaseCount)) {
+                    //do nothing
+                } else {
+                    $aliaseCount += count($aliaseCount);
+                }
+            }
         }
 
         $backupCount = 0;
