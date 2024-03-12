@@ -580,16 +580,8 @@ class Ldap extends Base
         }
         $dataSource = $dataSource['ldap'];
 
-        $authzContent = $this->authzContent;
-
-        //清空原有分组
-        $authzContent = $this->SVNAdmin->ClearGroupSection($authzContent);
-        if (is_numeric($authzContent)) {
-            if ($authzContent == 612) {
-                return message(200, 0, '文件格式错误(不存在[groups]标识)');
-            } else {
-                return message(200, 0, "错误码$authzContent");
-            }
+        if ($this->authzContent == '') {
+            return message(200, 0, '缺少SVN仓库名rep_name参数');
         }
 
         //从ldap获取分组和用户
@@ -619,42 +611,78 @@ class Ldap extends Base
         //表示分组下的成员的唯一标识的属性 如 distinguishedName
         $up_id = strtolower($dataSource['groups_to_user_attribute_value']);
 
-        foreach ($groups as $g) {
-            if (!property_exists($g, $gp_name)) {
-                //搜索的对象不存在 group-name
-                continue;
-            }
+        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
 
-            //检查分组名是否合法
-            $checkResult = $this->checkService->CheckRepGroup($g->$gp_name);
-            if ($checkResult['status'] != 1) {
-                continue;
-            }
+            $authzContent = $this->authzContent;
 
-            //添加分组
-            $result = $this->SVNAdmin->AddGroup($authzContent, $g->$gp_name);
-            if (is_numeric($result)) {
-                if ($result == 612) {
+            //清空原有分组
+            $authzContent = $this->SVNAdmin->ClearGroupSection($authzContent);
+            if (is_numeric($authzContent)) {
+                if ($authzContent == 612) {
                     return message(200, 0, '文件格式错误(不存在[groups]标识)');
-                } elseif ($result == 820) {
-                    //分组已存在
-                    continue;
                 } else {
-                    return message(200, 0, "错误码$result");
+                    return message(200, 0, "错误码$authzContent");
                 }
             }
-            $authzContent = $result;
 
-            if (!property_exists($g, $gp_member_id)) {
-                //分组下无成员
-            } elseif (is_array($g->$gp_member_id)) {
-                //分组下多个成员
-                foreach ($g->$gp_member_id as $member_id) {
+            foreach ($groups as $g) {
+                if (!property_exists($g, $gp_name)) {
+                    //搜索的对象不存在 group-name
+                    continue;
+                }
+
+                //检查分组名是否合法
+                $checkResult = $this->checkService->CheckRepGroup($g->$gp_name);
+                if ($checkResult['status'] != 1) {
+                    continue;
+                }
+
+                //添加分组
+                $result = $this->SVNAdmin->AddGroup($authzContent, $g->$gp_name);
+                if (is_numeric($result)) {
+                    if ($result == 612) {
+                        return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                    } elseif ($result == 820) {
+                        //分组已存在
+                        continue;
+                    } else {
+                        return message(200, 0, "错误码$result");
+                    }
+                }
+                $authzContent = $result;
+
+                if (!property_exists($g, $gp_member_id)) {
+                    //分组下无成员
+                } elseif (is_array($g->$gp_member_id)) {
+                    //分组下多个成员
+                    foreach ($g->$gp_member_id as $member_id) {
+                        //获取成员用户名
+                        foreach ($users as $u) {
+                            if (!property_exists($u, $up_id)) {
+                                continue;
+                            }
+                            if ($u->$up_id == $member_id) {
+                                //为分组添加成员
+                                $result = $this->SVNAdmin->UpdGroupMember($authzContent, $g->$gp_name, $u->$up_name, 'user', 'add');
+                                if (is_numeric($result)) {
+                                    if ($result == 612) {
+                                        return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                                    } elseif ($result == 803) {
+                                        $result = $authzContent;
+                                    } else {
+                                        return message(200, 0, "错误码$result");
+                                    }
+                                }
+                                $authzContent = $result;
+                                break;
+                            }
+                        }
+                    }
+                } elseif (is_string($g->$gp_member_id)) {
+                    //分组下单个成员
+                    $member_id = $g->$gp_member_id;
                     //获取成员用户名
                     foreach ($users as $u) {
-                        if (!property_exists($u, $up_id)) {
-                            continue;
-                        }
                         if ($u->$up_id == $member_id) {
                             //为分组添加成员
                             $result = $this->SVNAdmin->UpdGroupMember($authzContent, $g->$gp_name, $u->$up_name, 'user', 'add');
@@ -672,34 +700,121 @@ class Ldap extends Base
                         }
                     }
                 }
-            } elseif (is_string($g->$gp_member_id)) {
-                //分组下单个成员
-                $member_id = $g->$gp_member_id;
-                //获取成员用户名
-                foreach ($users as $u) {
-                    if ($u->$up_id == $member_id) {
-                        //为分组添加成员
-                        $result = $this->SVNAdmin->UpdGroupMember($authzContent, $g->$gp_name, $u->$up_name, 'user', 'add');
-                        if (is_numeric($result)) {
-                            if ($result == 612) {
-                                return message(200, 0, '文件格式错误(不存在[groups]标识)');
-                            } elseif ($result == 803) {
-                                $result = $authzContent;
-                            } else {
-                                return message(200, 0, "错误码$result");
-                            }
-                        }
-                        $authzContent = $result;
-                        break;
+            }
+
+            file_put_contents($this->configSvn['svn_authz_file'], $authzContent);
+
+            parent::RereadAuthz();
+
+            return message();
+
+        } else {    //仓库使用各自的 authz 文件
+
+            $repList = $this->database->select('svn_reps', [
+                'rep_name'
+            ]);
+
+            foreach ($repList as $rep) {
+                $repName = $rep['rep_name'];
+
+                //获取仓库 authz 文件内容
+                $authzPath = $this->configSvn['rep_base_path'] . $repName . '/' . $this->configSvn['svn_standalone_authz_file'];
+                $authzContent = file_get_contents($authzPath);
+
+                //清空原有分组
+                $authzContent = $this->SVNAdmin->ClearGroupSection($authzContent);
+                if (is_numeric($authzContent)) {
+                    if ($authzContent == 612) {
+                        return message(200, 0, $repName + '文件格式错误(不存在[groups]标识)');
+                    } else {
+                        return message(200, 0, $repName + "错误码$authzContent");
                     }
                 }
+
+                foreach ($groups as $g) {
+                    if (!property_exists($g, $gp_name)) {
+                        //搜索的对象不存在 group-name
+                        continue;
+                    }
+
+                    //检查分组名是否合法
+                    $checkResult = $this->checkService->CheckRepGroup($g->$gp_name);
+                    if ($checkResult['status'] != 1) {
+                        continue;
+                    }
+
+                    //添加分组
+                    $result = $this->SVNAdmin->AddGroup($authzContent, $g->$gp_name);
+                    if (is_numeric($result)) {
+                        if ($result == 612) {
+                            return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                        } elseif ($result == 820) {
+                            //分组已存在
+                            continue;
+                        } else {
+                            return message(200, 0, "错误码$result");
+                        }
+                    }
+                    $authzContent = $result;
+
+                    if (!property_exists($g, $gp_member_id)) {
+                        //分组下无成员
+                    } elseif (is_array($g->$gp_member_id)) {
+                        //分组下多个成员
+                        foreach ($g->$gp_member_id as $member_id) {
+                            //获取成员用户名
+                            foreach ($users as $u) {
+                                if (!property_exists($u, $up_id)) {
+                                    continue;
+                                }
+                                if ($u->$up_id == $member_id) {
+                                    //为分组添加成员
+                                    $result = $this->SVNAdmin->UpdGroupMember($authzContent, $g->$gp_name, $u->$up_name, 'user', 'add');
+                                    if (is_numeric($result)) {
+                                        if ($result == 612) {
+                                            return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                                        } elseif ($result == 803) {
+                                            $result = $authzContent;
+                                        } else {
+                                            return message(200, 0, "错误码$result");
+                                        }
+                                    }
+                                    $authzContent = $result;
+                                    break;
+                                }
+                            }
+                        }
+                    } elseif (is_string($g->$gp_member_id)) {
+                        //分组下单个成员
+                        $member_id = $g->$gp_member_id;
+                        //获取成员用户名
+                        foreach ($users as $u) {
+                            if ($u->$up_id == $member_id) {
+                                //为分组添加成员
+                                $result = $this->SVNAdmin->UpdGroupMember($authzContent, $g->$gp_name, $u->$up_name, 'user', 'add');
+                                if (is_numeric($result)) {
+                                    if ($result == 612) {
+                                        return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                                    } elseif ($result == 803) {
+                                        $result = $authzContent;
+                                    } else {
+                                        return message(200, 0, "错误码$result");
+                                    }
+                                }
+                                $authzContent = $result;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                file_put_contents($authzPath, $authzContent);
+
+                $this->payload['rep_name'] = $repName;
+                parent::RereadAuthz();
             }
+
+            return message();
         }
-
-        file_put_contents($this->configSvn['svn_authz_file'], $authzContent);
-
-        parent::RereadAuthz();
-
-        return message();
     }
 }
