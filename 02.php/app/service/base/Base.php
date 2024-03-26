@@ -1146,7 +1146,8 @@ class Base
                     'checked' => false,
                     'disabled' => true,
                     'necessary_functions' => [
-                        'Setting/GetDirInfo'
+                        'Setting/GetDirInfo',
+                        'Setting/UpdSvnAuthzSingle'
                     ],
                     'children' => []
                 ],

@@ -114,6 +114,15 @@ class Setting extends Base
     }
 
     /**
+     * 更改使用单一权限控制文件 authz
+     */
+    public function UpdSvnAuthzSingle()
+    {
+        $result = $this->ServiceSetting->UpdSvnAuthzSingle();
+        json2($result);
+    }
+
+    /**
      * 获取配置文件列表
      */
     public function GetDirInfo()
