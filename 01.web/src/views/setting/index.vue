@@ -115,27 +115,6 @@
                   </Col>
                 </Row>
               </FormItem>
-              <br />
-              <FormItem :label="$t('setting.globalAuthz')">
-                <Row>
-                  <Col span="12">
-                    <Switch v-model="formGlobalAuthz.enable" :before-change="ChangeGlobalAuthz">
-                      <Icon type="md-checkmark" slot="open"></Icon>
-                      <Icon type="md-close" slot="close"></Icon>
-                    </Switch>
-                  </Col>
-                  <Col span="1"> </Col>
-                  <Col span="6">
-                    <Tooltip
-                      :transfer="true"
-                      max-width="360"
-                      :content="$t('setting.globalAuthzTip')"
-                    >
-                      <Button type="info">{{ $t('setting.info') }}</Button>
-                    </Tooltip>
-                  </Col>
-                </Row>
-              </FormItem>
             </Form>
           </Card>
         </TabPane>
