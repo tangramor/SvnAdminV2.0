@@ -115,6 +115,27 @@
                   </Col>
                 </Row>
               </FormItem>
+              <br />
+              <FormItem :label="$t('setting.globalAuthz')">
+                <Row>
+                  <Col span="12">
+                    <Switch v-model="formGlobalAuthz.enable" :before-change="ChangeGlobalAuthz">
+                      <Icon type="md-checkmark" slot="open"></Icon>
+                      <Icon type="md-close" slot="close"></Icon>
+                    </Switch>
+                  </Col>
+                  <Col span="1"> </Col>
+                  <Col span="6">
+                    <Tooltip
+                      :transfer="true"
+                      max-width="360"
+                      :content="$t('setting.globalAuthzTip')"
+                    >
+                      <Button type="info">{{ $t('setting.info') }}</Button>
+                    </Tooltip>
+                  </Col>
+                </Row>
+              </FormItem>
             </Form>
           </Card>
         </TabPane>
@@ -2760,38 +2781,6 @@ export default {
             });
         },
       });
-    },
-    //修改是否启用全局 authz
-    ChangeGlobalAuthz() {
-        return new Promise((resolve) => {
-            this.$Modal.confirm({
-                title: '切换确认',
-                content: '你真的要修改全局 authz 吗？这样做可能会导致系统权限不一致，请慎重！',
-                onOk: () => {
-                    console.log("formGlobalAuthz: " + this.formGlobalAuthz.enable);
-                    var that = this;
-                    var data = {
-                        svn_single_authz: that.formGlobalAuthz.enable,
-                    };
-                    that.$axios
-                        .post("api.php?c=Setting&a=UpdSvnservePort&t=web", data)
-                        .then(function (response) {
-                            var result = response.data;
-                            if (result.status == 1) {
-                                that.$Message.success(result.message);
-                                that.GetDirInfo();
-                            } else {
-                                that.$Message.error({ content: result.message, duration: 2 });
-                            }
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                            that.$Message.error(i18n.t('errors.contactAdmin'));
-                        });
-                    resolve();
-                }
-            });
-        });
     },
   },
 };
