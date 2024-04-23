@@ -96,13 +96,22 @@ class Setting extends Base
 
         define('BASE_PATH', __DIR__);
         
-        $svn_config_file = BASE_PATH . '/../../config/svn.php';
+        $svn_config_file = BASE_PATH . '/config/svn.php';
+
+        $pre_svn_config_file = BASE_PATH . '/config/svn.php.old';
 
         $config = file_get_contents($svn_config_file);
+
+        funFilePutContents($pre_svn_config_file, $config, true);
         
-        $config = str_replace('\'svn_single_authz\' => ' . $this->configSvn['svn_single_authz'], '\'svn_single_authz\' => ' . $this->payload['svn_single_authz'], $config);
+        $preval = $this->configSvn['svn_single_authz'] ? "true" : "false";
+        $newval = $this->configSvn['svn_single_authz'] ? "false" : "true";
+
+        $config = str_replace("'svn_single_authz' => " . $preval, "'svn_single_authz' => " . $newval, $config);
         
         funFilePutContents($svn_config_file, $config);
+
+        parent::RereadAuthz();
 
         return message();
     }

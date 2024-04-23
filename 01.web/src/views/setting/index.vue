@@ -98,7 +98,8 @@
               <FormItem :label="$t('setting.globalAuthz')">
                 <Row>
                   <Col span="12">
-                    <Switch v-model="formGlobalAuthz.enable" :before-change="ChangeGlobalAuthz">
+                    <Switch v-model="formGlobalAuthz.enable" 
+                      @on-change="ChangeGlobalAuthz()">
                       <Icon type="md-checkmark" slot="open"></Icon>
                       <Icon type="md-close" slot="close"></Icon>
                     </Switch>
@@ -2760,6 +2761,30 @@ export default {
             });
         },
       });
+    },
+    //修改权限文件配置方式
+    ChangeGlobalAuthz() {
+      var that = this;
+      var data = {
+        svn_single_authz: that.formGlobalAuthz.enable,
+      };
+      that.$axios
+        .post("api.php?c=Setting&a=UpdSvnAuthzSingle&t=web", data)
+        .then(function (response) {
+          that.loadingUpdHttpPort = false;
+          var result = response.data;
+          if (result.status == 1) {
+            that.$Message.success(result.message);
+            that.GetApacheInfo();
+          } else {
+            that.$Message.error({ content: result.message, duration: 2 });
+          }
+        })
+        .catch(function (error) {
+          that.loadingUpdHttpPort = false;
+          console.log(error);
+          that.$Message.error(i18n.t('errors.contactAdmin'));
+        });
     },
   },
 };

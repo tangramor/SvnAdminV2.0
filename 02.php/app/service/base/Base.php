@@ -1773,6 +1773,8 @@ class Base
      */
     public function RereadAuthz()
     {
+        $this->configSvn = Config::get('svn');
+        
         if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
 
             $this->authzContent = file_get_contents($this->configSvn['svn_authz_file']);
