@@ -10,6 +10,7 @@
 namespace app\service;
 
 use app\service\Svn as ServiceSvn;
+use app\service\Apache as ServiceApache;
 use Config;
 
 class Setting extends Base
@@ -97,13 +98,12 @@ class Setting extends Base
         define('BASE_PATH', __DIR__);
         
         $svn_config_file = BASE_PATH . '/config/svn.php';
-
         $pre_svn_config_file = BASE_PATH . '/config/svn.php.old';
-
         $config = file_get_contents($svn_config_file);
-
-        funFilePutContents($pre_svn_config_file, $config, true);
+            
+        funFilePutContents($pre_svn_config_file, $config);
         
+                
         $preval = $this->configSvn['svn_single_authz'] ? "true" : "false";
         $newval = $this->configSvn['svn_single_authz'] ? "false" : "true";
 
@@ -112,6 +112,54 @@ class Setting extends Base
         funFilePutContents($svn_config_file, $config);
 
         parent::RereadAuthz();
+
+        //使用 svn 协议检出
+        if ($this->enableCheckout == 'svn') {
+            //停止
+            (new ServiceSvn())->UpdSvnserveStatusStop();
+
+            if ($this->configSvn['svn_single_authz']) {
+                $config = sprintf(
+                    "OPTIONS=\"-r '%s' --config-file '%s' --log-file '%s' --listen-port %s --listen-host %s\"",
+                    $this->configSvn['rep_base_path'],
+                    $this->configSvn['svn_conf_file'],
+                    $this->configSvn['svnserve_log_file'],
+                    $this->payload['listen_port'],
+                    $this->localSvnHost
+                );
+            } else {
+                $config = sprintf(
+                    "OPTIONS=\"-r '%s' --log-file '%s' --listen-port %s --listen-host %s\"",
+                    $this->configSvn['rep_base_path'],
+                    $this->configSvn['svnserve_log_file'],
+                    $this->payload['listen_port'],
+                    $this->localSvnHost
+                );
+            }
+
+            //写入配置文件
+            funFilePutContents($this->configSvn['svnserve_env_file'], $config);
+
+            parent::RereadSvnserve();
+
+            sleep(1);
+
+            //启动
+            $resultStart = (new ServiceSvn())->UpdSvnserveStatusStart();
+            if ($resultStart['status'] != 1) {
+                return $resultStart;
+            }
+
+        } else {    //使用 http 协议检出
+            
+            $apache_conf_file = $this->configSvn['apache_subversion_file'];
+            $pre_apache_conf_file = $this->configSvn['apache_subversion_file'] . '.old';
+
+            $apache_conf = file_get_contents($apache_conf_file);
+            funFilePutContents($pre_apache_conf_file, $apache_conf, true);
+
+            (new ServiceApache())->UpdSubversionEnable();
+        }
 
         return message();
     }

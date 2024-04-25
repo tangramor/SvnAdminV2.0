@@ -1316,8 +1316,8 @@ class Svnrep extends Base
         $result = $this->SVNAdmin->GetRepPathPri($this->authzContent, $this->payload['rep_name'], $this->payload['path']);
         if (is_numeric($result)) {
             if ($result == 751) {
+                //使用仓库独立的权限配置文件
                 if (!$this->configSvn['svn_single_authz']) {
-                    //使用仓库独立的权限配置文件
                     return message();
                 }
                 //没有该路径的记录
