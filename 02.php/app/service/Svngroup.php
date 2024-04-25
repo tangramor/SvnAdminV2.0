@@ -107,7 +107,7 @@ class Svngroup extends Base
         $old = array_column($dbGroupList, 'svn_group_name');
         $oldCombin = array_combine($old, $dbGroupList);
 
-        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
 
             $svnGroupList = $this->SVNAdmin->GetGroupInfo($this->authzContent);
             if (is_numeric($svnGroupList)) {
@@ -420,7 +420,7 @@ class Svngroup extends Base
             return message($checkResult['code'], $checkResult['status'], $checkResult['message'], $checkResult['data']);
         }
 
-        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
             //检查分组是否已存在
             $result = $this->SVNAdmin->AddGroup($this->authzContent, $this->payload['svn_group_name']);
             if (is_numeric($result)) {
@@ -520,7 +520,7 @@ class Svngroup extends Base
             return message(200, 0, '当前SVN分组来源为LDAP-不支持此操作');
         }
 
-        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
 
             //从authz文件删除
             $result = $this->SVNAdmin->DelObjectFromAuthz($this->authzContent, $this->payload['svn_group_name'], 'group');

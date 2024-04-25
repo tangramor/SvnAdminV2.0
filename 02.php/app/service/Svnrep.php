@@ -134,7 +134,7 @@ class Svnrep extends Base
             return message(200, 0, '创建仓库失败');
         }
 
-        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
             //向authz写入仓库信息
             $result = $this->SVNAdmin->WriteRepPathToAuthz($this->authzContent, $repName, '/');
             if (is_numeric($result)) {
@@ -253,7 +253,7 @@ class Svnrep extends Base
      */
     public function SyncRep2Authz()
     {
-        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
             $svnRepList = $this->GetSimpleRepList();
 
             $svnRepAuthzList = $this->SVNAdmin->GetRepListFromAuthz($this->authzContent);
@@ -346,7 +346,7 @@ class Svnrep extends Base
      */
     private function SyncUserRepAndDb()
     {
-        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
 
             //获取用户有权限的仓库路径列表
             $userRepList = $this->SVNAdmin->GetUserAllPri($this->authzContent, $this->userName);

@@ -611,7 +611,7 @@ class Ldap extends Base
         //表示分组下的成员的唯一标识的属性 如 distinguishedName
         $up_id = strtolower($dataSource['groups_to_user_attribute_value']);
 
-        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
 
             $authzContent = $this->authzContent;
 

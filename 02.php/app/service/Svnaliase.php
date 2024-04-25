@@ -32,7 +32,7 @@ class Svnaliase extends Base
 
         $searchKeyword = trim($this->payload['searchKeyword']);
 
-        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
 
             $result = $this->SVNAdmin->GetAliaseInfo($this->authzContent);
 

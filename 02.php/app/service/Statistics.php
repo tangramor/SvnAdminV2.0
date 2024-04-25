@@ -259,7 +259,7 @@ class Statistics extends Base
             }
         }
 
-        if ($this->configSvn['svn_single_authz_file']) {    //使用单一authz文件
+        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
             $aliaseCount = $this->SVNAdmin->GetAliaseInfo($this->authzContent);
             if (is_numeric($aliaseCount)) {
                 $aliaseCount = -1;
