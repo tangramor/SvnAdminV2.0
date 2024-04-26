@@ -54,14 +54,7 @@ class Svnrep extends Base
                 return message(200, 1, 'authz文件配置无误');
             }
         } else {
-            $list = $this->database->select('svn_reps', [
-                'rep_id',
-                'rep_name',
-                'rep_size',
-                'rep_note',
-                'rep_rev',
-                'rep_uuid'
-            ]);
+            $list = $this->database->select('svn_reps', ['rep_name']);
 
             foreach ($list as $value) {
                 $result = funShellExec(sprintf("'%s' '%s'", $this->configBin['svnauthz-validate'], $this->configSvn['rep_base_path'].$value['rep_name'].'/'.$this->configSvn['svn_standalone_authz_file'], $this->configBin['svnauthz-validate']));
