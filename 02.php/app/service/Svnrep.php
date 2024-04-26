@@ -46,10 +46,30 @@ class Svnrep extends Base
             return message(200, 0, '未在 config/bin.php 文件中配置 svnauthz-validate 路径');
         }
 
-        $result = funShellExec(sprintf("'%s' '%s'", '/usr/bin/svn-tools/svnauthz-validate', $this->configSvn['svn_authz_file'], $this->configBin['svnauthz-validate']));
-        if ($result['code'] != 0) {
-            return message(200, 2, '检测到异常', $result['error']);
+        if ($this->configSvn['svn_single_authz']) {
+            $result = funShellExec(sprintf("'%s' '%s'", $this->configBin['svnauthz-validate'], $this->configSvn['svn_authz_file'], $this->configBin['svnauthz-validate']));
+            if ($result['code'] != 0) {
+                return message(200, 2, '检测到异常', $result['error']);
+            } else {
+                return message(200, 1, 'authz文件配置无误');
+            }
         } else {
+            $list = $this->database->select('svn_reps', [
+                'rep_id',
+                'rep_name',
+                'rep_size',
+                'rep_note',
+                'rep_rev',
+                'rep_uuid'
+            ]);
+
+            foreach ($list as $value) {
+                $result = funShellExec(sprintf("'%s' '%s'", $this->configBin['svnauthz-validate'], $this->configSvn['rep_base_path'].$value['rep_name'].'/'.$this->configSvn['svn_standalone_authz_file'], $this->configBin['svnauthz-validate']));
+                if ($result['code'] != 0) {
+                    return message(200, 2, '检测到异常', $result['error']);
+                }
+            }
+
             return message(200, 1, 'authz文件配置无误');
         }
     }
