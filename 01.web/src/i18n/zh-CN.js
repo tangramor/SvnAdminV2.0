@@ -237,7 +237,7 @@ group3=user4,&aliase1`,
         objectName: '对象名称',
         editGroupName: '编辑SVN分组名',
         deleteGroup: '删除SVN分组',
-        deleteGroupsConfirm: '确定要删除该分组吗？<br/>将会从所有仓库和分组下将该分组移除！<br/>该操作不可逆！',
+        deleteGroupConfirm: '确定要删除该分组吗？<br/>将会从所有仓库和分组下将该分组移除！<br/>该操作不可逆！',
         editGroupMember: '编辑分组成员信息',
     },
     repositoryInfo: {

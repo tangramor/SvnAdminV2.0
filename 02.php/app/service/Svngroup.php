@@ -520,8 +520,12 @@ class Svngroup extends Base
             return message(200, 0, '当前SVN分组来源为LDAP-不支持此操作');
         }
 
-        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
+        //从数据库删除
+        $this->database->delete('svn_groups', [
+            'svn_group_name' => $this->payload['svn_group_name']
+        ]);
 
+        if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
             //从authz文件删除
             $result = $this->SVNAdmin->DelObjectFromAuthz($this->authzContent, $this->payload['svn_group_name'], 'group');
             if (is_numeric($result)) {
@@ -536,18 +540,13 @@ class Svngroup extends Base
 
             funFilePutContents($this->configSvn['svn_authz_file'], $result);
 
-            //从数据库删除
-            $this->database->delete('svn_groups', [
-                'svn_group_name' => $this->payload['svn_group_name']
-            ]);
-
             //日志
             $this->ServiceLogs->InsertLog(
                 '删除分组',
                 sprintf("分组名:%s", $this->payload['svn_group_name']),
                 $this->userName
             );
-
+            
             return message();
 
         } else {    //仓库使用各自的 authz 文件
@@ -571,12 +570,6 @@ class Svngroup extends Base
             }
 
             funFilePutContents($this->authzPath, $result);
-
-            //从数据库删除
-            $this->database->delete('svn_groups', [
-                'svn_group_name' => $this->payload['svn_group_name'],
-                'rep_name' => $repName
-            ]);
 
             //日志
             $this->ServiceLogs->InsertLog(
