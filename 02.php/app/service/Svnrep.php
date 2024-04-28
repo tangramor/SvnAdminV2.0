@@ -55,15 +55,22 @@ class Svnrep extends Base
             }
         } else {
             $list = $this->database->select('svn_reps', ['rep_name']);
+            $confiles = '';
 
             foreach ($list as $value) {
                 $result = funShellExec(sprintf("'%s' '%s'", $this->configBin['svnauthz-validate'], $this->configSvn['rep_base_path'].$value['rep_name'].'/'.$this->configSvn['svn_standalone_authz_file'], $this->configBin['svnauthz-validate']));
                 if ($result['code'] != 0) {
                     return message(200, 2, '检测到异常', $result['error']);
                 }
+                $confiles .= $this->configSvn['rep_base_path'].$value['rep_name'].'/'.$this->configSvn['svn_standalone_authz_file'] . ";";
             }
 
-            return message(200, 1, 'authz文件配置无误');
+            if (strlen($confiles) > 0) {
+                $confiles = substr($confiles, 0, -1);
+                return message(200, 1,  $confiles.' 文件配置无误');
+            }
+
+            return message(200, 2, '检测到异常', '未找到任何配置文件');
         }
     }
 
