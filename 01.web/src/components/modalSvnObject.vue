@@ -501,6 +501,19 @@ export default {
       },
 
       /**
+       * 分页数据
+       */
+      //用户
+      pageCurrentUser: 1,
+      pageSizeUser: 20,
+      totalUser: 0,
+
+      //分组
+      pageCurrentGroup: 1,
+      pageSizeGroup: 20,
+      totalGroup: 0,
+
+      /**
        * 关键词
        */
       searchKeywordAliase: "",
@@ -583,7 +596,8 @@ export default {
   },
   computed: {
       //对象列表-SVN用户列表
-      tableColumnAllUsers: [
+      tableColumnAllUsers() {
+        return [
         {
           title: i18n.t("serial"),    //"序号",
           slot: "index",
@@ -609,16 +623,10 @@ export default {
           slot: "action",
           width: 90,
         },
-      ],
-      tableDataAllUsers: [],
-      //对象列表-SVN分组列表
-      tableColumnAllGroups: [
-        {
-          title: i18n.t("serial"),    //"序号",
-          slot: "index",
-          fixed: "left",
-          // minWidth: 80,
-        },
+      ]},
+      //对象列表-SVN别名列表
+      tableColumnAllAliases() {
+        return [
         {
           title: i18n.t("modalSvnObject.aliase"),    //"别名",
           key: "aliaseName",
@@ -633,7 +641,7 @@ export default {
           title: i18n.t("action"),    //"操作",
           slot: "action",
         },
-      ],
+      ]},
       //对象列表-SVN分组列表
       tableColumnAllGroups() {
         return [

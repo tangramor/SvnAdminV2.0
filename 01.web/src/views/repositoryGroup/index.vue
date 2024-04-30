@@ -371,6 +371,12 @@ export default {
           minWidth: 80,
         },
         {
+          title: i18n.t('repositoryGroup.repName'),  //"仓库名",
+          key: "rep_name",
+          sortable: "custom",
+          minWidth: 100,
+        },
+        {
           title: i18n.t('repositoryGroup.groupName'),  //"分组名",
           key: "svn_group_name",
           tooltip: true,

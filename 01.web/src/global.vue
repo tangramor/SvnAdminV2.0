@@ -8,7 +8,7 @@ export default {
         /**
          * 获取配置文件信息
          */
-        GetAuthzConfig() {
+        getAuthzConfig() {
             var that = this;
             var configList = [];
             var data = {};

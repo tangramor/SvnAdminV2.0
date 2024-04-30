@@ -212,6 +212,7 @@ module.exports = {
         syncGroupTip: 'Sync to update the SVN Group List',
         syncGroupList: 'Sync SVN Group List',
         searchGroup: 'Search SVN Group',
+        repName: 'Repo Name',
         groupMember: 'Member',
         groupName: 'Group Name',
         groupNameTip: 'Group name can only contain letters, numbers, hyphens, underscores, and dots.',

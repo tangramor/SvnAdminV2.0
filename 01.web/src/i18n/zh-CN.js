@@ -212,6 +212,7 @@ module.exports = {
         syncGroupTip: '同步才可获取最新分组列表',
         syncGroupList: '同步列表',
         searchGroup: '通过SVN分组名、备注搜索...',
+        repName: '仓库名称',
         groupMember: '成员',
         groupName: '分组名',
         groupNameTip: '分组名只能包含字母、数字、破折号、下划线、点。',

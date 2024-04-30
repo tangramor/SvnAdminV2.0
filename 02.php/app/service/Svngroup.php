@@ -323,18 +323,19 @@ class Svngroup extends Base
             ]);
         }
 
-        $result = $this->database->select('svn_groups', [
-            'svn_group_id',
-            'svn_group_name',
-            'svn_group_note',
-            'include_user_count [Int]',
-            'include_group_count [Int]',
-            'include_aliase_count [Int]',
-        ], [
-            'ORDER' => [
-                $this->payload['sortName']  => strtoupper($this->payload['sortType'])
-            ]
-        ]);
+        // $result = $this->database->select('svn_groups', [
+        //     'svn_group_id',
+        //     'svn_group_name',
+        //     'rep_name',
+        //     'svn_group_note',
+        //     'include_user_count [Int]',
+        //     'include_group_count [Int]',
+        //     'include_aliase_count [Int]',
+        // ], [
+        //     'ORDER' => [
+        //         $this->payload['sortName']  => strtoupper($this->payload['sortType'])
+        //     ]
+        // ]);
 
         //过滤
         if (!empty($searchKeyword)) {
