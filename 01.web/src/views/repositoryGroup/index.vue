@@ -101,6 +101,22 @@
       @on-ok="CreateGroup"
     >
       <Form :model="formCreateGroup" :label-width="80">
+        <FormItem
+          v-if="!use_single_authz"
+          :label="$t('repositoryGroup.repName')"
+        >
+          <Select
+              style="width: 250px"
+              v-model="formCreateGroup.rep_name"
+              :loading="loadingGetRepoList"
+            >
+              <Option
+                v-for="(repo, index) in tableDataRepoList"
+                :value="repo.name"
+                :key="index"
+                >{{ repo.name }}</Option>
+          </Select>
+        </FormItem>
         <FormItem :label="$t('repositoryGroup.groupName')">
           <Input v-model="formCreateGroup.svn_group_name"></Input>
         </FormItem>
@@ -266,7 +282,7 @@ import i18n from "@/i18n";
 export default {
   data() {
     return {
-      svn_single_authz: true,
+      // svn_single_authz: true,
       /**
        * 权限函数
        */
@@ -310,6 +326,9 @@ export default {
       //识别分组
       loadingScanGroup: false,
 
+      //仓库列表
+      loadingGetRepoList: true,
+
       /**
        * 临时变量
        */
@@ -342,6 +361,7 @@ export default {
        */
       //新建分组
       formCreateGroup: {
+        rep_name: "",
         svn_group_name: "",
         svn_group_note: "",
       },
@@ -352,92 +372,100 @@ export default {
       },
       tableGroupData: [],
       tableDataGroupMember: [],
+      
+      //仓库列表
+      tableDataRepoList: [],
     };
   },
   components: {
     ModalSvnObject,
   },
   computed: {
-      /**
-       * 表格
-       */
-      //分组信息
-      tableGroupColumn() {
-        return [
-        {
-          title: i18n.t('serial'),  //"序号",
-          slot: "index",
-          fixed: "left",
-          minWidth: 80,
-        },
-        {
-          title: i18n.t('repositoryGroup.repName'),  //"仓库名",
-          key: "rep_name",
-          sortable: "custom",
-          minWidth: 100,
-        },
-        {
-          title: i18n.t('repositoryGroup.groupName'),  //"分组名",
-          key: "svn_group_name",
-          tooltip: true,
-          sortable: "custom",
-          minWidth: 120,
-        },
-        {
-          title: i18n.t('repositoryGroup.includeUserCount'),  //"包含用户数",
-          key: "include_user_count",
-          sortable: "custom",
-          minWidth: 130,
-        },
-        {
-          title: i18n.t('repositoryGroup.includeGroupCount'),  //"包含分组数",
-          key: "include_group_count",
-          sortable: "custom",
-          minWidth: 130,
-        },
-        {
-          title: i18n.t('repositoryGroup.includeAliaseCount'),  //"包含别名用户数",
-          key: "include_aliase_count",
-          sortable: "custom",
-          minWidth: 130,
-        },
-        {
-          title: i18n.t('note'),  //"备注信息",
-          slot: "svn_group_note",
-          minWidth: 120,
-        },
-        {
-          title: i18n.t('others'),  //"其它",
-          slot: "action",
-          minWidth: 180,
-        },
-      ]},
-      //分组的成员列表
-      tableColumnGroupMember() {
-        return [
-        {
-          title: i18n.t('repositoryGroup.objectType'),  //"对象类型",
-          slot: "objectType",
-          // width: 125,
-        },
-        {
-          title: i18n.t('repositoryGroup.objectName'),  //"对象名称",
-          key: "objectName",
-          tooltip: true,
-          // width: 115,
-        },
-        {
-          title: i18n.t('action'),  //"操作",
-          slot: "action",
-        },
-      ]},
+    /**
+     * 表格
+     */
+    //分组信息
+    tableGroupColumn() {
+      return [
+      {
+        title: i18n.t('serial'),  //"序号",
+        slot: "index",
+        fixed: "left",
+        minWidth: 80,
+      },
+      {
+        title: i18n.t('repositoryGroup.repName'),  //"仓库名",
+        key: "rep_name",
+        sortable: "custom",
+        minWidth: 100,
+      },
+      {
+        title: i18n.t('repositoryGroup.groupName'),  //"分组名",
+        key: "svn_group_name",
+        tooltip: true,
+        sortable: "custom",
+        minWidth: 120,
+      },
+      {
+        title: i18n.t('repositoryGroup.includeUserCount'),  //"包含用户数",
+        key: "include_user_count",
+        sortable: "custom",
+        minWidth: 130,
+      },
+      {
+        title: i18n.t('repositoryGroup.includeGroupCount'),  //"包含分组数",
+        key: "include_group_count",
+        sortable: "custom",
+        minWidth: 130,
+      },
+      {
+        title: i18n.t('repositoryGroup.includeAliaseCount'),  //"包含别名用户数",
+        key: "include_aliase_count",
+        sortable: "custom",
+        minWidth: 130,
+      },
+      {
+        title: i18n.t('note'),  //"备注信息",
+        slot: "svn_group_note",
+        minWidth: 120,
+      },
+      {
+        title: i18n.t('others'),  //"其它",
+        slot: "action",
+        minWidth: 180,
+      },
+    ]},
+    //分组的成员列表
+    tableColumnGroupMember() {
+      return [
+      {
+        title: i18n.t('repositoryGroup.objectType'),  //"对象类型",
+        slot: "objectType",
+        // width: 125,
+      },
+      {
+        title: i18n.t('repositoryGroup.objectName'),  //"对象名称",
+        key: "objectName",
+        tooltip: true,
+        // width: 115,
+      },
+      {
+        title: i18n.t('action'),  //"操作",
+        slot: "action",
+      },
+    ]},
+    use_single_authz() {
+      return this.getAuthzConfig();
+    },
   },
   created() {
-    this.svn_single_authz = this.getAuthzConfig();
-    console.log(this.svn_single_authz);
+    this.getAuthzConfig();
   },
   mounted() {
     this.GetGroupList();
+    if(!this.use_single_authz) {
+      this.GetRepoList();
+    }
   },
   methods: {
     /**
@@ -821,6 +849,33 @@ export default {
           console.log(error);
           that.$Message.error(i18n.t('errors.contactAdmin'));
         });
+    },
+    GetRepoList() {
+      var that = this;
+      that.loadingGetRepoList = true;
+      that.tableDataRepoList = [];
+      var data = {};
+      that.$axios
+        .post("api.php?c=Svnrep&a=GetRepList&t=web", data)
+        .then(function (response) {
+          // console.log(response);
+          if(response.data.total > 0) {
+            var result = response.data;
+            that.loadingGetRepoList = false;
+            if (result.status == 1) {
+              that.tableDataRepoList = result.data;
+              console.log(that.tableDataRepoList);
+            } else {
+              that.$Message.error({ content: result.message, duration: 2 });
+            }
+          } else {
+            that.$Message.error({ content: "No repository found!", duration: 2 });
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+          that.$Message.error(i18n.t('errors.contactAdmin'));
+        })
     },
   },
 };

@@ -126,7 +126,7 @@ Vue.prototype.getAuthzConfig = function () {
     var that = this;
     var configList = [];
     var data = {};
-    if (localStorage.getItem("authzConfig") == null || localStorage.getItem("authzConfig") == "undefined") {
+    if (localStorage.getItem("singleAuthzConfig") == null || localStorage.getItem("singleAuthzConfig") == "undefined") {
         that.$axios
             .post("api.php?c=Setting&a=GetDirInfo&t=web", data)
             .then(function (response) {
@@ -136,7 +136,7 @@ Vue.prototype.getAuthzConfig = function () {
                     console.log(configList[3].key);
                     console.log(configList[3].value);
                     if (configList[3].key == "svn_single_authz") {
-                        localStorage.setItem("authzConfig", configList[3].value);
+                        localStorage.setItem("singleAuthzConfig", configList[3].value);
                         return configList[3].value;
                     }
                     return true;
@@ -150,7 +150,7 @@ Vue.prototype.getAuthzConfig = function () {
                 return true;
             });
     } else {
-        return JSON.parse(localStorage.getItem("authzConfig"));
+        return JSON.parse(localStorage.getItem("singleAuthzConfig"));
     }
 }
 

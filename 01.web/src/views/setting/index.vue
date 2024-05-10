@@ -2768,6 +2768,8 @@ export default {
       var data = {
         svn_single_authz: that.formGlobalAuthz.enable,
       };
+      localStorage.setItem("singleAuthzConfig", that.formGlobalAuthz.enable);
+      // that.getAuthzConfig();
       that.$axios
         .post("api.php?c=Setting&a=UpdSvnAuthzSingle&t=web", data)
         .then(function (response) {
