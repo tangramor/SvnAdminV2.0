@@ -63,7 +63,7 @@
           <Button
             type="success"
             size="small"
-            @click="ModalGetGroupMember(row.svn_group_name)"
+            @click="ModalGetGroupMember(row.rep_name, row.svn_group_name)"
             >{{ $t('repositoryGroup.groupMember') }}</Button
           >
           <Button
@@ -112,9 +112,9 @@
             >
               <Option
                 v-for="(repo, index) in tableDataRepoList"
-                :value="repo.name"
+                :value="repo.rep_name"
                 :key="index"
-                >{{ repo.name }}</Option>
+                >{{ repo.rep_name }}</Option>
           </Select>
         </FormItem>
         <FormItem :label="$t('repositoryGroup.groupName')">
@@ -332,6 +332,7 @@ export default {
       /**
        * 临时变量
        */
+      currentSelectRepName: "",
       currentSelectGroupName: "",
       //用于识别的authz文件内容
       tempAuthzContent: "",
@@ -568,6 +569,7 @@ export default {
       var that = this;
       that.loadingCreateGroup = true;
       var data = {
+        rep_name: that.formCreateGroup.rep_name,
         svn_group_name: that.formCreateGroup.svn_group_name,
         svn_group_note: that.formCreateGroup.svn_group_note,
       };
@@ -781,7 +783,8 @@ export default {
     /**
      * 配置分组成员
      */
-    ModalGetGroupMember(grouName) {
+    ModalGetGroupMember(repName, grouName) {
+      this.currentSelectRepName = repName;
       //设置当前选中的分组名称
       this.currentSelectGroupName = grouName;
       //显示对话框
@@ -799,6 +802,7 @@ export default {
       that.loadingGetGroupMember = true;
       that.tableDataGroupMember = [];
       var data = {
+        rep_name: that.currentSelectRepName,
         searchKeyword: that.searchKeywordGroupMember,
         svn_group_name: that.currentSelectGroupName,
       };
@@ -856,15 +860,15 @@ export default {
       that.tableDataRepoList = [];
       var data = {};
       that.$axios
-        .post("api.php?c=Svnrep&a=GetRepList&t=web", data)
+        .post("api.php?c=Crond&a=GetRepList&t=web", data)
         .then(function (response) {
-          // console.log(response);
-          if(response.data.total > 0) {
+          console.log(response.data);
+          if(response.data.data && response.data.data.length > 0) {
             var result = response.data;
             that.loadingGetRepoList = false;
             if (result.status == 1) {
               that.tableDataRepoList = result.data;
-              console.log(that.tableDataRepoList);
+              console.log(that.tableDataRepoList[0].rep_name);
             } else {
               that.$Message.error({ content: result.message, duration: 2 });
             }

@@ -421,6 +421,8 @@ class Svngroup extends Base
             return message($checkResult['code'], $checkResult['status'], $checkResult['message'], $checkResult['data']);
         }
 
+        parent::RereadAuthz();
+
         if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
             //检查分组是否已存在
             $result = $this->SVNAdmin->AddGroup($this->authzContent, $this->payload['svn_group_name']);
@@ -679,6 +681,10 @@ class Svngroup extends Base
             ], $filters)) {
                 return message(200, 0, '无权限的操作对象');
             }
+        }
+
+        if (!$this->configSvn['svn_single_authz']) {
+            $this->RereadAuthz();
         }
 
         if ($this->authzContent == '') {

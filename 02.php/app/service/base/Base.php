@@ -1780,7 +1780,9 @@ class Base
             $this->authzContent = file_get_contents($this->configSvn['svn_authz_file']);
 
         } else {    //仓库使用各自的 authz 文件
-            
+
+            log("service.base.RereadAuthz - repName: ".$this->payload['rep_name'], 'DEBUG', $this->configSvn['log_base_path']);
+
             //检查输入参数包含svn仓库名
             if (!isset($this->payload['rep_name'])) {
                 return message(200, 0, '缺少svn仓库名');
