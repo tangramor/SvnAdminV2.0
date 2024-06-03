@@ -75,7 +75,7 @@
           <Button
             type="error"
             size="small"
-            @click="DelGroup(row.svn_group_name)"
+            @click="DelGroup(row.rep_name, row.svn_group_name)"
             >{{ $t('delete') }}</Button
           >
         </template>
@@ -663,7 +663,7 @@ export default {
     /**
      * 删除分组
      */
-    DelGroup(svn_group_name) {
+    DelGroup(rep_name, svn_group_name) {
       var that = this;
       that.$Modal.confirm({
         render: (h) => {
@@ -760,6 +760,7 @@ export default {
         },
         onOk: () => {
           var data = {
+            rep_name: rep_name,
             svn_group_name: svn_group_name,
           };
           that.$axios
@@ -830,6 +831,7 @@ export default {
     UpdGroupMember(objectType, objectName, actionType = "add") {
       var that = this;
       var data = {
+        rep_name: that.currentSelectRepName,
         svn_group_name: that.currentSelectGroupName,
         objectName: objectName,
         objectType: objectType,

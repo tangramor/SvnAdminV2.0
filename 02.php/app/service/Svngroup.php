@@ -554,6 +554,8 @@ class Svngroup extends Base
 
         } else {    //仓库使用各自的 authz 文件
 
+            $this->RereadAuthz();
+
             //检查输入参数包含svn仓库名
             if (!isset($this->payload['rep_name'])) {
                 return message(200, 0, '缺少svn仓库名');
@@ -610,6 +612,10 @@ class Svngroup extends Base
         $syncResult = $this->SyncGroup();
         if ($syncResult['status'] != 1) {
             return message($syncResult['code'], $syncResult['status'], $syncResult['message'], $syncResult['data']);
+        }
+
+        if (!$this->configSvn['svn_single_authz']) {
+            $this->RereadAuthz();
         }
 
         if ($this->authzContent == '') {
@@ -745,6 +751,10 @@ class Svngroup extends Base
 
         if ($dataSource['user_source'] == 'ldap' && $dataSource['group_source'] == 'ldap') {
             return message(200, 0, '当前SVN分组来源为LDAP-不支持此操作');
+        }
+
+        if (!$this->configSvn['svn_single_authz']) {
+            $this->RereadAuthz();
         }
 
         if ($this->authzContent == '') {
