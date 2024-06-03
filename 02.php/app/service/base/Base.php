@@ -1781,7 +1781,7 @@ class Base
 
         } else {    //仓库使用各自的 authz 文件
 
-            log("service.base.RereadAuthz - repName: ".$this->payload['rep_name'], 'DEBUG', $this->configSvn['log_base_path']);
+            logger("service.base.RereadAuthz - repName: ".$this->payload['rep_name'], 'DEBUG', $this->configSvn['log_base_path']);
 
             //检查输入参数包含svn仓库名
             if (!isset($this->payload['rep_name'])) {
