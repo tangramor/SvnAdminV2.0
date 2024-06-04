@@ -69,7 +69,7 @@
           <Button
             type="warning"
             size="small"
-            @click="ModalEditGroupName(row.svn_group_name)"
+            @click="ModalEditGroupName(row.rep_name, row.svn_group_name)"
             >{{ $t('edit') }}</Button
           >
           <Button
@@ -162,7 +162,7 @@
         <FormItem>
           <Button
             type="primary"
-            @click="UpdGroupName"
+            @click="UpdGroupName()"
             :loading="loadingEditGroupName"
             >{{ $t('confirm') }}</Button
           >
@@ -368,6 +368,7 @@ export default {
       },
       //编辑分组
       formEditGroupName: {
+        rep_name: "",
         groupNameOld: "",
         groupNameNew: "",
       },
@@ -624,7 +625,8 @@ export default {
     /**
      * 编辑分组名称
      */
-    ModalEditGroupName(svn_group_name) {
+    ModalEditGroupName(rep_name, svn_group_name) {
+      this.formEditGroupName.rep_name = rep_name;
       //备份旧名称
       this.formEditGroupName.groupNameOld = svn_group_name;
       //自动显示输入信息
@@ -638,6 +640,7 @@ export default {
       var that = this;
       that.loadingEditGroupName = true;
       var data = {
+        rep_name: that.formEditGroupName.rep_name,
         groupNameOld: that.formEditGroupName.groupNameOld,
         groupNameNew: that.formEditGroupName.groupNameNew,
       };

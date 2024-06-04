@@ -1790,8 +1790,8 @@ class Base
             $repName = $this->payload['rep_name'];
 
             //获取仓库 authz 文件内容
-            $authzPath = $this->configSvn['rep_base_path'] . $repName . '/' . $this->configSvn['svn_standalone_authz_file'];
-            $this->authzContent = file_get_contents($authzPath);
+            $this->authzPath = $this->configSvn['rep_base_path'] . $repName . '/' . $this->configSvn['svn_standalone_authz_file'];
+            $this->authzContent = file_get_contents($this->authzPath);
 
         }
     }
