@@ -71,14 +71,14 @@
                 <Col span="11">
                     <Dropdown trigger="click" @on-click="translate">
                     <a href="javascript:void(0)">
-                        {{ $t(this.lang ? this.lang : 'en') }}
+                        {{ $t(this.lang ? this.lang : 'en-US') }}
                         <Icon type="md-arrow-dropdown" />
                     </a>
                     <DropdownMenu slot="list">
-                        <DropdownItem name="zh">中文</DropdownItem>
+                        <DropdownItem name="zh-CN">中文</DropdownItem>
                     </DropdownMenu>
                     <DropdownMenu slot="list">
-                        <DropdownItem name="en">English</DropdownItem>
+                        <DropdownItem name="en-US">English</DropdownItem>
                     </DropdownMenu>
                     </Dropdown>
                 </Col>

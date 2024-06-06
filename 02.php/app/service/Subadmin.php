@@ -41,6 +41,7 @@ class Subadmin extends Base
 
         $list = $this->database->select('subadmin', [
             'subadmin_id [Int]',
+            'rep_name',
             'subadmin_name',
             'subadmin_status [Int]',
             'subadmin_note',
@@ -94,6 +95,7 @@ class Subadmin extends Base
     {
         //检查表单
         $checkResult = funCheckForm($this->payload, [
+            'rep_name' => ['type' => 'string', 'notNull' => true],
             'subadmin_name' => ['type' => 'string', 'notNull' => true],
             'subadmin_password' => ['type' => 'string', 'notNull' => true],
             'subadmin_note' => ['type' => 'string', 'notNull' => false],
@@ -112,6 +114,7 @@ class Subadmin extends Base
 
         //写入数据库
         $this->database->insert('subadmin', [
+            'rep_name' => $this->payload['rep_name'],
             'subadmin_name' => $this->payload['subadmin_name'],
             'subadmin_password' => md5($this->payload['subadmin_password']),
             'subadmin_status' => 1,

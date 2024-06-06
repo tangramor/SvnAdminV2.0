@@ -171,6 +171,7 @@ CREATE TABLE `subadmin` (
   `subadmin_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `subadmin_name` varchar(255) NOT NULL,
   `subadmin_password` varchar(255) NOT NULL,
+  `rep_name` varchar(1000) DEFAULT NULL COMMENT '仓库名称',
   `subadmin_phone` varchar(255) DEFAULT NULL,
   `subadmin_email` varchar(255) DEFAULT NULL,
   `subadmin_status` int(255) NOT NULL,

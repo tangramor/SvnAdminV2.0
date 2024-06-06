@@ -392,16 +392,7 @@ export default {
         //脚本内容
         shell: "",
       },
-      /**
-       * 下拉
-       */
-      //仓库列表
-      repList: [
-        {
-          rep_key: "-1",
-          rep_name: "所有仓库",
-        },
-      ],
+
       /**
        * 对话框
        */
@@ -600,6 +591,17 @@ export default {
         {
           title: i18n.t('crond.content'),   //"内容",
           key: "content",
+        },
+      ]},
+      /**
+       * 下拉
+       */
+      //仓库列表
+      repList() {
+        return [
+        {
+          rep_key: "-1",
+          rep_name: i18n.t('crond.allRepos') //"所有仓库",
         },
       ]},
   },

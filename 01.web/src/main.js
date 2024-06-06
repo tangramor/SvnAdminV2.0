@@ -81,6 +81,7 @@ router.afterEach((to, from, next) => {
  * 请求拦截器
  */
 axios.interceptors.request.use(function (config) {
+    config.headers['HTTP_ACCEPT_LANGUAGE'] = i18n.locale;
     if (window.sessionStorage.token) {
         const encodedToken = encodeURIComponent(window.sessionStorage.token);
         config.headers.common['token'] = encodedToken;

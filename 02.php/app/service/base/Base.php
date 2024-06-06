@@ -35,6 +35,8 @@ auto_require(BASE_PATH . '/extension/Witersen/SVNAdmin.php');
 
 auto_require(BASE_PATH . '/extension/Witersen/File/Upload.php');
 
+auto_require(BASE_PATH . '/extension/Philipp15b/i18n.class.php');
+
 function auto_require($path, $recursively = false)
 {
     if (is_file($path)) {
@@ -63,6 +65,7 @@ use Config;
 use Medoo\Medoo;
 use Witersen\SVNAdmin;
 use Witersen\Upload;
+use i18n;
 
 class Base
 {
@@ -122,6 +125,9 @@ class Base
 
     //http
     public $httpPrefix = '';
+
+    //i18n
+    public $i18n;
 
     /**
      * 子管理员权限树
@@ -1673,6 +1679,16 @@ class Base
         } else {
             $this->httpPrefix = $this->httpPrefix['option_value'];
         }
+
+        $this->i18n = new i18n();
+        $this->i18n->setCachePath('/tmp/langcache');
+        $this->i18n->setFilePath(BASE_PATH . '/app/lang/{LANGUAGE}.ini'); // language file path
+        $this->i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
+        $this->i18n->setFallbackLang('en');
+        $this->i18n->setPrefix('I');
+        $this->i18n->setSectionSeparator('_');
+        $this->i18n->setMergeFallback(false); // make keys available from the fallback language
+        $this->i18n->init();
     }
 
     /**

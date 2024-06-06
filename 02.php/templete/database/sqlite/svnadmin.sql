@@ -133,6 +133,7 @@ CREATE TABLE "subadmin" (
   "subadmin_id" INTEGER NOT NULL,
   "subadmin_name" TEXT NOT NULL,
   "subadmin_password" TEXT NOT NULL,
+  "rep_name" TEXT(1000),
   "subadmin_phone" TEXT,
   "subadmin_email" TEXT,
   "subadmin_status" integer NOT NULL,

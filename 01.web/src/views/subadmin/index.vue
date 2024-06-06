@@ -113,6 +113,23 @@
     <!-- 对话框-新建子管理员 -->
     <Modal v-model="modalCreateSubadmin" :draggable="true" :title="$t('subadmin.createSubadmin')">
       <Form :model="formCreateSubadmin" :label-width="80">
+        <FormItem
+          v-if="!use_single_authz"
+          :label="$t('repositoryGroup.repName')"
+        >
+          <Select
+              style="width: 250px"
+              v-model="formCreateSubadmin.rep_name"
+              :loading="loadingGetRepoList"
+              multiple
+            >
+              <Option
+                v-for="(repo, index) in tableDataRepoList"
+                :value="repo.rep_name"
+                :key="index"
+                >{{ repo.rep_name }}</Option>
+          </Select>
+        </FormItem>
         <FormItem :label="$t('username')">
           <Input v-model="formCreateSubadmin.subadmin_name"></Input>
         </FormItem>
@@ -242,6 +259,8 @@ export default {
       loadingPriTree: false,
       //修改子管理员权限树
       loadingUpdSubadminTree: false,
+      //仓库列表
+      loadingGetRepoList: true,
 
       /**
        * 临时变量
@@ -269,6 +288,7 @@ export default {
        */
       //新建子管理员
       formCreateSubadmin: {
+        rep_name: "",
         subadmin_name: "",
         subadmin_password: "",
         subadmin_note: "",
@@ -291,6 +311,8 @@ export default {
       //子管理员权限信息
       dataPriTree: [],
       dataPriTreeOld: [],
+      //仓库列表
+      tableDataRepoList: [],
     };
   },
   computed: {
@@ -304,6 +326,13 @@ export default {
           minWidth: 80,
         },
         {
+          title: i18n.t('repositoryGroup.repName'),  //"仓库名",
+          key: "rep_name",
+          tooltip: true,
+          sortable: "custom",
+          minWidth: 100,
+        },
+        {
           title: i18n.t('username'),   //"用户名",
           key: "subadmin_name",
           tooltip: true,
@@ -315,7 +344,7 @@ export default {
           key: "subadmin_status",
           slot: "subadmin_status",
           sortable: "custom",
-          minWidth: 120,
+          minWidth: 80,
         },
         {
           title: i18n.t('note'),   //"备注信息",
@@ -348,10 +377,18 @@ export default {
           minWidth: 180,
         },
       ]},
+      use_single_authz() {
+        return this.getAuthzConfig();
+      },
   },
-  created() {},
+  created() {
+    this.getAuthzConfig();
+  },
   mounted() {
     this.GetSubadminList();
+    if(!this.use_single_authz) {
+      this.GetRepoList();
+    }
   },
   methods: {
     /**
@@ -480,6 +517,7 @@ export default {
       var that = this;
       that.loadingCreateSubadmin = true;
       var data = {
+        rep_name: that.formCreateSubadmin.rep_name.toString(),
         subadmin_name: that.formCreateSubadmin.subadmin_name,
         subadmin_password: that.formCreateSubadmin.subadmin_password,
         subadmin_note: that.formCreateSubadmin.subadmin_note,
@@ -723,6 +761,33 @@ export default {
           console.log(error);
           that.$Message.error(i18n.t('errors.contactAdmin'));
         });
+    },
+    GetRepoList() {
+      var that = this;
+      that.loadingGetRepoList = true;
+      that.tableDataRepoList = [];
+      var data = {};
+      that.$axios
+        .post("api.php?c=Crond&a=GetRepList&t=web", data)
+        .then(function (response) {
+          console.log(response.data);
+          if(response.data.data && response.data.data.length > 0) {
+            var result = response.data;
+            that.loadingGetRepoList = false;
+            if (result.status == 1) {
+              that.tableDataRepoList = result.data;
+              console.log(that.tableDataRepoList[0].rep_name);
+            } else {
+              that.$Message.error({ content: result.message, duration: 2 });
+            }
+          } else {
+            that.$Message.error({ content: "No repository found!", duration: 2 });
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+          that.$Message.error(i18n.t('errors.contactAdmin'));
+        })
     },
   },
 };

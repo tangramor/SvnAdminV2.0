@@ -1,5 +1,5 @@
 module.exports = {
-    en: 'English',
+    'en-US': 'English',
     cancel: 'Cancel',
     confirm: 'Confirm',
     save: 'Save',

@@ -1,5 +1,5 @@
 module.exports = {
-    zh: '中文',
+    'zh-CN': '中文',
     cancel: '取消',
     confirm: '确定',
     save: '保存',

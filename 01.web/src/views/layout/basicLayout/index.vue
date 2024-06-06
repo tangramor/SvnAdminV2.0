@@ -70,10 +70,10 @@
             <Icon type="md-arrow-dropdown" />
           </a>
           <DropdownMenu slot="list">
-            <DropdownItem name="zh">中文</DropdownItem>
+            <DropdownItem name="zh-CN">中文</DropdownItem>
           </DropdownMenu>
           <DropdownMenu slot="list">
-            <DropdownItem name="en">English</DropdownItem>
+            <DropdownItem name="en-US">English</DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </Header>

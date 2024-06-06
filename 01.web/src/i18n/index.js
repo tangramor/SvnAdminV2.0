@@ -10,17 +10,17 @@ import enUS from 'view-design/dist/locale/en-US'
 Vue.use(VueI18n)
 
 const messages = {
-    'zh': Object.assign(zhCN, customZhCn),
-    'en': Object.assign(enUS, customEnUs),
+    'zh-CN': Object.assign(zhCN, customZhCn),
+    'en-US': Object.assign(enUS, customEnUs),
 }
-const navLang = navigator.language.substring(0, 2)//自动识别浏览器语言
+const navLang = navigator.language.substring(0, 5)//自动识别浏览器语言
 const localLang = navLang || false
-let lang = localLang || 'zh'
+let lang = localLang || 'zh-CN'
 
 const i18n = new VueI18n({
     messages,
     locale: lang,
-    fallbackLocale: 'en',
+    fallbackLocale: 'en-US',
     // silentTranslationWarn: true,
 })
 

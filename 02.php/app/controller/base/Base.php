@@ -27,6 +27,7 @@ auto_require(BASE_PATH . '/app/service/');
 
 //require extension
 auto_require(BASE_PATH . '/extension/Medoo-1.7.10/src/Medoo.php');
+auto_require(BASE_PATH . '/extension/Philipp15b/i18n.class.php');
 
 // auto_require(BASE_PATH . '/extension/PHPMailer-6.6.0/src/Exception.php');
 // auto_require(BASE_PATH . '/extension/PHPMailer-6.6.0/src/PHPMailer.php');
@@ -60,6 +61,7 @@ function auto_require($path, $recursively = false)
 }
 
 use Config;
+use i18n;
 
 class Base
 {
@@ -75,11 +77,20 @@ class Base
         $configSign = Config::get('sign');                      //密钥
 
         global $database;
+        
+        $i18n = new i18n();
+        $i18n->setCachePath('/tmp/langcache');
+        $i18n->setFilePath(BASE_PATH . '/app/lang/{LANGUAGE}.ini'); // language file path
+        $i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
+        $i18n->setFallbackLang('en');
+        $i18n->setSectionSeparator('_');
+        $i18n->setMergeFallback(false); // make keys available from the fallback language
+        $i18n->init();
 
         /**
          * 2、检查接口类型
          */
-        !in_array($parm['type'], array_keys($configRouters['public'])) ? json1(401, 0, '无效的接口类型') : '';
+        !in_array($parm['type'], array_keys($configRouters['public'])) ? json1(401, 0, L::base_invalid_interface_type) : '';  //'无效的接口类型'
 
         if (!in_array($parm['controller_prefix'] . '/' . $parm['action'], $configRouters['public'][$parm['type']])) {
             /**
