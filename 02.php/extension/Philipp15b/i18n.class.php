@@ -275,14 +275,33 @@ class i18n {
             $userLangs[] = $this->forcedLang;
         }
 
-        // 2nd highest priority: GET parameter 'lang'
-        if (isset($_GET['lang']) && is_string($_GET['lang'])) {
-            $userLangs[] = $_GET['lang'];
-        }
+        // // 2nd highest priority: GET parameter 'lang'
+        // if (isset($_GET['lang']) && is_string($_GET['lang'])) {
+        //     $userLangs[] = $_GET['lang'];
+        // }
 
-        // 3rd highest priority: SESSION parameter 'lang'
-        if (isset($_SESSION['lang']) && is_string($_SESSION['lang'])) {
-            $userLangs[] = $_SESSION['lang'];
+        // // 3rd highest priority: SESSION parameter 'lang'
+        // if (isset($_SESSION['lang']) && is_string($_SESSION['lang'])) {
+        //     $userLangs[] = $_SESSION['lang'];
+        // }
+
+        if (!function_exists('apache_request_headers')) {
+            eval('
+                function apache_request_headers() {
+                    $out = [];
+                    foreach($_SERVER as $key=>$value) {
+                        if (substr($key,0,5)=="HTTP_") {
+                            $key=str_replace(" ","-",ucwords(strtolower(str_replace("_"," ",substr($key,5)))));
+                            $out[$key]=$value;
+                        }
+                    }
+                    return $out; 
+                } 
+            ');
+        }
+        $headers = apache_request_headers();
+        if (isset($headers['current_language']) && is_string($headers['current_language'])) {
+            $userLangs[] = $headers['current_language'];
         }
 
         // 4th highest priority: HTTP_ACCEPT_LANGUAGE

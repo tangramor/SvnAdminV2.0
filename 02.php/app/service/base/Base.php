@@ -67,6 +67,15 @@ use Witersen\SVNAdmin;
 use Witersen\Upload;
 use i18n;
 
+$i18n = new i18n();
+$i18n->setCachePath('/tmp/langcache');
+$i18n->setFilePath(BASE_PATH . '/app/lang/{LANGUAGE}.ini'); // language file path
+$i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
+$i18n->setFallbackLang('en-US');
+$i18n->setSectionSeparator('_');
+$i18n->setMergeFallback(false); // make keys available from the fallback language
+$i18n->init();
+
 class Base
 {
     public $token;
@@ -1679,16 +1688,6 @@ class Base
         } else {
             $this->httpPrefix = $this->httpPrefix['option_value'];
         }
-
-        $this->i18n = new i18n();
-        $this->i18n->setCachePath('/tmp/langcache');
-        $this->i18n->setFilePath(BASE_PATH . '/app/lang/{LANGUAGE}.ini'); // language file path
-        $this->i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
-        $this->i18n->setFallbackLang('en');
-        $this->i18n->setPrefix('I');
-        $this->i18n->setSectionSeparator('_');
-        $this->i18n->setMergeFallback(false); // make keys available from the fallback language
-        $this->i18n->init();
     }
 
     /**

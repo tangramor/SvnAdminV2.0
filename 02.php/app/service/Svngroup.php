@@ -380,7 +380,7 @@ class Svngroup extends Base
             $result = array_slice($result, $begin, $pageSize);
         }
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [   //'成功'
             'data' => array_values($result),
             'total' => $total
         ]);
