@@ -86,15 +86,6 @@ class Base
         $configSign = Config::get('sign');                      //密钥
 
         global $database;
-        
-        // $i18n = new i18n();
-        // $i18n->setCachePath('/tmp/langcache');
-        // $i18n->setFilePath(BASE_PATH . '/app/lang/{LANGUAGE}.ini'); // language file path
-        // $i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
-        // $i18n->setFallbackLang('en-US');
-        // $i18n->setSectionSeparator('_');
-        // $i18n->setMergeFallback(false); // make keys available from the fallback language
-        // $i18n->init();
 
         /**
          * 2、检查接口类型

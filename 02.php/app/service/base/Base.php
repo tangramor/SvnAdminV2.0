@@ -145,21 +145,21 @@ class Base
      */
     public $subadminTree = [
         [
-            'title' => '后台任务',
+            'title' => \L::backend_tasks,    // '后台任务'
             'expand' => false,
             'checked' => true,
             'disabled' => true,
             'necessary_functions' => [],
             'children' => [
                 [
-                    'title' => '当前任务',
+                    'title' => \L::current_tasks,    // '当前任务'
                     'expand' => false,
                     'checked' => true,
                     'disabled' => true,
                     'necessary_functions' => [],
                     'children' => [
                         [
-                            'title' => '获取后台任务实时日志',
+                            'title' => \L::get_real_time_task_log,  //'获取后台任务实时日志'
                             'expand' => false,
                             'checked' => true,
                             'disabled' => true,
@@ -171,14 +171,14 @@ class Base
                     ]
                 ],
                 [
-                    'title' => '排队任务',
+                    'title' => \L::task_queue,    // '排队任务'
                     'expand' => false,
                     'checked' => true,
                     'disabled' => true,
                     'necessary_functions' => [],
                     'children' => [
                         [
-                            'title' => '获取后台任务队列',
+                            'title' => \L::get_task_queue,  //'获取后台任务队列'
                             'expand' => false,
                             'checked' => true,
                             'disabled' => true,
@@ -187,7 +187,7 @@ class Base
                             ],
                             'children' => [
                                 [
-                                    'title' => '停止后台任务',
+                                    'title' => \L::stop_task,   //'停止后台任务'
                                     'expand' => false,
                                     'checked' => true,
                                     'disabled' => true,
@@ -201,14 +201,14 @@ class Base
                     ]
                 ],
                 [
-                    'title' => '历史任务',
+                    'title' => \L::task_history,    // '历史任务'
                     'expand' => false,
                     'checked' => true,
                     'disabled' => true,
                     'necessary_functions' => [],
                     'children' => [
                         [
-                            'title' => '获取后台任务执行历史',
+                            'title' => \L::get_task_history,  //'获取后台任务执行历史'
                             'expand' => false,
                             'checked' => true,
                             'disabled' => true,
@@ -217,7 +217,7 @@ class Base
                             ],
                             'children' => [
                                 [
-                                    'title' => '获取历史任务日志',
+                                    'title' => \L::get_task_history_log,  //'获取历史任务日志'
                                     'expand' => false,
                                     'checked' => true,
                                     'disabled' => true,
@@ -227,7 +227,7 @@ class Base
                                     'children' => []
                                 ],
                                 [
-                                    'title' => '删除历史执行任务',
+                                    'title' => \L::delete_task_history,  //'删除历史执行任务'
                                     'expand' => false,
                                     'checked' => true,
                                     'disabled' => true,
@@ -243,7 +243,7 @@ class Base
             ]
         ],
         [
-            'title' => '信息统计',
+            'title' => \L::information_statistics,    // '信息统计'
             'expand' => false,
             'checked' => false,
             'disabled' => false,
@@ -256,7 +256,7 @@ class Base
             'children' => []
         ],
         [
-            'title' => 'SVN仓库',
+            'title' => \L::svn_repository,    // 'SVN仓库'
             'expand' => false,
             'checked' => false,
             'disabled' => false,
@@ -269,7 +269,7 @@ class Base
             ],
             'children' => [
                 [
-                    'title' => '新建仓库',
+                    'title' => \L::create_repository,    // '新建仓库'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -279,7 +279,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => 'authz检测',
+                    'title' => \L::authz_check,    // 'authz检测'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -289,7 +289,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '备注信息修改',
+                    'title' => \L::update_repository_note,    // '备注信息修改'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -299,7 +299,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '仓库内容浏览',
+                    'title' => \L::repository_content,    // '仓库内容浏览'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -310,14 +310,14 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '仓库备份管理',
+                    'title' => \L::backup_management,    // '仓库备份管理'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
                     'necessary_functions' => [],
                     'children' => [
                         [
-                            'title' => '获取备份文件列表',
+                            'title' => \L::get_backup_list,    // '获取备份文件列表'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
@@ -337,7 +337,7 @@ class Base
                         //     'children' => []
                         // ],
                         [
-                            'title' => '删除仓库备份文件',
+                            'title' => \L::delete_backup_file,    // '删除仓库备份文件'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
@@ -349,7 +349,7 @@ class Base
                     ]
                 ],
                 [
-                    'title' => '仓库权限配置',
+                    'title' => \L::repository_permission,    // '仓库权限配置'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -360,21 +360,21 @@ class Base
                     ],
                     'children' => [
                         [
-                            'title' => '仓库授权组件',
+                            'title' => \L::repository_authorization_component,    //'仓库授权组件'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
                             'necessary_functions' => [],
                             'children' => [
                                 [
-                                    'title' => '仓库目录树浏览(左侧)',
+                                    'title' => \L::repository_directory_tree_browsing_left,    //'仓库目录树浏览(左侧)'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
                                     'necessary_functions' => [],
                                     'children' => [
                                         [
-                                            'title' => '获取仓库目录树',
+                                            'title' => \L::get_repository_directory_tree,    //'获取仓库目录树'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -384,7 +384,7 @@ class Base
                                             'children' => []
                                         ],
                                         [
-                                            'title' => '在线创建文件夹',
+                                            'title' => \L::create_repository_folder,    //'在线创建文件夹'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -396,14 +396,14 @@ class Base
                                     ]
                                 ],
                                 [
-                                    'title' => '仓库路径授权(右侧)',
+                                    'title' => \L::repository_path_authorization_right,    //'仓库路径授权(右侧)'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
                                     'necessary_functions' => [],
                                     'children' => [
                                         [
-                                            'title' => '增加某个仓库路径下的权限',
+                                            'title' => \L::add_permission_under_a_repository_path,    //'增加某个仓库路径下的权限'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -413,7 +413,7 @@ class Base
                                             'children' => []
                                         ],
                                         [
-                                            'title' => '获取某个仓库路径下的权限',
+                                            'title' => \L::get_permission_under_a_repository_path,    //'获取某个仓库路径下的权限'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -423,7 +423,7 @@ class Base
                                             'children' => []
                                         ],
                                         [
-                                            'title' => '修改某个仓库路径下的权限',
+                                            'title' => \L::modify_permission_under_a_repository_path,    //'修改某个仓库路径下的权限'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -433,7 +433,7 @@ class Base
                                             'children' => []
                                         ],
                                         [
-                                            'title' => '删除某个仓库路径下的权限',
+                                            'title' => \L::delete_permission_under_a_repository_path,    //'删除某个仓库路径下的权限'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -447,14 +447,14 @@ class Base
                             ]
                         ],
                         [
-                            'title' => '对象列表组件',
+                            'title' => \L::object_list_component,    //'对象列表组件'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
                             'necessary_functions' => [],
                             'children' => [
                                 [
-                                    'title' => '获取SVN用户列表',
+                                    'title' => \L::get_svn_user_list,   //'获取SVN用户列表'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
@@ -464,7 +464,7 @@ class Base
                                     'children' => []
                                 ],
                                 [
-                                    'title' => '获取SVN分组列表',
+                                    'title' => \L::get_svn_group_list,   //'获取SVN分组列表'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
@@ -473,7 +473,7 @@ class Base
                                     ],
                                     'children' => [
                                         [
-                                            'title' => '获取SVN分组成员',
+                                            'title' => \L::get_svn_group_member,   //'获取SVN分组成员'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -485,7 +485,7 @@ class Base
                                     ]
                                 ],
                                 [
-                                    'title' => '获取SVN别名列表',
+                                    'title' => \L::get_svn_alias_list,   //'获取SVN别名列表'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
@@ -499,14 +499,14 @@ class Base
                     ]
                 ],
                 [
-                    'title' => '仓库钩子编辑',
+                    'title' => \L::edit_repository_hooks,   //'仓库钩子编辑'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
                     'necessary_functions' => [],
                     'children' => [
                         [
-                            'title' => '获取仓库钩子列表',
+                            'title' => \L::get_hooks_list,  //'获取仓库钩子列表'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
@@ -516,7 +516,7 @@ class Base
                             'children' => []
                         ],
                         [
-                            'title' => '获取常用钩子列表',
+                            'title' => \L::get_commonly_used_hooks,    //'获取常用钩子列表'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
@@ -526,7 +526,7 @@ class Base
                             'children' => []
                         ],
                         [
-                            'title' => '修改仓库钩子内容',
+                            'title' => \L::modify_repository_hook_content,  //'修改仓库钩子内容'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
@@ -536,7 +536,7 @@ class Base
                             'children' => []
                         ],
                         [
-                            'title' => '清空仓库钩子内容',
+                            'title' => \L::clear_repository_hook_content,   //'清空仓库钩子内容'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
@@ -548,21 +548,21 @@ class Base
                     ]
                 ],
                 [
-                    'title' => '其它',
+                    'title' => \L::other,  //'其它'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
                     'necessary_functions' => [],
                     'children' => [
                         [
-                            'title' => '高级',
+                            'title' => \L::advanced,    //'高级'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => false,
                             'necessary_functions' => [],
                             'children' => [
                                 [
-                                    'title' => '仓库属性',
+                                    'title' => \L::repository_properties,  //'仓库属性'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
@@ -572,7 +572,7 @@ class Base
                                     'children' => []
                                 ],
                                 [
-                                    'title' => '仓库备份',
+                                    'title' => \L::repository_backup,   //'仓库备份'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
@@ -581,7 +581,7 @@ class Base
                                     ],
                                     'children' => [
                                         [
-                                            'title' => '立即备份仓库',
+                                            'title' => \L::immediate_backup_repository,  //'立即备份仓库'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -591,7 +591,7 @@ class Base
                                             'children' => []
                                         ],
                                         [
-                                            'title' => '获取php文件上传相关参数',
+                                            'title' => \L::get_php_file_upload_related_parameters,  //'获取php文件上传相关参数'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -601,7 +601,7 @@ class Base
                                             'children' => []
                                         ],
                                         [
-                                            'title' => '获取备份文件列表',
+                                            'title' => \L::get_backup_file_list,   //'获取备份文件列表'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -611,7 +611,7 @@ class Base
                                             'children' => []
                                         ],
                                         [
-                                            'title' => '上传文件(上传备份文件到服务器)',
+                                            'title' => \L::upload_file_upload_backup_file_to_server,    //'上传文件(上传备份文件到服务器)'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -621,7 +621,7 @@ class Base
                                             'children' => []
                                         ],
                                         [
-                                            'title' => '导入仓库备份(svnadmin load)',
+                                            'title' => \L::import_repository_backup,    //导入仓库备份(svnadmin load)'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -635,7 +635,7 @@ class Base
                             ]
                         ],
                         [
-                            'title' => '修改(修改仓库名称)',
+                            'title' => \L::modify_repository_name,   //'修改(修改仓库名称)'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => false,
@@ -645,7 +645,7 @@ class Base
                             'children' => []
                         ],
                         [
-                            'title' => '删除(删除仓库)',
+                            'title' => \L::delete_repository,    //'删除(删除仓库)'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => false,
@@ -659,7 +659,7 @@ class Base
             ]
         ],
         [
-            'title' => 'SVN用户',
+            'title' => \L::svn_user,    // 'SVN用户'
             'expand' => false,
             'checked' => false,
             'disabled' => false,
@@ -669,7 +669,7 @@ class Base
             ],
             'children' => [
                 [
-                    'title' => '新建SVN用户',
+                    'title' => \L::create_svn_user, //'新建SVN用户'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -679,14 +679,14 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '用户迁入',
+                    'title' => \L::user_migration,  //'用户迁入'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
                     'necessary_functions' => [],
                     'children' => [
                         [
-                            'title' => '用户识别',
+                            'title' => \L::user_identification, //'用户识别'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
@@ -696,7 +696,7 @@ class Base
                             'children' => []
                         ],
                         [
-                            'title' => '确认导入',
+                            'title' => \L::confirm_import,  //'确认导入'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
@@ -708,7 +708,7 @@ class Base
                     ]
                 ],
                 [
-                    'title' => '弃用或禁用SVN用户',
+                    'title' => \L::disable_svn_user,    //'弃用或禁用SVN用户'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -718,7 +718,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '修改SVN用户备注信息',
+                    'title' => \L::modify_user_note,    //'修改SVN用户备注信息'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -728,14 +728,14 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '有权路径',
+                    'title' => \L::authorized_path,    //'有权路径'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
                     'necessary_functions' => [],
                     'children' => [
                         [
-                            'title' => '查看',
+                            'title' => \L::view,    //'查看'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => false,
@@ -745,14 +745,14 @@ class Base
                             'children' => []
                         ],
                         [
-                            'title' => '二次授权',
+                            'title' => \L::secondary_authorization, //'二次授权'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => false,
                             'necessary_functions' => [],
                             'children' => [
                                 [
-                                    'title' => '二次授权状态',
+                                    'title' => \L::secondary_authorization_status, //'二次授权状态'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
@@ -762,7 +762,7 @@ class Base
                                     'children' => []
                                 ],
                                 [
-                                    'title' => '二次授权对象',
+                                    'title' => \L::secondary_authorization_objects, //'二次授权对象'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
@@ -771,7 +771,7 @@ class Base
                                     ],
                                     'children' => [
                                         [
-                                            'title' => '添加成员',
+                                            'title' => \L::create_second_pri_object,    //'添加成员'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -781,7 +781,7 @@ class Base
                                             'children' => []
                                         ],
                                         [
-                                            'title' => '移除成员',
+                                            'title' => \L::remove_second_pri_object,    //'移除成员'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -791,14 +791,14 @@ class Base
                                             'children' => []
                                         ],
                                         [
-                                            'title' => '对象列表组件',
+                                            'title' => \L::object_list_component,   //'对象列表组件'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
                                             'necessary_functions' => [],
                                             'children' => [
                                                 [
-                                                    'title' => '获取SVN用户列表',
+                                                    'title' => \L::get_svn_user_list,   //'获取SVN用户列表'
                                                     'expand' => false,
                                                     'checked' => false,
                                                     'disabled' => true,
@@ -808,7 +808,7 @@ class Base
                                                     'children' => []
                                                 ],
                                                 [
-                                                    'title' => '获取SVN分组列表',
+                                                    'title' => \L::get_svn_group_list,   //'获取SVN分组列表'
                                                     'expand' => false,
                                                     'checked' => false,
                                                     'disabled' => true,
@@ -817,7 +817,7 @@ class Base
                                                     ],
                                                     'children' => [
                                                         [
-                                                            'title' => '获取SVN分组成员',
+                                                            'title' => \L::get_svn_group_member,    //'获取SVN分组成员'
                                                             'expand' => false,
                                                             'checked' => false,
                                                             'disabled' => true,
@@ -829,7 +829,7 @@ class Base
                                                     ]
                                                 ],
                                                 [
-                                                    'title' => '获取SVN别名列表',
+                                                    'title' => \L::get_svn_alias_list,  //'获取SVN别名列表'
                                                     'expand' => false,
                                                     'checked' => false,
                                                     'disabled' => true,
@@ -847,7 +847,7 @@ class Base
                     ]
                 ],
                 [
-                    'title' => '修改SVN用户密码',
+                    'title' => \L::modify_svn_user_password,    //'修改SVN用户密码'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -857,7 +857,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '删除SVN用户',
+                    'title' => \L::delete_svn_user, //'删除SVN用户'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -869,7 +869,7 @@ class Base
             ]
         ],
         [
-            'title' => 'SVN分组',
+            'title' => \L::svn_group,    // 'SVN分组'
             'expand' => false,
             'checked' => false,
             'disabled' => false,
@@ -879,7 +879,7 @@ class Base
             ],
             'children' => [
                 [
-                    'title' => '新建SVN分组',
+                    'title' => \L::create_svn_group,    //'新建SVN分组'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -889,7 +889,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '备注信息',
+                    'title' => \L::group_note,  //'备注信息'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -899,7 +899,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '成员',
+                    'title' => \L::group_members,   //'成员'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -908,7 +908,7 @@ class Base
                     ],
                     'children' => [
                         [
-                            'title' => '获取分组成员列表',
+                            'title' => \L::get_group_member_list,   //'获取分组成员列表'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
@@ -918,7 +918,7 @@ class Base
                             'children' => []
                         ],
                         [
-                            'title' => '添加或删除分组成员',
+                            'title' => \L::add_or_delete_group_member,  //'添加或删除分组成员'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
@@ -928,14 +928,14 @@ class Base
                             'children' => []
                         ],
                         [
-                            'title' => '对象列表组件',
+                            'title' => \L::object_list_component,   //'对象列表组件'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => true,
                             'necessary_functions' => [],
                             'children' => [
                                 [
-                                    'title' => '获取SVN用户列表',
+                                    'title' => \L::get_svn_user_list,   //'获取SVN用户列表'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
@@ -945,7 +945,7 @@ class Base
                                     'children' => []
                                 ],
                                 [
-                                    'title' => '获取SVN分组列表',
+                                    'title' => \L::get_svn_group_list,   //'获取SVN分组列表'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
@@ -954,7 +954,7 @@ class Base
                                     ],
                                     'children' => [
                                         [
-                                            'title' => '获取SVN分组成员',
+                                            'title' => \L::get_svn_group_member,   //'获取SVN分组成员'
                                             'expand' => false,
                                             'checked' => false,
                                             'disabled' => true,
@@ -966,7 +966,7 @@ class Base
                                     ]
                                 ],
                                 [
-                                    'title' => '获取SVN别名列表',
+                                    'title' => \L::get_svn_alias_list,  //'获取SVN别名列表'
                                     'expand' => false,
                                     'checked' => false,
                                     'disabled' => true,
@@ -980,7 +980,7 @@ class Base
                     ]
                 ],
                 [
-                    'title' => '编辑',
+                    'title' => \L::edit_group_name, //'编辑'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -990,7 +990,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '删除',
+                    'title' => \L::delete_group,    //'删除'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -1002,7 +1002,7 @@ class Base
             ]
         ],
         [
-            'title' => '系统日志',
+            'title' => \L::system_logs,    // '系统日志'
             'expand' => false,
             'checked' => false,
             'disabled' => false,
@@ -1010,7 +1010,7 @@ class Base
             'necessary_functions' => [],
             'children' => [
                 [
-                    'title' => '获取日志列表',
+                    'title' => \L::get_log_list,    // '获取日志列表'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -1021,7 +1021,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '清空日志',
+                    'title' => \L::clear_logs,    // '清空日志'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -1034,7 +1034,7 @@ class Base
             ]
         ],
         [
-            'title' => '任务计划',
+            'title' => \L::task_scheduling,    // '任务计划'
             'expand' => false,
             'checked' => false,
             'disabled' => false,
@@ -1046,7 +1046,7 @@ class Base
             ],
             'children' => [
                 [
-                    'title' => '添加任务计划',
+                    'title' => \L::add_task_schedule,    // '添加任务计划'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -1057,7 +1057,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '启用用或禁用任务计划',
+                    'title' => \L::enable_or_disable_schedule,    // '启用或禁用任务计划'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -1068,7 +1068,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '其它',
+                    'title' => \L::other,   //'其它'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => false,
@@ -1076,7 +1076,7 @@ class Base
                     'necessary_functions' => [],
                     'children' => [
                         [
-                            'title' => '日志(查看任务计划执行日志)',
+                            'title' => \L::view_schedule_log,   //'日志(查看任务计划执行日志)'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => false,
@@ -1087,7 +1087,7 @@ class Base
                             'children' => []
                         ],
                         [
-                            'title' => '编辑(编辑任务计划)',
+                            'title' => \L::edit_schedule,   //'编辑(编辑任务计划)'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => false,
@@ -1098,7 +1098,7 @@ class Base
                             'children' => []
                         ],
                         [
-                            'title' => '删除(删除任务计划)',
+                            'title' => \L::delete_schedule, //'删除(删除任务计划)'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => false,
@@ -1109,7 +1109,7 @@ class Base
                             'children' => []
                         ],
                         [
-                            'title' => '执行(立即执行一次任务计划)',
+                            'title' => \L::execute_schedule,    //'执行(立即执行一次任务计划)'
                             'expand' => false,
                             'checked' => false,
                             'disabled' => false,
@@ -1124,7 +1124,7 @@ class Base
             ]
         ],
         [
-            'title' => '个人中心',
+            'title' => \L::personal_center,    // '个人中心'
             'expand' => false,
             'checked' => true,
             'disabled' => true,
@@ -1137,7 +1137,7 @@ class Base
             'children' => []
         ],
         [
-            'title' => '系统配置',
+            'title' => \L::system_settings,    // '系统配置'
             'expand' => false,
             'checked' => false,
             'disabled' => false,
@@ -1145,7 +1145,7 @@ class Base
             'necessary_functions' => [],
             'children' => [
                 [
-                    'title' => '主机配置',
+                    'title' => \L::host_configuration,    // '主机配置'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => true,
@@ -1156,7 +1156,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '路径信息',
+                    'title' => \L::path_info,    // '路径信息'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => true,
@@ -1168,7 +1168,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => 'svn协议检出',
+                    'title' => \L::svn_protocol_checkout,    // 'svn协议检出'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => true,
@@ -1192,7 +1192,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => 'http协议检出',
+                    'title' => \L::http_protocol_checkout,    // 'http协议检出'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => true,
@@ -1210,7 +1210,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '邮件服务',
+                    'title' => \L::mail_service,    // '邮件服务'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => true,
@@ -1223,7 +1223,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '消息推送',
+                    'title' => \L::message_push,    // '消息推送'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => true,
@@ -1234,7 +1234,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '安全配置',
+                    'title' => \L::security_configuration,    // '安全配置'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => true,
@@ -1245,7 +1245,7 @@ class Base
                     'children' => []
                 ],
                 [
-                    'title' => '系统更新',
+                    'title' => \L::system_update,    // '系统更新'
                     'expand' => false,
                     'checked' => false,
                     'disabled' => true,
