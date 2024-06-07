@@ -243,7 +243,7 @@ class Base
             ]
         ],
         [
-            'title' => \L::information_statistics,    // '信息统计'
+            'title' => \L::statistics_info,    // '信息统计'
             'expand' => false,
             'checked' => false,
             'disabled' => false,
@@ -1279,12 +1279,12 @@ class Base
                 'name' => 'index',
                 'path' => '/index',
                 'meta' => [
-                    'title' => '信息统计',
+                    'title' => \L::statistics_info,    // '信息统计'
                     'icon' => 'ios-stats',
                     'requireAuth' => true,
                     'user_role_id' => [1, 3],
                     'group' => [
-                        'name' => '仓库',
+                        'name' => \L::repository,    //'仓库'
                         'num' => 1
                     ],
                     'id' => 1001
@@ -1295,12 +1295,12 @@ class Base
                 'name' => 'repositoryInfo',
                 'path' => '/repositoryInfo',
                 'meta' => [
-                    'title' => 'SVN仓库',
+                    'title' => \L::svn_repository,  //'SVN仓库'
                     'icon' => 'logo-buffer',
                     'requireAuth' => true,
                     'user_role_id' => [1, 2, 3],
                     'group' => [
-                        'name' => '仓库',
+                        'name' => \L::repository,    //'仓库'
                         'num' => 1
                     ],
                     'id' => 1002
@@ -1311,12 +1311,12 @@ class Base
                 'name' => 'repositoryUser',
                 'path' => '/repositoryUser',
                 'meta' => [
-                    'title' => 'SVN用户',
+                    'title' => \L::svn_user,    //'SVN用户'
                     'icon' => 'md-person',
                     'requireAuth' => true,
                     'user_role_id' => [1, 3],
                     'group' => [
-                        'name' => '仓库',
+                        'name' => \L::repository,    //'仓库'
                         'num' => 1
                     ],
                     'id' => 1003
@@ -1327,12 +1327,12 @@ class Base
                 'name' => 'repositoryGroup',
                 'path' => '/repositoryGroup',
                 'meta' => [
-                    'title' => 'SVN分组',
+                    'title' => \L::svn_group,    //'SVN分组'
                     'icon' => 'md-people',
                     'requireAuth' => true,
                     'user_role_id' => [1, 3],
                     'group' => [
-                        'name' => '仓库',
+                        'name' => \L::repository,    //'仓库'
                         'num' => 1
                     ],
                     'id' => 1004
@@ -1343,12 +1343,12 @@ class Base
                 'name' => 'logs',
                 'path' => '/logs',
                 'meta' => [
-                    'title' => '系统日志',
+                    'title' => \L::system_logs, //'系统日志'
                     'icon' => 'md-bug',
                     'requireAuth' => true,
                     'user_role_id' => [1, 3],
                     'group' => [
-                        'name' => '运维',
+                        'name' => \L::operation_and_maintenance,    //'运维'
                         'num' => 2
                     ],
                     'id' => 1005
@@ -1359,12 +1359,12 @@ class Base
                 'name' => 'crond',
                 'path' => '/crond',
                 'meta' => [
-                    'title' => '任务计划',
+                    'title' => \L::task_scheduling,    //'任务计划'
                     'icon' => 'ios-alarm',
                     'requireAuth' => true,
                     'user_role_id' => [1, 3],
                     'group' => [
-                        'name' => '运维',
+                        'name' => \L::operation_and_maintenance,    //'运维'
                         'num' => 2
                     ],
                     'id' => 1006
@@ -1375,12 +1375,12 @@ class Base
                 'name' => 'personal',
                 'path' => '/personal',
                 'meta' => [
-                    'title' => '个人中心',
+                    'title' => \L::personal_center,    //'个人中心'
                     'icon' => 'md-cube',
                     'requireAuth' => true,
                     'user_role_id' => [1, 2, 3],
                     'group' => [
-                        'name' => '高级',
+                        'name' => \L::advanced, //'高级'
                         'num' => 3
                     ],
                     'id' => 1007
@@ -1391,12 +1391,12 @@ class Base
                 'name' => 'subadmin',
                 'path' => '/subadmin',
                 'meta' => [
-                    'title' => '子管理员',
+                    'title' => \L::subadmin, //'子管理员'
                     'icon' => 'md-hand',
                     'requireAuth' => true,
                     'user_role_id' => [1],
                     'group' => [
-                        'name' => '高级',
+                        'name' => \L::advanced, //'高级'
                         'num' => 3
                     ],
                     'id' => 1008
@@ -1407,12 +1407,12 @@ class Base
                 'name' => 'setting',
                 'path' => '/setting',
                 'meta' => [
-                    'title' => '系统配置',
+                    'title' => \L::system_settings, //'系统配置'
                     'icon' => 'md-settings',
                     'requireAuth' => true,
                     'user_role_id' => [1, 3],
                     'group' => [
-                        'name' => '高级',
+                        'name' => \L::advanced, //'高级'
                         'num' => 3
                     ],
                     'id' => 1009
