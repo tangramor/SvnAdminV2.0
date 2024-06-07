@@ -32,7 +32,7 @@ class Svn extends Base
      */
     public function GetSvnInfo()
     {
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'enable' => $this->enableCheckout == 'svn',
 
             'version' => $this->GetSvnserveInfo(),

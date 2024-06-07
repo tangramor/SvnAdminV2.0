@@ -365,7 +365,7 @@ class Ldap extends Base
                 $users[] = $ldapUsers[$i]->$up_name;
             }
 
-            return message(200, 1, '成功', [
+            return message(200, 1, \L::success, [    //‘成功'
                 'count' => $ldapUsersLen,
                 'users' => implode(',', $users),
                 'success' => count($users),
@@ -409,7 +409,7 @@ class Ldap extends Base
                 $groups[] = $ldapGroups[$i]->$group_name_property;
             }
 
-            return message(200, 1, '成功', [
+            return message(200, 1, \L::success, [    //‘成功'
                 'count' => $ldapGroupsLen,
                 'groups' => implode(',', $groups),
                 'success' => count($groups),
@@ -509,7 +509,7 @@ class Ldap extends Base
             $users[] = $ldapUsers[$i]->$up_name;
         }
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'object' => $ldapUsers,
             'users' => $users
         ]);
@@ -560,7 +560,7 @@ class Ldap extends Base
             $groups[] = $ldapGroups[$i]->$group_name_property;
         }
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'object' => $ldapGroups,
             'groups' => $groups
         ]);

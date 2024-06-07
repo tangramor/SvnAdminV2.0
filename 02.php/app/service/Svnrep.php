@@ -82,7 +82,7 @@ class Svnrep extends Base
         if ($this->enableCheckout == 'svn') {
             $checkoutHost = $this->dockerSvnPort == 3690 ? $this->dockerHost : $this->dockerHost . ':' . $this->dockerSvnPort;
 
-            return message(200, 1, '成功', [
+            return message(200, 1, \L::success, [    //‘成功'
                 'protocal' => 'svn://',
                 'prefix' => $checkoutHost
             ]);
@@ -99,7 +99,7 @@ class Svnrep extends Base
 
             $protocal = $this->dockerHttpPort == 443 ? 'https://' : 'http://';
 
-            return message(200, 1, '成功', [
+            return message(200, 1, \L::success, [    //‘成功'
                 'protocal' => $protocal,
                 'prefix' => $checkoutHost
             ]);
@@ -549,7 +549,7 @@ class Svnrep extends Base
             $list[$key]['loading_rep_rev'] = false;
         }
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'data' => $list,
             'total' => $total
         ]);
@@ -660,7 +660,7 @@ class Svnrep extends Base
             }
         }
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'data' => $list,
             'total' => $total,
             'enableCheckout' => $this->enableCheckout
@@ -1163,9 +1163,9 @@ class Svnrep extends Base
                     ]
                 ];
             }
-            return message(200, 1, '成功', $result);
+            return message(200, 1, \L::success, $result);
         } else {
-            return message(200, 1, '成功', $data);
+            return message(200, 1, \L::success, $data);
         }
     }
 
@@ -1286,7 +1286,7 @@ class Svnrep extends Base
             }
         }
 
-        return message(200, 1, '成功', $isFile);
+        return message(200, 1, \L::success, $isFile);
     }
 
     /**
@@ -1378,7 +1378,7 @@ class Svnrep extends Base
                 }
                 $result = array_values($result);
             }
-            return message(200, 1, '成功', $result);
+            return message(200, 1, \L::success, $result);
         }
     }
 
@@ -1848,7 +1848,7 @@ class Svnrep extends Base
             ];
         }
 
-        return message(200, 1, '成功', $newArray);
+        return message(200, 1, \L::success, $newArray);
     }
 
     /**
@@ -1889,7 +1889,7 @@ class Svnrep extends Base
             $result[$key]['fileUrl'] = sprintf('api.php?c=Svnrep&a=DownloadRepBackup&t=web&fileName=%s&token=%s', $value['fileName'], $result[$key]['fileToken']);
         }
 
-        return message(200, 1, '成功', $result);
+        return message(200, 1, \L::success, $result);
     }
 
     /**
@@ -2010,7 +2010,7 @@ class Svnrep extends Base
             $upload = true;
         }
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             //文件上传功能开启状态
             'upload' => $upload,
             //分片上传大小
@@ -2227,7 +2227,7 @@ class Svnrep extends Base
             }
         }
 
-        return message(200, 1, '成功', $repHooks);
+        return message(200, 1, \L::success, $repHooks);
     }
 
     /**
@@ -2339,7 +2339,7 @@ class Svnrep extends Base
             ]);
         }
 
-        return message(200, 1, '成功', $list);
+        return message(200, 1, \L::success, $list);
     }
 
     /**
@@ -2524,7 +2524,7 @@ class Svnrep extends Base
         }
         $result = $checkResult['data'];
 
-        return message(200, 1, '成功', $result);
+        return message(200, 1, \L::success, $result);
     }
 
     /**
@@ -2563,6 +2563,6 @@ class Svnrep extends Base
             return ['code' => 200, 'status' => 0, 'message' => '认证出错' . $result['error'], 'data' => []];
         }
 
-        return ['code' => 200, 'status' => 1, 'message' => '成功', 'data' => $result['result']];
+        return ['code' => 200, 'status' => 1, 'message' => \L::success, 'data' => $result['result']];
     }
 }

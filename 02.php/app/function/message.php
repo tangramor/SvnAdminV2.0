@@ -7,7 +7,7 @@
  * @Description: QQ:1801168257
  */
 
-function message($code = 200, $status = 1, $message = '成功', $data = [])
+function message($code = 200, $status = 1, $message = \L::success, $data = [])
 {
     return [
         'code' => $code,
@@ -17,7 +17,7 @@ function message($code = 200, $status = 1, $message = '成功', $data = [])
     ];
 }
 
-function message2($message = ['code' => 200, 'status' => 1, 'message' => '成功', 'data' => []])
+function message2($message = ['code' => 200, 'status' => 1, 'message' => \L::success, 'data' => []])
 {
     return [
         'code' => $message['code'],
@@ -27,7 +27,7 @@ function message2($message = ['code' => 200, 'status' => 1, 'message' => '成功
     ];
 }
 
-function json1($code = 200, $status = 1, $message = '成功', $data = [])
+function json1($code = 200, $status = 1, $message = \L::success, $data = [])
 {
     header('Content-Type:application/json; charset=utf-8');
     // ob_end_clean();
@@ -40,7 +40,7 @@ function json1($code = 200, $status = 1, $message = '成功', $data = [])
     ]));
 }
 
-function json2($message = ['code' => 200, 'status' => 1, 'message' => '成功', 'data' => []])
+function json2($message = ['code' => 200, 'status' => 1, 'message' => \L::success, 'data' => []])
 {
     header('Content-Type:application/json; charset=utf-8');
     // ob_end_clean();

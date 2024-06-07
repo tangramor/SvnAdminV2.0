@@ -33,7 +33,7 @@ class Crond extends Base
             'rep_name' => '所有仓库'
         ]], $list);
 
-        return message(200, 1, '成功', $list);
+        return message(200, 1, \L::success, $list);
     }
 
     /**
@@ -120,7 +120,7 @@ class Crond extends Base
             unset($list[$key]['rep_name']);
         }
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'data' => $list,
             'total' => $total
         ]);
@@ -242,7 +242,7 @@ class Crond extends Base
             'create_time' => date('Y-m-d H:i:s'),
         ]);
 
-        return message(200, 1, '成功');
+        return message(200, 1, \L::success);
     }
 
     /**
@@ -373,7 +373,7 @@ class Crond extends Base
             'sign' => $sign
         ]);
 
-        return message(200, 1, '成功');
+        return message(200, 1, \L::success);
     }
 
     /**
@@ -560,12 +560,12 @@ class Crond extends Base
 
         clearstatcache();
         if (file_exists($this->configSvn['crond_base_path'] . $sign . '.log')) {
-            return message(200, 1, '成功', [
+            return message(200, 1, \L::success, [    //‘成功'
                 'log_path' => $this->configSvn['crond_base_path'] . $sign . '.log',
                 'log_con' => file_get_contents($this->configSvn['crond_base_path'] . $sign . '.log')
             ]);
         } else {
-            return message(200, 1, '成功', [
+            return message(200, 1, \L::success, [    //‘成功'
                 'log_path' => '未生成',
                 'log_con' => ''
             ]);

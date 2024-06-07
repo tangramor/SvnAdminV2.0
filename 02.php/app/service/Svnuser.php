@@ -432,7 +432,7 @@ class Svnuser extends Base
             unset($result[$key]['svn_user_token']);
         }
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'data' => array_values($result),
             'total' => $total
         ]);
@@ -483,7 +483,7 @@ class Svnuser extends Base
             }
         }
 
-        return message(200, 1, '成功', $svnUserPassList);
+        return message(200, 1, \L::success, $svnUserPassList);
     }
 
     /**
@@ -681,7 +681,7 @@ class Svnuser extends Base
         //     $this->userName
         // );
 
-        return message(200, 1, '成功', $all);
+        return message(200, 1, \L::success, $all);
     }
 
     /**

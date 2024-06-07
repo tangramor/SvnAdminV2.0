@@ -132,7 +132,7 @@ class Statistics extends Base
             'color' => funGetColor($percent)['color']
         ];
 
-        return message(200, 1, '成功', $data);
+        return message(200, 1, \L::success, $data);
     }
 
     /**
@@ -172,7 +172,7 @@ class Statistics extends Base
         }
 
 
-        return message(200, 1, '成功', $diskArray);
+        return message(200, 1, \L::success, $diskArray);
     }
 
     /**
@@ -299,7 +299,7 @@ class Statistics extends Base
             }
         }
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'os' => trim($os),
 
             'repCount' => $this->database->count('svn_reps'),

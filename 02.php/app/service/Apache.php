@@ -32,7 +32,7 @@ class Apache extends Base
      */
     public function GetApacheInfo()
     {
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'enable' => $this->enableCheckout == 'http',
 
             'version' => funShellExec(sprintf("'%s' -v", $this->configBin['httpd']))['result'],
@@ -361,7 +361,7 @@ class Apache extends Base
             return message(200, 0, $result['error']);
         }
 
-        return message(200, 1, '成功', $result['result']);
+        return message(200, 1, \L::success, $result['result']);
     }
 
     /**

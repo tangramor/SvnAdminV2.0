@@ -62,7 +62,7 @@ class Logs extends Base
             ]
         ]);
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'data' => $list,
             'total' => $total
         ]);

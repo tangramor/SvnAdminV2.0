@@ -34,7 +34,7 @@ class Setting extends Base
      */
     public function GetDcokerHostInfo()
     {
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'docker_host' => $this->dockerHost,
             'docker_svn_port' => $this->dockerSvnPort,
             'docker_http_port' => $this->dockerHttpPort,
@@ -265,7 +265,7 @@ class Setting extends Base
      */
     public function GetDirInfo()
     {
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             [
                 'key' => '主目录',
                 'value' => $this->configSvn['home_path']
@@ -378,7 +378,7 @@ class Setting extends Base
                 'option_description' => ''
             ]);
 
-            return message(200, 1, '成功', $safe_config_null);
+            return message(200, 1, \L::success, $safe_config_null);
         }
 
         if ($safe_config['option_value'] == '') {
@@ -388,10 +388,10 @@ class Setting extends Base
                 'option_name' => 'safe_config',
             ]);
 
-            return message(200, 1, '成功', $safe_config_null);
+            return message(200, 1, \L::success, $safe_config_null);
         }
 
-        return message(200, 1, '成功', unserialize($safe_config['option_value']));
+        return message(200, 1, \L::success, unserialize($safe_config['option_value']));
     }
 
     /**
@@ -429,6 +429,6 @@ class Setting extends Base
             return message(200, 0, '获取配置信息出错');
         }
 
-        return message(200, 1, '成功', $safeConfig[$index]);
+        return message(200, 1, \L::success, $safeConfig[$index]);
     }
 }

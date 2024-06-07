@@ -80,7 +80,7 @@ class Subadmin extends Base
             unset($list[$key]['subadmin_token']);
         }
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'data' => $list,
             'total' => $total
         ]);
@@ -305,7 +305,7 @@ class Subadmin extends Base
                 'subadmin_id' => $this->payload['subadmin_id']
             ]);
 
-            return message(200, 1, '成功', [
+            return message(200, 1, \L::success, [    //‘成功'
                 'tree' => $this->subadminTree,
                 'treeOld' => [],
                 'needUpdateTree' => false
@@ -320,7 +320,7 @@ class Subadmin extends Base
             $tree = $this->subadminTree;
         }
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'tree' => $tree,
             'treeOld' => $treeOld,
             'needUpdateTree' => $needUpdateTree

@@ -730,7 +730,7 @@ class Svngroup extends Base
             }
         }
 
-        return message(200, 1, '成功', $result);
+        return message(200, 1, \L::success, $result);
     }
 
     /**

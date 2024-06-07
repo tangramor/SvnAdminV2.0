@@ -186,7 +186,7 @@ class Mail extends Base
                 'option_value' => serialize($mail_smtp_null),
                 'option_description' => ''
             ]);
-            return message(200, 1, '成功', $mail_smtp_null);
+            return message(200, 1, \L::success, $mail_smtp_null);
         }
         if ($mail_smtp['option_value'] == '') {
             $this->database->update('options', [
@@ -194,10 +194,10 @@ class Mail extends Base
             ], [
                 'option_name' => 'mail_smtp',
             ]);
-            return message(200, 1, '成功', $mail_smtp_null);
+            return message(200, 1, \L::success, $mail_smtp_null);
         }
 
-        return message(200, 1, '成功', unserialize($mail_smtp['option_value']));
+        return message(200, 1, \L::success, unserialize($mail_smtp['option_value']));
     }
 
     /**
@@ -437,7 +437,7 @@ class Mail extends Base
                 'option_description' => ''
             ]);
 
-            return message(200, 1, '成功', $message_push_null);
+            return message(200, 1, \L::success, $message_push_null);
         }
         if ($message_push['option_value'] == '') {
             $this->database->update('options', [
@@ -446,10 +446,10 @@ class Mail extends Base
                 'option_name' => 'message_push',
             ]);
 
-            return message(200, 1, '成功', $message_push_null);
+            return message(200, 1, \L::success, $message_push_null);
         }
 
-        return message(200, 1, '成功', unserialize($message_push['option_value']));
+        return message(200, 1, \L::success, unserialize($message_push['option_value']));
     }
 
     /**

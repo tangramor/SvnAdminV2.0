@@ -50,7 +50,7 @@ class Tasks extends Base
             'task_status' => 2
         ]);
         if (empty($result)) {
-            return message(200, 1, '成功', [
+            return message(200, 1, \L::success, [    //‘成功'
                 'task_name' => '',
                 'task_running' => false,
                 'task_log' => '',
@@ -66,7 +66,7 @@ class Tasks extends Base
 
         //读取日志返回
         $filesize = filesize($file) / 1024 / 1024;
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'task_name' => $result['task_name'],
             'task_running' => true,
             'task_log' => $filesize > 10 ? sprintf('日志文件[%s]体积超过10M需手动查看', $file) : file_get_contents($file),
@@ -103,7 +103,7 @@ class Tasks extends Base
             ]
         ]);
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'data' => $list,
         ]);
     }
@@ -166,7 +166,7 @@ class Tasks extends Base
             ],
         ]);
 
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'data' => $list,
             'total' => $total
         ]);
@@ -211,7 +211,7 @@ class Tasks extends Base
         }
 
         //读取日志返回
-        return message(200, 1, '成功', [
+        return message(200, 1, \L::success, [    //‘成功'
             'task_name' => $result['task_name'],
             'task_log' => file_get_contents($file),
         ]);
