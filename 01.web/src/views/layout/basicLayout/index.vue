@@ -66,7 +66,7 @@
         <!-- 多语言切换 -->
         <Dropdown trigger="click" @on-click="translate">
           <a href="javascript:void(0)" style="margin-left: 8px; color: #fff">
-            {{ $t(this.lang ? this.lang : 'en') }}
+            {{ $t(this.lang ? this.lang : 'en-US') }}
             <Icon type="md-arrow-dropdown" />
           </a>
           <DropdownMenu slot="list">
@@ -380,7 +380,7 @@ export default {
   },
   methods: {
     translate(lng) {
-        console.log("browser language is "+navigator.language.substring(0, 2));
+        console.log("browser language is "+navigator.language.substring(0, 5));
         console.log("Translating to "+lng);
         this.lang = lng;
         this.$i18n.locale = this.lang
