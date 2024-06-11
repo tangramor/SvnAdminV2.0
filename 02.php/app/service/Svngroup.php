@@ -476,7 +476,7 @@ class Svngroup extends Base
             }
             $repName = $this->payload['rep_name'];
 
-            if ($repName == '所有仓库') {
+            if ($repName == \L::all_repos) {    //'所有仓库'
                 $repList = $this->database->select('svn_reps', [
                     'rep_name'
                 ]);

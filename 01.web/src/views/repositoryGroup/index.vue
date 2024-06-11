@@ -872,8 +872,8 @@ export default {
             var result = response.data;
             that.loadingGetRepoList = false;
             if (result.status == 1) {
+              // result.data.shift();  //remove "All repo"
               that.tableDataRepoList = result.data;
-              console.log(that.tableDataRepoList[0].rep_name);
             } else {
               that.$Message.error({ content: result.message, duration: 2 });
             }
