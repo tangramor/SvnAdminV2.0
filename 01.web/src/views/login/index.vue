@@ -170,6 +170,7 @@ export default {
         // console.log("Translating to "+lng);
         this.lang = lng;
         this.$i18n.locale = this.lang
+        sessionStorage.setItem("lang", lng);
         this.ruleValidateLogin ={
             user_name: [
             { required: true, message: i18n.t("login.usernameCannotBeEmpty"), trigger: "blur" },

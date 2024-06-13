@@ -11,27 +11,27 @@ function funGetColor($percent)
 {
     $array = [
         [
-            'title' => '运行堵塞',
+            'title' => 'color_running_jammed', //'运行堵塞'
             'value' => 100,
             'color' => '#ed4014'
         ],
         [
-            'title' => '运行缓慢',
+            'title' => 'color_running_slow', //'运行缓慢'
             'value' => 90,
             'color' => '#ff9900'
         ],
         [
-            'title' => '运行正常',
+            'title' => 'color_running_normal', //'运行正常'
             'value' => 70,
             'color' => '#28bcfe'
         ],
         [
-            'title' => '运行流畅',
+            'title' => 'color_running_quick', //'运行流畅'
             'value' => 0,
             'color' => '#28bcfe'
         ],
         [
-            'title' => '未知',
+            'title' => 'color_unknown', //'未知'
             'value' => -1,
             'color' => '#ed4014'
         ],

@@ -13,9 +13,12 @@ const messages = {
     'zh-CN': Object.assign(zhCN, customZhCn),
     'en-US': Object.assign(enUS, customEnUs),
 }
+const sessLang = sessionStorage.getItem('lang')
+console.log("sessLang:", sessLang)
 const navLang = navigator.language.substring(0, 5)//自动识别浏览器语言
+console.log("navLang:", navLang)
 const localLang = navLang || false
-let lang = localLang || 'zh-CN'
+let lang = (sessLang || localLang) || 'zh-CN'
 
 const i18n = new VueI18n({
     messages,
