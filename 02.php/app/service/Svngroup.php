@@ -269,8 +269,7 @@ class Svngroup extends Base
         $page = $this->payload['page'];
         $searchKeyword = trim($this->payload['searchKeyword']);
         
-        $req_user = $this->payload['req_user'];
-        $limited_repo_list = $this->GetUserRepoList($req_user);
+        $limited_repo_list = $this->GetUserRepoList();
 
         if ($sync) {
             //同步

@@ -516,7 +516,6 @@ export default {
         sortType: that.sortTypeGetGroupList,
         sync: sync,
         page: page,
-        req_user: sessionStorage.user_name,
       };
       that.$axios
         .post("api.php?c=Svngroup&a=GetGroupList&t=web", data)

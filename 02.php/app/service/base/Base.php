@@ -1879,15 +1879,15 @@ class Base
      *
      * @return array
      */
-    public function GetUserRepoList($userName) {
-        if (empty($userName)) {
+    public function GetUserRepoList() {
+        if (empty($this->userName)) {
             return [];
         }
         
         //如果是管理员，返回所有仓库
         $admin = $this->database->select('admin_users', 'admin_user_id', 
             [
-                'admin_user_name' => $userName
+                'admin_user_name' => $this->userName
             ]
         );
         if (!empty($admin)) {
@@ -1906,7 +1906,7 @@ class Base
         $repList = $this->database->select('subadmin', [
             'rep_name'
         ], [
-            'subadmin_name' => $userName
+            'subadmin_name' => $this->userName
         ]);
         if (!empty($repList)) {
             $userRepList = explode(',', $repList[0]['rep_name']);
@@ -1917,7 +1917,7 @@ class Base
         $repList = $this->database->select('svn_user_pri_paths', [
             'rep_name'
         ], [
-            'svn_user_name' => $userName
+            'svn_user_name' => $this->userName
         ]);
         if (!empty($repList)) {
             $userRepList = [];

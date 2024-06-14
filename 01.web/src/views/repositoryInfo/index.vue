@@ -1615,7 +1615,6 @@ export default {
         page: page,
         sync_size: sync_size,
         sync_rev: sync_rev,
-        req_user: sessionStorage.user_name,
       };
       that.$axios
         .post("api.php?c=Svnrep&a=GetRepList&t=web", data)

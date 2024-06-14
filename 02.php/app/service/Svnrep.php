@@ -459,8 +459,7 @@ class Svnrep extends Base
         $sync_size = $this->payload['sync_size'];
         $sync_rev = $this->payload['sync_rev'];
 
-        $req_user = $this->payload['req_user'];
-        $limited_repo_list = $this->GetUserRepoList($req_user);
+        $limited_repo_list = $this->GetUserRepoList();
 
         if ($sync) {
             /**
