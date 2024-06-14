@@ -54,7 +54,8 @@ class Svnrep extends Base
                 return message(200, 1, 'authz文件配置无误');
             }
         } else {
-            $list = $this->database->select('svn_reps', ['rep_name']);
+            $limited_repo_list = $this->GetUserRepoList();
+            $list = $this->database->select('svn_reps', ['rep_name'], ['rep_name' => $limited_repo_list]);
             $confiles = '';
 
             foreach ($list as $value) {

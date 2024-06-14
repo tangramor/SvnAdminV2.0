@@ -23,15 +23,22 @@ class Crond extends Base
      */
     public function GetRepList()
     {
+        $limited_repo_list = $this->GetUserRepoList();
+
         $list = $this->database->select('svn_reps', [
             'rep_name(rep_key)',
             'rep_name',
+        ],
+        [
+            'rep_name' => $limited_repo_list
         ]);
 
-        $list = array_merge([[
-            'rep_key' => '-1',
-            'rep_name' => '所有仓库'
-        ]], $list);
+        if ($this->userRoleId == 1) {
+            $list = array_merge([[
+                'rep_key' => '-1',
+                'rep_name' => '所有仓库'
+            ]], $list);
+        }
 
         return message(200, 1, \L::success, $list);
     }

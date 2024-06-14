@@ -147,22 +147,22 @@ class Base
         [
             'title' => \L::backend_tasks,    // '后台任务'
             'expand' => false,
-            'checked' => false,
-            'disabled' => false,
+            'checked' => true,
+            'disabled' => true,
             'necessary_functions' => [],
             'children' => [
                 [
                     'title' => \L::current_tasks,    // '当前任务'
                     'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
+                    'checked' => true,
+                    'disabled' => true,
                     'necessary_functions' => [],
                     'children' => [
                         [
                             'title' => \L::get_real_time_task_log,  //'获取后台任务实时日志'
                             'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
+                            'checked' => true,
+                            'disabled' => true,
                             'necessary_functions' => [
                                 'Tasks/GetTaskRun',
                             ],
@@ -173,15 +173,15 @@ class Base
                 [
                     'title' => \L::task_queue,    // '排队任务'
                     'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
+                    'checked' => true,
+                    'disabled' => true,
                     'necessary_functions' => [],
                     'children' => [
                         [
                             'title' => \L::get_task_queue,  //'获取后台任务队列'
                             'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
+                            'checked' => true,
+                            'disabled' => true,
                             'necessary_functions' => [
                                 'Tasks/GetTaskQueue',
                             ],
@@ -189,8 +189,8 @@ class Base
                                 [
                                     'title' => \L::stop_task,   //'停止后台任务'
                                     'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => false,
+                                    'checked' => true,
+                                    'disabled' => true,
                                     'necessary_functions' => [
                                         'Tasks/UpdTaskStop',
                                     ],
@@ -203,15 +203,15 @@ class Base
                 [
                     'title' => \L::task_history,    // '历史任务'
                     'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
+                    'checked' => true,
+                    'disabled' => true,
                     'necessary_functions' => [],
                     'children' => [
                         [
                             'title' => \L::get_task_history,  //'获取后台任务执行历史'
                             'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
+                            'checked' => true,
+                            'disabled' => true,
                             'necessary_functions' => [
                                 'Tasks/GetTaskHistory',
                             ],
@@ -219,8 +219,8 @@ class Base
                                 [
                                     'title' => \L::get_task_history_log,  //'获取历史任务日志'
                                     'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => false,
+                                    'checked' => true,
+                                    'disabled' => true,
                                     'necessary_functions' => [
                                         'Tasks/GetTaskHistoryLog',
                                     ],
@@ -229,7 +229,7 @@ class Base
                                 [
                                     'title' => \L::delete_task_history,  //'删除历史执行任务'
                                     'expand' => false,
-                                    'checked' => false,
+                                    'checked' => true,
                                     'disabled' => true,
                                     'necessary_functions' => [
                                         'Tasks/DelTaskHistory',
