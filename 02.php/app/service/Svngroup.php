@@ -268,6 +268,9 @@ class Svngroup extends Base
         $sync = $this->payload['sync'];
         $page = $this->payload['page'];
         $searchKeyword = trim($this->payload['searchKeyword']);
+        
+        $req_user = $this->payload['req_user'];
+        $limited_repo_list = $this->GetUserRepoList($req_user);
 
         if ($sync) {
             //同步
@@ -299,7 +302,8 @@ class Svngroup extends Base
                 'LIMIT' => [$begin, $pageSize],
                 'ORDER' => [
                     $this->payload['sortName']  => strtoupper($this->payload['sortType'])
-                ]
+                ],
+                'rep_name' => $limited_repo_list
             ]);
         } else {
             $result = $this->database->select('svn_groups', [
@@ -319,7 +323,8 @@ class Svngroup extends Base
                 ],
                 'ORDER' => [
                     $this->payload['sortName']  => strtoupper($this->payload['sortType'])
-                ]
+                ],
+                'rep_name' => $limited_repo_list
             ]);
         }
 

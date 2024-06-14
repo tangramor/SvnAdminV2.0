@@ -1873,4 +1873,60 @@ class Base
 
         $this->httpDataSource = unserialize($result['option_value']);
     }
+
+    /**
+     * 获取用户有权限的仓库
+     *
+     * @return array
+     */
+    public function GetUserRepoList($userName) {
+        if (empty($userName)) {
+            return [];
+        }
+        
+        //如果是管理员，返回所有仓库
+        $admin = $this->database->select('admin_users', 'admin_user_id', 
+            [
+                'admin_user_name' => $userName
+            ]
+        );
+        if (!empty($admin)) {
+            $repList = $this->database->select('svn_reps', [
+                'rep_name'
+            ]);
+
+            $userRepList = [];
+            foreach ($repList as $rep) {
+                $userRepList[] = $rep['rep_name'];
+            }
+            return $userRepList;
+        }
+
+        //如果是子管理员，返回其有权限管理的仓库
+        $repList = $this->database->select('subadmin', [
+            'rep_name'
+        ], [
+            'subadmin_name' => $userName
+        ]);
+        if (!empty($repList)) {
+            $userRepList = explode(',', $repList[0]['rep_name']);
+            return $userRepList;
+        }
+
+        //如果是普通用户，返回用户有权限访问的仓库
+        $repList = $this->database->select('svn_user_pri_paths', [
+            'rep_name'
+        ], [
+            'svn_user_name' => $userName
+        ]);
+        if (!empty($repList)) {
+            $userRepList = [];
+            foreach ($repList as $rep) {
+                $userRepList[] = $rep['rep_name'];
+            }
+            return $userRepList;
+        }
+
+        return [];
+    }
 }

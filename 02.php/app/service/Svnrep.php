@@ -459,6 +459,9 @@ class Svnrep extends Base
         $sync_size = $this->payload['sync_size'];
         $sync_rev = $this->payload['sync_rev'];
 
+        $req_user = $this->payload['req_user'];
+        $limited_repo_list = $this->GetUserRepoList($req_user);
+
         if ($sync) {
             /**
              * 物理仓库 => authz文件
@@ -519,7 +522,8 @@ class Svnrep extends Base
         ], [
             'ORDER' => [
                 $this->payload['sortName']  => strtoupper($this->payload['sortType'])
-            ]
+            ],
+            'rep_name' => $limited_repo_list
         ]);
 
         //过滤

@@ -108,7 +108,13 @@ class Subadmin extends Base
         $result = $this->database->get('subadmin', 'subadmin_id', [
             'subadmin_name' => $this->payload['subadmin_name']
         ]);
-        if (!empty($result)) {
+        $result2 = $this->database->get('admin_users', 'admin_user_id', [
+            'admin_user_name' => $this->payload['subadmin_name']
+        ]);
+        $result3 = $this->database->get('svn_users', 'svn_user_id', [
+            'svn_user_name' => $this->payload['subadmin_name']
+        ]);
+        if (!empty($result) || !empty($result2) || !empty($result3)) {
             return message(200, 0, '用户已存在');
         }
 
