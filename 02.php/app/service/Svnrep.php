@@ -332,13 +332,13 @@ class Svnrep extends Base
         $userRepList = $this->SVNAdmin->GetUserAllPri($this->authzContent, $this->userName);
         if (is_numeric($userRepList)) {
             if ($userRepList == 612) {
-                json1(200, 0, '文件格式错误(不存在[groups]标识)');
+                json1(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
             } elseif ($userRepList == 700) {
                 json1(200, 0, '对象不存在');
             } elseif ($userRepList == 901) {
                 json1(200, 0, '不支持的授权对象类型');
             } else {
-                json1(200, 0, "错误码$userRepList");
+                json1(200, 0, \L::error_code . $userRepList);  //"错误码$userRepList"
             }
         }
 
@@ -395,13 +395,13 @@ class Svnrep extends Base
 
         if (is_numeric($userRepList)) {
             if ($userRepList == 612) {
-                json1(200, 0, '文件格式错误(不存在[groups]标识)');
+                json1(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
             } elseif ($userRepList == 700) {
                 json1(200, 0, '对象不存在');
             } elseif ($userRepList == 901) {
                 json1(200, 0, '不支持的授权对象类型');
             } else {
-                json1(200, 0, "错误码$userRepList");
+                json1(200, 0, \L::error_code . $userRepList);  //"错误码$userRepList"
             }
         }
         $new = [];
@@ -1355,7 +1355,7 @@ class Svnrep extends Base
             } elseif ($result == 752) {
                 return message(200, 0, '仓库路径需以/开始');
             } else {
-                return message(200, 0, "错误码$result");
+                return message(200, 0, \L::error_code . $result);  //"错误码$result"
             }
         } else {
             //针对SVN用户可管理对象进行过滤
@@ -1479,7 +1479,7 @@ class Svnrep extends Base
                     if ($result == 851) {
                         $result = $this->authzContent;
                     } else {
-                        return message(200, 0, "错误码$result");
+                        return message(200, 0, \L::error_code . $result);  //"错误码$result"
                     }
                 } elseif ($result == 752) {
                     return message(200, 0, '仓库路径需以/开始');
@@ -1487,7 +1487,7 @@ class Svnrep extends Base
                     //重新写入权限
                     $result = $this->SVNAdmin->AddRepPathPri($result, $repName, $path, $objectType, $objectName, $objectPri, false);
                     if (is_numeric($result)) {
-                        return message(200, 0, "错误码$result");
+                        return message(200, 0, \L::error_code . $result);  //"错误码$result"
                     }
                 }
             } elseif ($result == 801) {
@@ -1495,7 +1495,7 @@ class Svnrep extends Base
             } elseif ($result == 901) {
                 return message(200, 0, '不支持的授权对象类型');
             } else {
-                return message(200, 0, "错误码$result");
+                return message(200, 0, \L::error_code . $result);  //"错误码$result"
             }
         }
 
@@ -1601,7 +1601,7 @@ class Svnrep extends Base
             } elseif ($result == 701) {
                 return message(200, 0, '仓库路径下不存在该对象的权限记录');
             } else {
-                return message(200, 0, "错误码$result");
+                return message(200, 0, \L::error_code . $result);  //"错误码$result"
             }
         }
 
@@ -1698,7 +1698,7 @@ class Svnrep extends Base
             } elseif ($result == 701) {
                 return message(200, 0, '已删除');
             } else {
-                return message(200, 0, "错误码$result");
+                return message(200, 0, \L::error_code . $result);  //"错误码$result"
             }
         }
 
@@ -1753,7 +1753,7 @@ class Svnrep extends Base
             if ($result == 751) {
                 return message(200, 0, '仓库不存在');
             } else {
-                return message(200, 0, "错误码$result");
+                return message(200, 0, \L::error_code . $result);  //"错误码$result"
             }
         }
 
@@ -1779,7 +1779,7 @@ class Svnrep extends Base
         if (is_numeric($authzContet)) {
             if ($authzContet == 751) {
             } else {
-                return message(200, 0, "错误码$authzContet");
+                return message(200, 0, \L::error_code . $authzContet);  //"错误码$authzContet"
             }
         } else {
             funFilePutContents($this->configSvn['svn_authz_file'], $authzContet);

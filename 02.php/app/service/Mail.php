@@ -254,8 +254,8 @@ class Mail extends Base
         $encryption = $this->payload['encryption'];
         $autotls = $this->payload['autotls'];
         $port = $this->payload['port'];
-        $subject = "SVNAdmin的测试邮件";
-        $body = "此邮件为SVNAdmin系统发送的测试邮件，当您收到此邮件，代表您的邮件服务已经配置正确。";
+        $subject = \L::test_email_subject;  //"SVNAdmin的测试邮件"
+        $body = \L::test_email_body; //"此邮件为SVNAdmin系统发送的测试邮件，当您收到此邮件，代表您的邮件服务已经配置正确。"
         $to = [
             ['address' => $this->payload['test'], 'name' => '']
         ];
@@ -282,7 +282,7 @@ class Mail extends Base
             $timeout
         );
 
-        return message(200, $result === true ? 1 : 0, $result === true ? '发送成功' : $result);
+        return message(200, $result === true ? 1 : 0, $result === true ? \\L::sent_success : $result);  //'发送成功'
     }
 
     /**
@@ -295,7 +295,7 @@ class Mail extends Base
 
         //检查邮件服务是否启用
         if (!$mail_smtp['status']) {
-            return message(200, 0, '邮件服务未开启');
+            return message(200, 0, \L::email_service_not_start);    //'邮件服务未开启'
         }
 
         //检查触发条件
@@ -304,11 +304,11 @@ class Mail extends Base
 
         $triggers = array_column($message_push, 'trigger');
         if (!in_array($trigger, $triggers)) {
-            return message(200, 0, '触发条件不存在');
+            return message(200, 0, \L::trigger_condition_not_exist);    //'触发条件不存在'
         }
         $options = array_combine($triggers, array_column($message_push, 'enable'));
         if (!$options[$trigger]) {
-            return message(200, 0, '触发条件未开启');
+            return message(200, 0, \L::trigger_condition_not_activate); //'触发条件未开启'
         }
 
         $host = $mail_smtp['host'];
@@ -342,7 +342,7 @@ class Mail extends Base
             $timeout
         );
 
-        return message(200, $result === true ? 1 : 0, $result === true ? '发送成功' : $result);
+        return message(200, $result === true ? 1 : 0, $result === true ? \\L::sent_success : $result);  //'发送成功'
     }
 
     /**
@@ -355,7 +355,7 @@ class Mail extends Base
 
         //检查邮件服务是否启用
         if (!$mail_smtp['status']) {
-            return message(200, 0, '邮件服务未开启');
+            return message(200, 0, \L::email_service_not_start);    //'邮件服务未开启'
         }
 
         $host = $mail_smtp['host'];
@@ -389,7 +389,7 @@ class Mail extends Base
             $timeout
         );
 
-        return message(200, $result === true ? 1 : 0, $result === true ? '发送成功' : $result);
+        return message(200, $result === true ? 1 : 0, $result === true ? \\L::sent_success : $result);  //'发送成功'
     }
 
     /**
@@ -413,19 +413,19 @@ class Mail extends Base
             [
                 'trigger' => 'Personal/EditAdminUserName',
                 'type' => 'mail',
-                'note' => '管理人员修改账户名',
+                'note' => \L::admin_modify_username,    //'管理人员修改账户名'
                 'enable' => false,
             ],
             [
                 'trigger' => 'Personal/EditAdminUserPass',
                 'type' => 'mail',
-                'note' => '管理人员修改密码',
+                'note' => \L::admin_modify_password,    //'管理人员修改密码'
                 'enable' => false,
             ],
             [
                 'trigger' => 'Personal/EditSvnUserPass',
                 'type' => 'mail',
-                'note' => 'SVN用户修改密码',
+                'note' => \L::svnuser_modify_password,  //'SVN用户修改密码'
                 'enable' => false,
             ],
         ];

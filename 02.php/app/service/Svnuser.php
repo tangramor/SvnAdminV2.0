@@ -111,7 +111,7 @@ class Svnuser extends Base
             } elseif ($svnUserList == 710) {
                 return message(200, 0, '用户不存在');
             } else {
-                return message(200, 0, "错误码$svnUserList");
+                return message(200, 0, \L::error_code . $svnUserList);  //"错误码$svnUserList"
             }
         }
         $new = array_column($svnUserList, 'userName');
@@ -277,7 +277,7 @@ class Svnuser extends Base
             if ($svnUserList == 710) {
                 return message(200, 0, '用户不存在');
             } else {
-                return message(200, 0, "错误码$svnUserList");
+                return message(200, 0, \L::error_code . $svnUserList);  //"错误码$svnUserList"
             }
         }
         $new = array_column($svnUserList, 'userName');
@@ -469,7 +469,7 @@ class Svnuser extends Base
                 } elseif ($svnUserPassList == 710) {
                     return message(200, 0, '用户不存在');
                 } else {
-                    return message(200, 0, "错误码$svnUserPassList");
+                    return message(200, 0, \L::error_code . $svnUserPassList);  //"错误码$svnUserPassList"
                 }
             }
         } else {
@@ -478,7 +478,7 @@ class Svnuser extends Base
                 if ($svnUserPassList == 710) {
                     return message(200, 0, '用户不存在');
                 } else {
-                    return message(200, 0, "错误码$svnUserPassList");
+                    return message(200, 0, \L::error_code . $svnUserPassList);  //"错误码$svnUserPassList"
                 }
             }
         }
@@ -567,7 +567,7 @@ class Svnuser extends Base
                         } elseif ($result == 710) {
                             return message(200, 0, '用户不存在');
                         } else {
-                            return message(200, 0, "错误码$result");
+                            return message(200, 0, \L::error_code . $result);  //"错误码$result"
                         }
                     }
 
@@ -601,7 +601,7 @@ class Svnuser extends Base
                 if ($currentUsers == 710) {
                     return message(200, 0, '用户不存在');
                 } else {
-                    return message(200, 0, "错误码$currentUsers");
+                    return message(200, 0, \L::error_code . $currentUsers);  //"错误码$currentUsers"
                 }
             }
             $currentUsers = array_column($currentUsers, 'userName');
@@ -646,7 +646,7 @@ class Svnuser extends Base
                         } elseif ($result == 710) {
                             return message(200, 0, '用户不存在');
                         } else {
-                            return message(200, 0, "错误码$result");
+                            return message(200, 0, \L::error_code . $result);  //"错误码$result"
                         }
                     }
 
@@ -708,7 +708,7 @@ class Svnuser extends Base
                 } elseif ($result == 710) {
                     return message(200, 0, '用户不存在');
                 } else {
-                    return message(200, 0, "错误码$result");
+                    return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
             }
 
@@ -720,7 +720,7 @@ class Svnuser extends Base
                 if ($result == 710) {
                     return message(200, 0, '用户不存在');
                 } else {
-                    return message(200, 0, "错误码$result");
+                    return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
             }
 
@@ -785,7 +785,7 @@ class Svnuser extends Base
                 } elseif ($result == 810) {
                     return message(200, 0, '用户已存在');
                 } else {
-                    return message(200, 0, "错误码$result");
+                    return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
             }
 
@@ -795,7 +795,7 @@ class Svnuser extends Base
             $result = $this->SVNAdmin->GetUserInfoHttp($this->httpPasswdContent, $this->payload['svn_user_name']);
             if (is_numeric($result)) {
                 if ($result != 710) {
-                    return message(200, 0, "错误码$result");
+                    return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
             } else {
                 return message(200, 0, '用户已存在');
@@ -856,7 +856,7 @@ class Svnuser extends Base
                 } elseif ($result == 710) {
                     return message(200, 0, '用户不存在 请管理员同步用户后重试');
                 } else {
-                    return message(200, 0, "错误码$result");
+                    return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
             }
 
@@ -903,7 +903,7 @@ class Svnuser extends Base
                 } elseif ($resultPasswd == 710) {
                     return message(200, 0, '用户不存在');
                 } else {
-                    return message(200, 0, "错误码$resultPasswd");
+                    return message(200, 0, \L::error_code . $resultPasswd);  //"错误码$resultPasswd"
                 }
             }
 
@@ -916,7 +916,7 @@ class Svnuser extends Base
         }
 
         if ($this->authzContent == '') {
-            return message(200, 0, '缺少SVN仓库名rep_name参数');
+            return message(200, 0, \\L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
         }
 
         //从authz文件中删除
@@ -927,7 +927,7 @@ class Svnuser extends Base
             } elseif ($resultAuthz == 901) {
                 return message(200, 0, '不支持的授权对象类型');
             } else {
-                return message(200, 0, "错误码$resultAuthz");
+                return message(200, 0, \L::error_code . $resultAuthz);  //"错误码$resultAuthz"
             }
         }
 

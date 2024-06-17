@@ -271,7 +271,7 @@ class Ldap extends Base
     public function LdapTest()
     {
         if (!function_exists('ldap_connect')) {
-            return message(200, 0, '请先安装php的ldap依赖');
+            return message(200, 0, \L::need_php_ldap_dependency);   //'请先安装php的ldap依赖'
         }
 
         $checkResult = funCheckForm($this->payload, [
@@ -286,7 +286,7 @@ class Ldap extends Base
 
         $type = $this->payload['type'];
         if (!in_array($type, ['connection', 'user', 'group'])) {
-            return message(200, 0, '无效的验证类型');
+            return message(200, 0, \L::invalid_verification_type);  //'无效的验证类型'
         }
 
         $checkResult = funCheckForm($dataSource, [
@@ -310,7 +310,7 @@ class Ldap extends Base
 
         $connection = ldap_connect(rtrim(trim($dataSource['ldap_host']), '/') . ':' . $dataSource['ldap_port'] . '/');
         if (!$connection) {
-            return message(200, 0, '连接失败');
+            return message(200, 0, \L::connection_failed);    //'连接失败'
         }
 
         ldap_set_option($connection, LDAP_OPT_PROTOCOL_VERSION, $dataSource['ldap_version']);
@@ -321,7 +321,7 @@ class Ldap extends Base
 
         $result = @ldap_bind($connection, $dataSource['ldap_bind_dn'], $dataSource['ldap_bind_password']);
         if (!$result) {
-            return message(200, 0, sprintf('连接失败: %s', ldap_error($connection)));
+            return message(200, 0, sprintf(\L::connection_failed_by, ldap_error($connection)));    //'连接失败: %s'
         }
 
         if ($type == 'connection') {
@@ -478,14 +478,14 @@ class Ldap extends Base
 
         $connection = ldap_connect(rtrim(trim($dataSource['ldap_host']), '/') . ':' . $dataSource['ldap_port'] . '/');
         if (!$connection) {
-            return message(200, 0, '连接失败');
+            return message(200, 0, \L::connection_failed);    //'连接失败'
         }
 
         ldap_set_option($connection, LDAP_OPT_PROTOCOL_VERSION, $dataSource['ldap_version']);
 
         $result = @ldap_bind($connection, $dataSource['ldap_bind_dn'], $dataSource['ldap_bind_password']);
         if (!$result) {
-            return message(200, 0, sprintf('连接失败: %s', ldap_error($connection)));
+            return message(200, 0, sprintf(\L::connection_failed_by, ldap_error($connection)));    //'连接失败: %s'
         }
 
         // The standard attributes.
@@ -531,14 +531,14 @@ class Ldap extends Base
 
         $connection = ldap_connect(rtrim(trim($dataSource['ldap_host']), '/') . ':' . $dataSource['ldap_port'] . '/');
         if (!$connection) {
-            return message(200, 0, '连接失败');
+            return message(200, 0, \L::connection_failed);    //'连接失败'
         }
 
         ldap_set_option($connection, LDAP_OPT_PROTOCOL_VERSION, $dataSource['ldap_version']);
 
         $result = @ldap_bind($connection, $dataSource['ldap_bind_dn'], $dataSource['ldap_bind_password']);
         if (!$result) {
-            return message(200, 0, sprintf('连接失败: %s', ldap_error($connection)));
+            return message(200, 0, sprintf(\L::connection_failed_by, ldap_error($connection)));    //'连接失败: %s'
         }
 
         $attributes = explode(',', $dataSource['group_attributes']);
@@ -581,7 +581,7 @@ class Ldap extends Base
         $dataSource = $dataSource['ldap'];
 
         if ($this->authzContent == '') {
-            return message(200, 0, '缺少SVN仓库名rep_name参数');
+            return message(200, 0, \\L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
         }
 
         //从ldap获取分组和用户
@@ -619,9 +619,9 @@ class Ldap extends Base
             $authzContent = $this->SVNAdmin->ClearGroupSection($authzContent);
             if (is_numeric($authzContent)) {
                 if ($authzContent == 612) {
-                    return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                    return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                 } else {
-                    return message(200, 0, "错误码$authzContent");
+                    return message(200, 0, \L::error_code . $authzContent);  //"错误码$authzContent"
                 }
             }
 
@@ -641,12 +641,12 @@ class Ldap extends Base
                 $result = $this->SVNAdmin->AddGroup($authzContent, $g->$gp_name);
                 if (is_numeric($result)) {
                     if ($result == 612) {
-                        return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                        return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                     } elseif ($result == 820) {
                         //分组已存在
                         continue;
                     } else {
-                        return message(200, 0, "错误码$result");
+                        return message(200, 0, \L::error_code . $result);  //"错误码$result"
                     }
                 }
                 $authzContent = $result;
@@ -666,11 +666,11 @@ class Ldap extends Base
                                 $result = $this->SVNAdmin->UpdGroupMember($authzContent, $g->$gp_name, $u->$up_name, 'user', 'add');
                                 if (is_numeric($result)) {
                                     if ($result == 612) {
-                                        return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                                        return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                                     } elseif ($result == 803) {
                                         $result = $authzContent;
                                     } else {
-                                        return message(200, 0, "错误码$result");
+                                        return message(200, 0, \L::error_code . $result);  //"错误码$result"
                                     }
                                 }
                                 $authzContent = $result;
@@ -688,11 +688,11 @@ class Ldap extends Base
                             $result = $this->SVNAdmin->UpdGroupMember($authzContent, $g->$gp_name, $u->$up_name, 'user', 'add');
                             if (is_numeric($result)) {
                                 if ($result == 612) {
-                                    return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                                    return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                                 } elseif ($result == 803) {
                                     $result = $authzContent;
                                 } else {
-                                    return message(200, 0, "错误码$result");
+                                    return message(200, 0, \L::error_code . $result);  //"错误码$result"
                                 }
                             }
                             $authzContent = $result;
@@ -725,9 +725,9 @@ class Ldap extends Base
                 $authzContent = $this->SVNAdmin->ClearGroupSection($authzContent);
                 if (is_numeric($authzContent)) {
                     if ($authzContent == 612) {
-                        return message(200, 0, $repName + '文件格式错误(不存在[groups]标识)');
+                        return message(200, 0, $repName + \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                     } else {
-                        return message(200, 0, $repName + "错误码$authzContent");
+                        return message(200, 0, $repName + \L::error_code . $authzContent);  //"错误码$authzContent"
                     }
                 }
 
@@ -747,12 +747,12 @@ class Ldap extends Base
                     $result = $this->SVNAdmin->AddGroup($authzContent, $g->$gp_name);
                     if (is_numeric($result)) {
                         if ($result == 612) {
-                            return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                            return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                         } elseif ($result == 820) {
                             //分组已存在
                             continue;
                         } else {
-                            return message(200, 0, "错误码$result");
+                            return message(200, 0, \L::error_code . $result);  //"错误码$result"
                         }
                     }
                     $authzContent = $result;
@@ -772,11 +772,11 @@ class Ldap extends Base
                                     $result = $this->SVNAdmin->UpdGroupMember($authzContent, $g->$gp_name, $u->$up_name, 'user', 'add');
                                     if (is_numeric($result)) {
                                         if ($result == 612) {
-                                            return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                                            return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                                         } elseif ($result == 803) {
                                             $result = $authzContent;
                                         } else {
-                                            return message(200, 0, "错误码$result");
+                                            return message(200, 0, \L::error_code . $result);  //"错误码$result"
                                         }
                                     }
                                     $authzContent = $result;
@@ -794,11 +794,11 @@ class Ldap extends Base
                                 $result = $this->SVNAdmin->UpdGroupMember($authzContent, $g->$gp_name, $u->$up_name, 'user', 'add');
                                 if (is_numeric($result)) {
                                     if ($result == 612) {
-                                        return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                                        return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                                     } elseif ($result == 803) {
                                         $result = $authzContent;
                                     } else {
-                                        return message(200, 0, "错误码$result");
+                                        return message(200, 0, \L::error_code . $result);  //"错误码$result"
                                     }
                                 }
                                 $authzContent = $result;

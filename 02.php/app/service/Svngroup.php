@@ -112,9 +112,9 @@ class Svngroup extends Base
             $svnGroupList = $this->SVNAdmin->GetGroupInfo($this->authzContent);
             if (is_numeric($svnGroupList)) {
                 if ($svnGroupList == 612) {
-                    return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                    return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                 } else {
-                    return message(200, 0, "错误码$svnGroupList");
+                    return message(200, 0, \L::error_code . $svnGroupList);  //"错误码$svnGroupList"
                 }
             }
 
@@ -181,9 +181,9 @@ class Svngroup extends Base
                 
                 if (is_numeric($svnGroupList)) {
                     if ($svnGroupList == 612) {
-                        return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                        return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                     } else {
-                        return message(200, 0, "错误码$svnGroupList");
+                        return message(200, 0, \L::error_code . $svnGroupList);  //"错误码$svnGroupList"
                     }
                 }
 
@@ -410,11 +410,11 @@ class Svngroup extends Base
         $result = $this->SVNAdmin->AddGroup($authzContent, $svnGroupName);
         if (is_numeric($result)) {
             if ($result == 612) {
-                return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
             } elseif ($result == 820) {
                 return message(200, 0, '分组已存在');
             } else {
-                return message(200, 0, "错误码$result");
+                return message(200, 0, \L::error_code . $result);  //"错误码$result"
             }
         }
 
@@ -527,11 +527,11 @@ class Svngroup extends Base
             $result = $this->SVNAdmin->DelObjectFromAuthz($this->authzContent, $this->payload['svn_group_name'], 'group');
             if (is_numeric($result)) {
                 if ($result == 612) {
-                    return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                    return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                 } elseif ($result == 901) {
                     return message(200, 0, '不支持的授权对象类型');
                 } else {
-                    return message(200, 0, "错误码$result");
+                    return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
             }
 
@@ -563,11 +563,11 @@ class Svngroup extends Base
             $result = $this->SVNAdmin->DelObjectFromAuthz($this->authzContent, $this->payload['svn_group_name'], 'group');
             if (is_numeric($result)) {
                 if ($result == 612) {
-                    return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                    return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
                 } elseif ($result == 901) {
                     return message(200, 0, '不支持的授权对象类型');
                 } else {
-                    return message(200, 0, "错误码$result");
+                    return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
             }
 
@@ -616,7 +616,7 @@ class Svngroup extends Base
         }
 
         if ($this->authzContent == '') {
-            return message(200, 0, '缺少SVN仓库名rep_name参数');
+            return message(200, 0, \\L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
         }
 
         $result = $this->SVNAdmin->UpdObjectFromAuthz($this->authzContent, $this->payload['groupNameOld'], $this->payload['groupNameNew'], 'group');
@@ -635,7 +635,7 @@ class Svngroup extends Base
             } elseif ($result == 731) {
                 return message(200, 0, '要修改的别名不存在');
             } else {
-                return message(200, 0, "错误码$result");
+                return message(200, 0, \L::error_code . $result);  //"错误码$result"
             }
         }
 
@@ -694,17 +694,17 @@ class Svngroup extends Base
         }
 
         if ($this->authzContent == '') {
-            return message(200, 0, '缺少SVN仓库名rep_name参数');
+            return message(200, 0, \\L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
         }
 
         $list = $this->SVNAdmin->GetGroupInfo($this->authzContent, $this->payload['svn_group_name']);
         if (is_numeric($list)) {
             if ($list == 612) {
-                return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
             } elseif ($list == 720) {
                 return message(200, 0, '指定的分组不存在');
             } else {
-                return message(200, 0, "错误码$list");
+                return message(200, 0, \L::error_code . $list);  //"错误码$list"
             }
         }
 
@@ -758,13 +758,13 @@ class Svngroup extends Base
         }
 
         if ($this->authzContent == '') {
-            return message(200, 0, '缺少SVN仓库名rep_name参数');
+            return message(200, 0, \\L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
         }
 
         $result = $this->SVNAdmin->UpdGroupMember($this->authzContent, $this->payload['svn_group_name'], $this->payload['objectName'], $this->payload['objectType'], $this->payload['actionType']);
         if (is_numeric($result)) {
             if ($result == 612) {
-                return message(200, 0, '文件格式错误(不存在[groups]标识)');
+                return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
             } elseif ($result == 720) {
                 return message(200, 0, '分组不存在');
             } elseif ($result == 803) {
@@ -778,7 +778,7 @@ class Svngroup extends Base
             } elseif ($result == 802) {
                 return message(200, 0, '不能操作相同名称的分组');
             } else {
-                return message(200, 0, "错误码$result");
+                return message(200, 0, \L::error_code . $result);  //"错误码$result"
             }
         }
         if ($this->payload['objectType'] == 'group' && $this->payload['actionType'] == 'add') {

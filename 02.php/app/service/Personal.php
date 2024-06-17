@@ -123,7 +123,7 @@ class Personal extends Base
                 } elseif ($result == 710) {
                     return message(200, 0, '用户不存在 请管理员同步用户后重试');
                 } else {
-                    return message(200, 0, "错误码$result");
+                    return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
             }
 
