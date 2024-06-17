@@ -36,7 +36,7 @@ class Crond extends Base
         if ($this->userRoleId == 1) {
             $list = array_merge([[
                 'rep_key' => '-1',
-                'rep_name' => '所有仓库'
+                'rep_name' => \L::all_repos //'所有仓库'
             ]], $list);
         }
 
@@ -141,7 +141,7 @@ class Crond extends Base
     public function CreateCrontab()
     {
         if (!isset($this->payload['cycle'])) {
-            return message(200, 0, '参数[cycle]不存在');
+            return message(200, 0, \L::param_cycle_not_exist);    //'参数[cycle]不存在'
         }
         $cycle = $this->payload['cycle'];
 
@@ -165,35 +165,35 @@ class Crond extends Base
         switch ($cycle['cycle_type']) {
             case 'minute': //每分钟
                 $code = '* * * * *';
-                $cycle['cycle_desc'] = "每分钟执行一次";
+                $cycle['cycle_desc'] = \L::exec_per_minute;    //"每分钟执行一次"
                 break;
             case 'minute_n': //每隔N分钟
                 $code = sprintf("*/%s * * * *", $cycle['minute']);
-                $cycle['cycle_desc'] = sprintf("每隔%s分钟执行一次", $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_n_minutes, $cycle['minute']);    //"每隔%s分钟执行一次"
                 break;
             case 'hour': //每小时
                 $code = sprintf("%s * * * *", $cycle['minute']);
-                $cycle['cycle_desc'] = sprintf("每小时-第%s分钟执行一次", $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_hour_n_minute, $cycle['minute']);    //"每小时-第%s分钟执行一次"
                 break;
             case 'hour_n': //每隔N小时
                 $code = sprintf("%s */%s * * *", $cycle['minute'], $cycle['hour']);
-                $cycle['cycle_desc'] = sprintf("每隔%s小时-第%s分钟执行一次", $cycle['hour'], $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_n_hours_n_minute, $cycle['hour'], $cycle['minute']);    //"每隔%s小时-第%s分钟执行一次"
                 break;
             case 'day': //每天
                 $code = sprintf("%s %s * * *", $cycle['minute'], $cycle['hour']);
-                $cycle['cycle_desc'] = sprintf("每天-%s点%s分执行一次", $cycle['hour'], $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_day_n_hour_n_minute, $cycle['hour'], $cycle['minute']);    //"每天-%s点%s分执行一次"
                 break;
             case 'day_n': //每隔N天
                 $code = sprintf("%s %s */%s * *", $cycle['minute'], $cycle['hour'], $cycle['day']);
-                $cycle['cycle_desc'] = sprintf("每隔%s天-%s点%s分执行一次", $cycle['day'], $cycle['hour'], $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_n_days_n_hour_n_minute, $cycle['day'], $cycle['hour'], $cycle['minute']);    //"每隔%s天-%s点%s分执行一次"
                 break;
             case 'week': //每周
                 $code = sprintf("%s %s * * %s", $cycle['minute'], $cycle['hour'], $cycle['week']);
-                $cycle['cycle_desc'] = sprintf("每周%s-%s点%s分执行一次", $cycle['week'], $cycle['hour'], $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_weekday_n_hour_n_minute, $cycle['week'], $cycle['hour'], $cycle['minute']);    //"每周%s-%s点%s分执行一次"
                 break;
             case 'month': //每月
                 $code = sprintf("%s %s %s * *", $cycle['minute'], $cycle['hour'], $cycle['day']);
-                $cycle['cycle_desc'] = sprintf("每月%s日-%s点%s分执行一次", $cycle['day'], $cycle['hour'], $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_monthday_n_hour_n_minute, $cycle['day'], $cycle['hour'], $cycle['minute']);    //"每月%s日-%s点%s分执行一次"
                 break;
             default:
                 break;
@@ -260,7 +260,7 @@ class Crond extends Base
     public function UpdCrontab()
     {
         if (!isset($this->payload['cycle'])) {
-            return message(200, 0, '参数[cycle]不存在');
+            return message(200, 0, \L::param_cycle_not_exist);    //'参数[cycle]不存在'
         }
         $cycle = $this->payload['cycle'];
 
@@ -284,35 +284,35 @@ class Crond extends Base
         switch ($cycle['cycle_type']) {
             case 'minute': //每分钟
                 $code = '* * * * *';
-                $cycle['cycle_desc'] = "每分钟执行一次";
+                $cycle['cycle_desc'] = \L::exec_per_minute;    //"每分钟执行一次"
                 break;
             case 'minute_n': //每隔N分钟
                 $code = sprintf("*/%s * * * *", $cycle['minute']);
-                $cycle['cycle_desc'] = sprintf("每隔%s分钟执行一次", $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_n_minutes, $cycle['minute']);    //"每隔%s分钟执行一次"
                 break;
             case 'hour': //每小时
                 $code = sprintf("%s * * * *", $cycle['minute']);
-                $cycle['cycle_desc'] = sprintf("每小时-第%s分钟执行一次", $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_hour_n_minute, $cycle['minute']);    //"每小时-第%s分钟执行一次"
                 break;
             case 'hour_n': //每隔N小时
                 $code = sprintf("%s */%s * * *", $cycle['minute'], $cycle['hour']);
-                $cycle['cycle_desc'] = sprintf("每隔%s小时-第%s分钟执行一次", $cycle['hour'], $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_n_hours_n_minute, $cycle['hour'], $cycle['minute']);    //"每隔%s小时-第%s分钟执行一次"
                 break;
             case 'day': //每天
                 $code = sprintf("%s %s * * *", $cycle['minute'], $cycle['hour']);
-                $cycle['cycle_desc'] = sprintf("每天-%s点%s分执行一次", $cycle['hour'], $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_day_n_hour_n_minute, $cycle['hour'], $cycle['minute']);    //"每天-%s点%s分执行一次"
                 break;
             case 'day_n': //每隔N天
                 $code = sprintf("%s %s */%s * *", $cycle['minute'], $cycle['hour'], $cycle['day']);
-                $cycle['cycle_desc'] = sprintf("每隔%s天-%s点%s分执行一次", $cycle['day'], $cycle['hour'], $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_n_days_n_hour_n_minute, $cycle['day'], $cycle['hour'], $cycle['minute']);    //"每隔%s天-%s点%s分执行一次"
                 break;
             case 'week': //每周
                 $code = sprintf("%s %s * * %s", $cycle['minute'], $cycle['hour'], $cycle['week']);
-                $cycle['cycle_desc'] = sprintf("每周%s-%s点%s分执行一次", $cycle['week'], $cycle['hour'], $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_weekday_n_hour_n_minute, $cycle['week'], $cycle['hour'], $cycle['minute']);    //"每周%s-%s点%s分执行一次"
                 break;
             case 'month': //每月
                 $code = sprintf("%s %s %s * *", $cycle['minute'], $cycle['hour'], $cycle['day']);
-                $cycle['cycle_desc'] = sprintf("每月%s日-%s点%s分执行一次", $cycle['day'], $cycle['hour'], $cycle['minute']);
+                $cycle['cycle_desc'] = sprintf(\L::exec_per_monthday_n_hour_n_minute, $cycle['day'], $cycle['hour'], $cycle['minute']);    //"每月%s日-%s点%s分执行一次"
                 break;
             default:
                 break;
@@ -391,14 +391,14 @@ class Crond extends Base
     public function UpdCrontabStatus()
     {
         if (!isset($this->payload['crond_id'])) {
-            return message(200, 0, '参数不完整');
+            return message(200, 0, \L::param_not_complete);    //'参数不完整'
         }
 
         $result = $this->database->get('crond', '*', [
             'crond_id' => $this->payload['crond_id']
         ]);
         if (empty($result)) {
-            return message(200, 0, '任务计划不存在');
+            return message(200, 0, \L::schedule_task_not_exist);    //'任务计划不存在'
         }
 
         $sign = $result['sign'];
@@ -453,14 +453,14 @@ class Crond extends Base
     public function DelCrontab()
     {
         if (!isset($this->payload['crond_id'])) {
-            return message(200, 0, '参数不完整');
+            return message(200, 0, \L::param_not_complete);    //'参数不完整'
         }
 
         $result = $this->database->get('crond', '*', [
             'crond_id' => $this->payload['crond_id']
         ]);
         if (empty($result)) {
-            return message(200, 0, '任务计划不存在');
+            return message(200, 0, \L::schedule_task_not_exist);    //'任务计划不存在'
         }
         $sign = $result['sign'];
 
@@ -516,14 +516,14 @@ class Crond extends Base
     public function TriggerCrontab()
     {
         if (!isset($this->payload['crond_id'])) {
-            return message(200, 0, '参数不完整');
+            return message(200, 0, \L::param_not_complete);    //'参数不完整'
         }
 
         $result = $this->database->get('crond', '*', [
             'crond_id' => $this->payload['crond_id']
         ]);
         if (empty($result)) {
-            return message(200, 0, '任务计划不存在');
+            return message(200, 0, \L::schedule_task_not_exist);    //'任务计划不存在'
         }
         $sign = $result['sign'];
 
@@ -554,14 +554,14 @@ class Crond extends Base
     public function GetCrontabLog()
     {
         if (!isset($this->payload['crond_id'])) {
-            return message(200, 0, '参数不完整');
+            return message(200, 0, \L::param_not_complete);    //'参数不完整'
         }
 
         $result = $this->database->get('crond', '*', [
             'crond_id' => $this->payload['crond_id']
         ]);
         if (empty($result)) {
-            return message(200, 0, '任务计划不存在');
+            return message(200, 0, \L::schedule_task_not_exist);    //'任务计划不存在'
         }
         $sign = $result['sign'];
 
@@ -573,7 +573,7 @@ class Crond extends Base
             ]);
         } else {
             return message(200, 1, \L::success, [    //‘成功'
-                'log_path' => '未生成',
+                'log_path' => \L::log_path_not_exist,   //'未生成'
                 'log_con' => ''
             ]);
         }
@@ -592,13 +592,13 @@ class Crond extends Base
         if (empty($resultCrond['result'])) {
             $resultCron = funShellExec('ps aux | grep -v grep | grep cron');
             if (empty($resultCron)) {
-                return message(200, 0, 'cron或crond服务未启动');
+                return message(200, 0, \L::cron_service_not_start); //'cron或crond服务未启动'
             }
         }
 
         $resultCron = funShellExec('ps aux | grep -v grep | grep atd');
         if (empty($resultCron)) {
-            return message(200, 0, 'atd服务未启动');
+            return message(200, 0, \L::atd_service_not_start);  //'atd服务未启动'
         }
 
         return message();

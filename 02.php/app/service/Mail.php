@@ -407,7 +407,7 @@ class Mail extends Base
             [
                 'trigger' => 'Common/Login',
                 'type' => 'mail',
-                'note' => '用户登录',
+                'note' => \L::user_login, //'用户登录'
                 'enable' => false,
             ],
             [

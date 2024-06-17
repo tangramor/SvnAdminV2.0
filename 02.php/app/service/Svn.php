@@ -94,11 +94,11 @@ class Svn extends Base
         if ($dataSource['user_source'] == 'ldap') {
 
             if (substr($dataSource['ldap']['ldap_host'], 0, strlen('ldap://')) != 'ldap://' && substr($dataSource['ldap']['ldap_host'], 0, strlen('ldaps://')) != 'ldaps://') {
-                return message(200, 0, 'ldap主机名必须以 ldap:// 或者 ldaps:// 开始');
+                return message(200, 0, \L::ldap_hostname_correct_format);    //'ldap主机名必须以 ldap:// 或者 ldaps:// 开始'
             }
 
             if (preg_match('/\:[0-9]+/', $dataSource['ldap']['ldap_host'], $matches)) {
-                return message(200, 0, 'ldap主机名不可携带端口');
+                return message(200, 0, \L::ldap_hostname_no_port);    //'ldap主机名不可携带端口'
             }
 
             if ($dataSource['group_source'] == 'ldap') {
@@ -157,14 +157,14 @@ class Svn extends Base
             $sasl2 = '/etc/sasl2/svn.conf';
             funShellExec(sprintf("mkdir -p /etc/sasl2 && touch '%s' && chmod o+w '%s'", $sasl2, $sasl2), true);
             if (!is_writable($sasl2)) {
-                return message(200, 0, sprintf('文件[%s]不可读或不存在', $sasl2));
+                return message(200, 0, sprintf(\L::file_not_exist_or_not_readable, $sasl2));    //'文件[%s]不可读或不存在'
             }
             file_put_contents($sasl2, "pwcheck_method: saslauthd\nmech_list: PLAIN LOGIN\n");
 
             //写入 sasl/ldap/saslauthd.conf
             $templeteSaslauthdPath = BASE_PATH . '/templete/sasl/ldap/saslauthd.conf';
             if (!is_readable($templeteSaslauthdPath)) {
-                return message(200, 0, sprintf('文件[%s]不可读或不存在', $templeteSaslauthdPath));
+                return message(200, 0, sprintf(\L::file_not_exist_or_not_readable, $templeteSaslauthdPath));    //'文件[%s]不可读或不存在'
             }
             $new = file_get_contents($templeteSaslauthdPath);
 

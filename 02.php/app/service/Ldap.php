@@ -301,11 +301,11 @@ class Ldap extends Base
         }
 
         if (substr($dataSource['ldap_host'], 0, strlen('ldap://')) != 'ldap://' && substr($dataSource['ldap_host'], 0, strlen('ldaps://')) != 'ldaps://') {
-            return message(200, 0, 'ldap主机名必须以 ldap:// 或者 ldaps:// 开始');
+            return message(200, 0, \L::ldap_hostname_correct_format);    //'ldap主机名必须以 ldap:// 或者 ldaps:// 开始'
         }
 
         if (preg_match('/\:[0-9]+/', $dataSource['ldap_host'], $matches)) {
-            return message(200, 0, 'ldap主机名不可携带端口');
+            return message(200, 0, \L::ldap_hostname_no_port);    //'ldap主机名不可携带端口'
         }
 
         $connection = ldap_connect(rtrim(trim($dataSource['ldap_host']), '/') . ':' . $dataSource['ldap_port'] . '/');

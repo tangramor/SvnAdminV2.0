@@ -2090,7 +2090,7 @@ class Svnrep extends Base
 
             return message(200, $result['status'], $result['message'], $result['data']);
         } else {
-            return message(200, 0, '参数不完整');
+            return message(200, 0, \L::param_not_complete);    //'参数不完整'
         }
     }
 

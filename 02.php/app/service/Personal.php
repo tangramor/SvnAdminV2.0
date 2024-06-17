@@ -58,7 +58,9 @@ class Personal extends Base
         ]);
 
         //邮件
-        $this->Mail->SendMail('Personal/EditAdminUserName', '管理人员修改账号通知', '原账号：' . $this->userName . ' ' . '新账号：' . $this->payload['userName'] . ' ' . '时间：' . date('Y-m-d H:i:s'));
+        $this->Mail->SendMail('Personal/EditAdminUserName', '管理人员修改账号通知', '原账号：' . $this->userName . ' ' . '新账号：' . $this->payload['userName'] . ' ' . 
+            \L::time   //'时间：'
+            . date('Y-m-d H:i:s'));
 
         return message(200, 1, '修改密码成功');
     }
@@ -83,7 +85,9 @@ class Personal extends Base
         ]);
 
         //邮件
-        $this->Mail->SendMail('Personal/EditAdminUserPass', '管理人员修改密码通知', '账号：' . $this->userName . ' '  . '时间：' . date('Y-m-d H:i:s'));
+        $this->Mail->SendMail('Personal/EditAdminUserPass', '管理人员修改密码通知', '账号：' . $this->userName . ' '  . 
+            \L::time   //'时间：'
+            . date('Y-m-d H:i:s'));
 
         return message(200, 1, '修改密码成功');
     }
@@ -138,7 +142,9 @@ class Personal extends Base
         ]);
 
         //邮件
-        $this->Mail->SendMail('Personal/EditSvnUserPass', 'SVN用户修改密码通知', '账号：' . $this->userName . ' ' . '新密码：' . $this->payload['newPassword'] . ' ' . '时间：' . date('Y-m-d H:i:s'));
+        $this->Mail->SendMail('Personal/EditSvnUserPass', 'SVN用户修改密码通知', '账号：' . $this->userName . ' ' . '新密码：' . $this->payload['newPassword'] . ' ' . 
+            \L::time   //'时间：'
+            . date('Y-m-d H:i:s'));
 
         return message(200, 1, '修改密码成功');
     }
@@ -163,7 +169,9 @@ class Personal extends Base
         ]);
 
         //邮件
-        $this->Mail->SendMail('Personal/UpdSubadminUserPass', '子管理员修改密码通知', '账号：' . $this->userName . ' '  . '时间：' . date('Y-m-d H:i:s'));
+        $this->Mail->SendMail('Personal/UpdSubadminUserPass', '子管理员修改密码通知', '账号：' . $this->userName . ' '  . 
+            \L::time   //'时间：'
+            . date('Y-m-d H:i:s'));
 
         return message(200, 1, '修改密码成功');
     }

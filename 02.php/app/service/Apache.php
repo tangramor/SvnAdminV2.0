@@ -67,7 +67,7 @@ class Apache extends Base
                 $templeteSubversionPath = BASE_PATH . '/templete/apache/subversion-multi-authz.conf';
             }
             if (!is_readable($templeteSubversionPath)) {
-                return message(200, 0, sprintf('文件[%s]不可读或不存在', $templeteSubversionPath));
+                return message(200, 0, sprintf(\L::file_not_exist_or_not_readable, $templeteSubversionPath));   //'文件[%s]不可读或不存在'
             }
 
             $DAV = 'svn';
@@ -98,7 +98,7 @@ class Apache extends Base
                 if (!file_exists($subversionPath)) {
                     funFilePutContents($subversionPath, $subversion, true);
                     if (!file_exists($subversionPath)) {
-                        return message(200, 0, sprintf('无法创建文件[%s]', $subversionPath));
+                        return message(200, 0, sprintf(\L::cannot_create_file, $subversionPath));   //'无法创建文件[%s]'
                     }
                 }
             }
@@ -106,7 +106,7 @@ class Apache extends Base
             if (!is_writeable($subversionPath)) {
                 funFilePutContents($subversionPath, $subversion, true);
                 if (!is_writeable($subversionPath)) {
-                    return message(200, 0, sprintf('无法写入文件[%s]', $subversionPath));
+                    return message(200, 0, sprintf(\L::cannot_write_file, $subversionPath));    //'无法写入文件[%s]'
                 }
             }
 
@@ -119,7 +119,7 @@ class Apache extends Base
                 $templeteSubversionPath = BASE_PATH . '/templete/apache/subversion-ldap-multi-authz.conf';
             }
             if (!is_readable($templeteSubversionPath)) {
-                return message(200, 0, sprintf('文件[%s]不可读或不存在', $templeteSubversionPath));
+                return message(200, 0, sprintf(\L::file_not_exist_or_not_readable, $templeteSubversionPath));   //'文件[%s]不可读或不存在'
             }
 
             $DAV = 'svn';
@@ -170,7 +170,7 @@ class Apache extends Base
                 if (!file_exists($subversionPath)) {
                     funFilePutContents($subversionPath, $subversion, true);
                     if (!file_exists($subversionPath)) {
-                        return message(200, 0, sprintf('无法创建文件[%s]', $subversionPath));
+                        return message(200, 0, sprintf(\L::cannot_create_file, $subversionPath));   //'无法创建文件[%s]'
                     }
                 }
             }
@@ -178,7 +178,7 @@ class Apache extends Base
             if (!is_writeable($subversionPath)) {
                 funFilePutContents($subversionPath, $subversion, true);
                 if (!is_writeable($subversionPath)) {
-                    return message(200, 0, sprintf('无法写入文件[%s]', $subversionPath));
+                    return message(200, 0, sprintf(\L::cannot_write_file, $subversionPath));    //'无法写入文件[%s]'
                 }
             }
 
@@ -234,7 +234,7 @@ class Apache extends Base
         clearstatcache();
 
         if (file_exists($this->configSvn['apache_subversion_file'])) {
-            return message(200, 0, sprintf("无法移除文件[%s]", $this->configSvn['apache_subversion_file']));
+            return message(200, 0, sprintf(\L::cannot_remove_file, $this->configSvn['apache_subversion_file']));    //"无法移除文件[%s]"
         }
 
         return message();
@@ -264,7 +264,7 @@ class Apache extends Base
             return message();
         }
 
-        return message(200, 0, '登录失败[账号或密码错误]');
+        return message(200, 0, \L::login_failed_by_wrong_account_or_password);    //'登录失败[账号或密码错误]'
     }
 
     /**
@@ -372,7 +372,7 @@ class Apache extends Base
     public function UpdHttpPort()
     {
         if ($this->enableCheckout == 'svn') {
-            return message(200, 0, '需要切换为http协议检出状态才可修改');
+            return message(200, 0, \L::need_to_be_http_protocol_for_modification);  //'需要切换为http协议检出状态才可修改'
         }
 
         //检查表单
@@ -402,7 +402,7 @@ class Apache extends Base
     public function UpdHttpPrefix()
     {
         if ($this->enableCheckout == 'svn') {
-            return message(200, 0, '需要切换为http协议检出状态才可修改');
+            return message(200, 0, \L::need_to_be_http_protocol_for_modification);  //'需要切换为http协议检出状态才可修改'
         }
 
         //检查表单
@@ -414,7 +414,7 @@ class Apache extends Base
         }
 
         if (substr($this->payload['prefix'], 0, 1) != '/') {
-            return message(200, 0, '前缀要携带/');
+            return message(200, 0, \L::prefix_need_slash);  //'前缀要携带/'
         }
 
         $this->database->update('options', [
@@ -454,11 +454,11 @@ class Apache extends Base
         if ($dataSource['user_source'] == 'ldap') {
 
             if (substr($dataSource['ldap']['ldap_host'], 0, strlen('ldap://')) != 'ldap://' && substr($dataSource['ldap']['ldap_host'], 0, strlen('ldaps://')) != 'ldaps://') {
-                return message(200, 0, 'ldap主机名必须以 ldap:// 或者 ldaps:// 开始');
+                return message(200, 0, \L::ldap_hostname_correct_format);    //'ldap主机名必须以 ldap:// 或者 ldaps:// 开始'
             }
 
             if (preg_match('/\:[0-9]+/', $dataSource['ldap']['ldap_host'], $matches)) {
-                return message(200, 0, 'ldap主机名不可携带端口');
+                return message(200, 0, \L::ldap_hostname_no_port);    //'ldap主机名不可携带端口'
             }
 
             if ($dataSource['group_source'] == 'ldap') {

@@ -192,7 +192,7 @@ module.exports = {
         验证码错误: 'Login failed[Verification code error]',
         验证码失效: 'Login failed[Verification code expired]',
         验证码过期: 'Login failed[Verification code expired]',
-        账号或密码错误: 'Login failed[Account or password error]',
+        // 账号或密码错误: 'Login failed[Account or password error]',
         ldap账户未同步: 'Login failed[ldap account not synchronized]',
         ldap账户认证失败: 'Login failed[ldap account authentication failed]',
         ldap账户名不合法: 'Login failed[ldap account name is illegal]',

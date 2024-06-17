@@ -215,7 +215,7 @@ export default {
           } else {
             // 取返回错误消息有效信息来翻译（key 里不支持中括号）：
             // 登录失败[验证码错误] -> 验证码错误 by result.message.substr(5, result.message.length - 6)
-            that.$Message.error({ content: i18n.t('login.' + result.message.substr(5, result.message.length - 6)), duration: 2 });
+            that.$Message.error({ content: result.message, duration: 2 });
           }
         })
         .catch(function (error) {
@@ -239,7 +239,7 @@ export default {
             that.formUserLogin.uuid = result.data.uuid;
             that.formUserLogin.base64 = result.data.base64;
           } else {
-            that.$Message.error({ content: i18n.t('login.' + result.message.substr(5, result.message.length - 6)), duration: 2 });
+            that.$Message.error({ content: result.message, duration: 2 });
           }
         })
         .catch(function (error) {
@@ -278,7 +278,7 @@ export default {
               JSON.stringify(result.data.functions)
             );
 
-            that.$Message.success(i18n.t('login.' + result.message));
+            that.$Message.success(result.message);
 
             if (result.data.user_role_id == 1) {
               //管理员跳转到首页
@@ -296,7 +296,7 @@ export default {
             that.$router.push({ name: sessionStorage.firstRoute });
           } else {
             that.GetVerifyOption();
-            that.$Message.error({ content: i18n.t('login.' + result.message.substr(5, result.message.length - 6)), duration: 2 });
+            that.$Message.error({ content: result.message, duration: 2 });
           }
         })
         .catch(function (error) {

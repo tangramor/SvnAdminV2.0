@@ -54,7 +54,7 @@ class Common extends Base
         $userName = $this->payload['user_name'];
         $userPass = $this->payload['user_pass'];
         $userRole = $this->payload['user_role'];
-        $userRoleName = $userRole == 1 ? '管理员' : ($userRole == 2 ? 'SVN用户' : ($userRole == 3 ? '子管理员' : '未知'));
+        $userRoleName = $userRole == 1 ? \L::role_admin : ($userRole == 2 ? \L::role_user : ($userRole == 3 ? \L::role_subadmin : \L::role_unknown));
 
         //清理过期token
         $this->CleanBlack();
@@ -79,13 +79,13 @@ class Common extends Base
                 ], [
                     'uuid' => $this->payload['uuid']
                 ]);
-                return message(200, 0, '登录失败[验证码错误]', $endTime);
+                return message(200, 0, \L::login_filed_by_wrong_captcha, $endTime); //'登录失败[验证码错误]'
             }
             if ($endTime == 0) {
-                return message(200, 0, '登陆失败[验证码失效]');
+                return message(200, 0, \L::login_failed_by_invalid_captcha);    //'登陆失败[验证码失效]'
             }
             if ($endTime < time()) {
-                return message(200, 0, '登陆失败[验证码过期]');
+                return message(200, 0, \L::login_failed_by_expired_captcha);    //'登陆失败[验证码过期]'
             }
         }
 
@@ -101,7 +101,7 @@ class Common extends Base
                 'admin_user_password' => $userPass
             ]);
             if (empty($result)) {
-                return message(200, 0, '登录失败[账号或密码错误]');
+                return message(200, 0, \L::login_failed_by_wrong_account_or_password);    //'登录失败[账号或密码错误]'
             }
 
             //更新token
@@ -122,11 +122,11 @@ class Common extends Base
                     'svn_user_name' => $userName,
                 ]);
                 if (empty($result)) {
-                    return message(200, 0, '登录失败[ldap账户未同步]');
+                    return message(200, 0, \L::login_failed_by_nosync_ldap_account);    //'登录失败[ldap账户未同步]'
                 }
 
                 if (!$this->ServiceLdap->LdapUserLogin($userName, $userPass)) {
-                    return message(200, 0, '登录失败[ldap账户认证失败]');
+                    return message(200, 0, \L::login_failed_by_ldap_auth_failed);    //'登录失败[ldap账户认证失败]'
                 }
 
                 $this->database->update('svn_users', [
@@ -136,7 +136,7 @@ class Common extends Base
                 ]);
 
                 if (strstr($userName, '|')) {
-                    return message(200, 0, '登录失败[ldap账户名不合法]');
+                    return message(200, 0, \L::login_failed_by_ldap_username_invalid_format);   //'登录失败[ldap账户名不合法]'
                 }
             } else {
                 if ($this->enableCheckout == 'svn') {
@@ -148,10 +148,10 @@ class Common extends Base
                         'svn_user_pass' => $userPass
                     ]);
                     if (empty($result)) {
-                        return message(200, 0, '登录失败[账号或密码错误]');
+                        return message(200, 0, \L::login_failed_by_wrong_account_or_password);    //'登录失败[账号或密码错误]'
                     }
                     if ($result['svn_user_status'] == 0) {
-                        return message(200, 0, '登录失败[用户已过期]');
+                        return message(200, 0, \L::login_failed_by_session_expired);    //'登录失败[用户已过期]'
                     }
                 } else {
                     $result = $this->ServiceApache->Auth($userName, $userPass);
@@ -166,10 +166,10 @@ class Common extends Base
                         'svn_user_name' => $userName
                     ]);
                     if (empty($result)) {
-                        return message(200, 0, '登录失败[用户未同步]');
+                        return message(200, 0, \L::login_failed_by_user_not_synced);    //'登录失败[用户未同步]'
                     }
                     if ($result['svn_user_status'] == 0) {
-                        return message(200, 0, '登录失败[用户已过期]');
+                        return message(200, 0, \L::login_failed_by_session_expired);    //'登录失败[用户已过期]'
                     }
 
                     $this->database->update('svn_users', [
@@ -204,10 +204,10 @@ class Common extends Base
                 'subadmin_password' => md5($userPass)
             ]);
             if (empty($result)) {
-                return message(200, 0, '登录失败[账号或密码错误]');
+                return message(200, 0, \L::login_failed_by_wrong_account_or_password);    //'登录失败[账号或密码错误]'
             }
             if ($result['subadmin_status'] == 0) {
-                return message(200, 0, '登录失败[用户已过期]');
+                return message(200, 0, \L::login_failed_by_session_expired);    //'登录失败[用户已过期]'
             }
 
             //更新登录时间
@@ -227,16 +227,22 @@ class Common extends Base
 
         //日志
         $this->Logs->InsertLog(
-            '用户登录',
-            sprintf("账号:%s IP地址:%s", $userName, funGetCip()),
+            \L::user_login, //'用户登录'
+            sprintf(\L::account_and_ip, $userName, funGetCip()),    //"账号:%s IP地址:%s"
             $userName
         );
 
         //邮件
-        $this->Mail->SendMail('Common/Login', '用户登录成功通知', '账号：' . $userName . ' ' . 'IP地址：' . funGetCip() . ' ' . '时间：' . date('Y-m-d H:i:s'));
+        $this->Mail->SendMail('Common/Login', \L::notice_about_user_login,  //'用户登录成功通知'
+             \L::user_account   //'账号：'
+             . $userName . ' ' . 
+             \L::ip_address    //'IP地址：'
+             . funGetCip() . ' ' . 
+             \L::time   //'时间：'
+             . date('Y-m-d H:i:s'));
 
         $info = $this->GetDynamicRouting($userName, $userRole);
-        return message(200, 1, '登陆成功', [
+        return message(200, 1, \L::login_success, [ //'登陆成功'
             'token' => $token,
             'user_name' => $userName,
             'user_role_name' => $userRoleName,
@@ -303,13 +309,13 @@ class Common extends Base
 
         //日志
         $this->Logs->InsertLog(
-            '用户注销',
-            sprintf("账号:%s IP地址:%s", $this->userName, funGetCip()),
+            \L::user_logout,    //'用户注销'
+            sprintf(\L::account_and_ip, $this->userName, funGetCip()),  //"账号:%s IP地址:%s"
             $this->userName
         );
 
         //退出
-        return message(200, 1, '退出登录成功');
+        return message(200, 1, \L::logout_success); //'退出登录成功'
     }
 
     /**
@@ -360,7 +366,7 @@ class Common extends Base
         ]);
 
         if (empty($codeId)) {
-            return message(200, 0, '无法写入数据库，如果为 SQLite，请为数据库文件及上级目录授权');
+            return message(200, 0, \L::cannot_write_into_db_need_permission_for_sqlite);    //'无法写入数据库，如果为 SQLite，请为数据库文件及上级目录授权'
         }
 
         $varification = new Verifycode(134, 32, $code);
