@@ -107,9 +107,9 @@ class Svnuser extends Base
         $svnUserList =  $this->SVNAdmin->GetUserInfo($this->passwdContent);
         if (is_numeric($svnUserList)) {
             if ($svnUserList == 621) {
-                return message(200, 0, '文件格式错误(不存在[users]标识)');
+                return message(200, 0, \L::file_format_wrong_no_users_field);  //'文件格式错误(不存在[users]标识)'
             } elseif ($svnUserList == 710) {
-                return message(200, 0, '用户不存在');
+                return message(200, 0, \L::user_not_exists);    //'用户不存在'
             } else {
                 return message(200, 0, \L::error_code . $svnUserList);  //"错误码$svnUserList"
             }
@@ -275,7 +275,7 @@ class Svnuser extends Base
         $svnUserList =  $this->SVNAdmin->GetUserInfoHttp($this->httpPasswdContent);
         if (is_numeric($svnUserList)) {
             if ($svnUserList == 710) {
-                return message(200, 0, '用户不存在');
+                return message(200, 0, \L::user_not_exists);    //'用户不存在'
             } else {
                 return message(200, 0, \L::error_code . $svnUserList);  //"错误码$svnUserList"
             }
@@ -344,10 +344,10 @@ class Svnuser extends Base
 
         //检查排序字段
         if (!in_array($this->payload['sortName'], ['svn_user_id', 'svn_user_name', 'svn_user_status', 'svn_user_last_login'])) {
-            return message(2000, '不允许的排序字段');
+            return message(2000, \L::disallowed_sort_fields);   //'不允许的排序字段'
         }
         if (!in_array($this->payload['sortType'], ['asc', 'desc', 'ASC', 'DESC'])) {
-            return message(2000, '不允许的排序类型');
+            return message(2000, \L::disallowed_sort_type); //'不允许的排序类型'
         }
 
         $sync = $this->payload['sync'];
@@ -450,7 +450,7 @@ class Svnuser extends Base
         }
 
         if ($dataSource['user_source'] == 'ldap') {
-            return message(200, 0, '当前SVN用户来源为LDAP-不支持此操作');
+            return message(200, 0, \L::operation_not_support_for_ldap_account);  //'当前SVN用户来源为LDAP-不支持此操作'
         }
 
         //检查表单
@@ -465,9 +465,9 @@ class Svnuser extends Base
             $svnUserPassList = $this->SVNAdmin->GetUserInfo($this->payload['passwd']);
             if (is_numeric($svnUserPassList)) {
                 if ($svnUserPassList == 621) {
-                    return message(200, 0, '文件格式错误(不存在[users]标识)');
+                    return message(200, 0, \L::file_format_wrong_no_users_field);  //'文件格式错误(不存在[users]标识)'
                 } elseif ($svnUserPassList == 710) {
-                    return message(200, 0, '用户不存在');
+                    return message(200, 0, \L::user_not_exists);    //'用户不存在'
                 } else {
                     return message(200, 0, \L::error_code . $svnUserPassList);  //"错误码$svnUserPassList"
                 }
@@ -476,7 +476,7 @@ class Svnuser extends Base
             $svnUserPassList = $this->SVNAdmin->GetUserInfoHttp($this->payload['passwd']);
             if (is_numeric($svnUserPassList)) {
                 if ($svnUserPassList == 710) {
-                    return message(200, 0, '用户不存在');
+                    return message(200, 0, \L::user_not_exists);    //'用户不存在'
                 } else {
                     return message(200, 0, \L::error_code . $svnUserPassList);  //"错误码$svnUserPassList"
                 }
@@ -498,7 +498,7 @@ class Svnuser extends Base
         }
 
         if ($dataSource['user_source'] == 'ldap') {
-            return message(200, 0, '当前SVN用户来源为LDAP-不支持此操作');
+            return message(200, 0, \L::operation_not_support_for_ldap_account);  //'当前SVN用户来源为LDAP-不支持此操作'
         }
 
         //检查表单
@@ -521,7 +521,7 @@ class Svnuser extends Base
                     $all[] = [
                         'userName' => $user['userName'],
                         'status' => 0,
-                        'reason' => '用户名不合法'
+                        'reason' => \L::illegal_username    //'用户名不合法'
                     ];
                     continue;
                 }
@@ -530,7 +530,7 @@ class Svnuser extends Base
                     $all[] = [
                         'userName' => $user['userName'],
                         'status' => 0,
-                        'reason' => '密码不能为空'
+                        'reason' => \L::password_cannot_be_empty    //'密码不能为空'
                     ];
                     continue;
                 }
@@ -538,19 +538,19 @@ class Svnuser extends Base
                 $result = $this->SVNAdmin->AddUser($passwdContent, $user['userName'], $user['userPass']);
                 if (is_numeric($result)) {
                     if ($result == 621) {
-                        return message(200, 0, '文件格式错误(不存在[users]标识)');
+                        return message(200, 0, \L::file_format_wrong_no_users_field);  //'文件格式错误(不存在[users]标识)'
                     } elseif ($result == 810) {
                         $all[] = [
                             'userName' => $user['userName'],
                             'status' => 0,
-                            'reason' => '用户已存在'
+                            'reason' => \L::user_already_exists    //'用户已存在'
                         ];
                         continue;
                     } else {
                         $all[] = [
                             'userName' => $user['userName'],
                             'status' => 0,
-                            'reason' => "错误码$result"
+                            'reason' => \L::error_code . $result    //"错误码$result"
                         ];
                         continue;
                     }
@@ -563,9 +563,9 @@ class Svnuser extends Base
                     $result = $this->SVNAdmin->UpdUserStatus($passwdContent, $user['userName'], true);
                     if (is_numeric($result)) {
                         if ($result == 621) {
-                            return message(200, 0, '文件格式错误(不存在[users]标识)');
+                            return message(200, 0, \L::file_format_wrong_no_users_field);  //'文件格式错误(不存在[users]标识)'
                         } elseif ($result == 710) {
-                            return message(200, 0, '用户不存在');
+                            return message(200, 0, \L::user_not_exists);    //'用户不存在'
                         } else {
                             return message(200, 0, \L::error_code . $result);  //"错误码$result"
                         }
@@ -599,7 +599,7 @@ class Svnuser extends Base
             $currentUsers =  $this->SVNAdmin->GetUserInfoHttp($passwdContent);
             if (is_numeric($currentUsers)) {
                 if ($currentUsers == 710) {
-                    return message(200, 0, '用户不存在');
+                    return message(200, 0, \L::user_not_exists);    //'用户不存在'
                 } else {
                     return message(200, 0, \L::error_code . $currentUsers);  //"错误码$currentUsers"
                 }
@@ -612,7 +612,7 @@ class Svnuser extends Base
                     $all[] = [
                         'userName' => $user['userName'],
                         'status' => 0,
-                        'reason' => '用户名不合法'
+                        'reason' => \L::illegal_username    //'用户名不合法'
                     ];
                     continue;
                 }
@@ -621,7 +621,7 @@ class Svnuser extends Base
                     $all[] = [
                         'userName' => $user['userName'],
                         'status' => 0,
-                        'reason' => '密码不能为空'
+                        'reason' => \L::password_cannot_be_empty,   //'密码不能为空'
                     ];
                     continue;
                 }
@@ -630,7 +630,7 @@ class Svnuser extends Base
                     $all[] = [
                         'userName' => $user['userName'],
                         'status' => 0,
-                        'reason' => '用户已存在'
+                        'reason' => \L::user_already_exists, //'用户已存在'
                     ];
                     continue;
                 }
@@ -642,9 +642,9 @@ class Svnuser extends Base
                     $result = $this->SVNAdmin->UpdUserStatusHttp($passwdContent, $user['userName'], true);
                     if (is_numeric($result)) {
                         if ($result == 621) {
-                            return message(200, 0, '文件格式错误(不存在[users]标识)');
+                            return message(200, 0, \L::file_format_wrong_no_users_field);  //'文件格式错误(不存在[users]标识)'
                         } elseif ($result == 710) {
-                            return message(200, 0, '用户不存在');
+                            return message(200, 0, \L::user_not_exists);    //'用户不存在'
                         } else {
                             return message(200, 0, \L::error_code . $result);  //"错误码$result"
                         }
@@ -696,7 +696,7 @@ class Svnuser extends Base
         }
 
         if ($dataSource['user_source'] == 'ldap') {
-            return message(200, 0, '当前SVN用户来源为LDAP-不支持此操作');
+            return message(200, 0, \L::operation_not_support_for_ldap_account);  //'当前SVN用户来源为LDAP-不支持此操作'
         }
 
         if ($this->enableCheckout == 'svn') {
@@ -704,9 +704,9 @@ class Svnuser extends Base
             $result = $this->SVNAdmin->UpdUserStatus($this->passwdContent, $this->payload['svn_user_name'], !$this->payload['status']);
             if (is_numeric($result)) {
                 if ($result == 621) {
-                    return message(200, 0, '文件格式错误(不存在[users]标识)');
+                    return message(200, 0, \L::file_format_wrong_no_users_field);  //'文件格式错误(不存在[users]标识)'
                 } elseif ($result == 710) {
-                    return message(200, 0, '用户不存在');
+                    return message(200, 0, \L::user_not_exists);    //'用户不存在'
                 } else {
                     return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
@@ -718,7 +718,7 @@ class Svnuser extends Base
             $result = $this->SVNAdmin->UpdUserStatusHttp($this->httpPasswdContent, $this->payload['svn_user_name'], !$this->payload['status']);
             if (is_numeric($result)) {
                 if ($result == 710) {
-                    return message(200, 0, '用户不存在');
+                    return message(200, 0, \L::user_not_exists);    //'用户不存在'
                 } else {
                     return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
@@ -747,7 +747,7 @@ class Svnuser extends Base
             'svn_user_name' => $this->payload['svn_user_name']
         ]);
 
-        return message(200, 1, '已保存');
+        return message(200, 1, \L::saved);  //'已保存'
     }
 
     /**
@@ -762,7 +762,7 @@ class Svnuser extends Base
         }
 
         if ($dataSource['user_source'] == 'ldap') {
-            return message(200, 0, '当前SVN用户来源为LDAP-不支持此操作');
+            return message(200, 0, \L::operation_not_support_for_ldap_account);  //'当前SVN用户来源为LDAP-不支持此操作'
         }
 
         //检查用户名是否合法
@@ -773,7 +773,7 @@ class Svnuser extends Base
 
         //检查密码是否不为空
         if (trim($this->payload['svn_user_pass']) == '') {
-            return message(200, 0, '密码不能为空');
+            return message(200, 0, \L::password_cannot_be_empty);   //'密码不能为空'
         }
 
         if ($this->enableCheckout == 'svn') {
@@ -781,9 +781,9 @@ class Svnuser extends Base
             $result = $this->SVNAdmin->AddUser($this->passwdContent, $this->payload['svn_user_name'], $this->payload['svn_user_pass']);
             if (is_numeric($result)) {
                 if ($result == 621) {
-                    return message(200, 0, '文件格式错误(不存在[users]标识)');
+                    return message(200, 0, \L::file_format_wrong_no_users_field);  //'文件格式错误(不存在[users]标识)'
                 } elseif ($result == 810) {
-                    return message(200, 0, '用户已存在');
+                    return message(200, 0, \L::user_already_exists);    //'用户已存在'
                 } else {
                     return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
@@ -798,7 +798,7 @@ class Svnuser extends Base
                     return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
             } else {
-                return message(200, 0, '用户已存在');
+                return message(200, 0, \L::user_already_exists);    //'用户已存在'
             }
 
             $result = $this->ServiceApache->CreateUser($this->payload['svn_user_name'], $this->payload['svn_user_pass']);
@@ -820,8 +820,8 @@ class Svnuser extends Base
 
         //日志
         $this->ServiceLogs->InsertLog(
-            '创建用户',
-            sprintf("用户名:%s", $this->payload['svn_user_name']),
+            \L::create_user,    //'创建用户'
+            sprintf(\L::username_is, $this->payload['svn_user_name']),  //"用户名:%s"
             $this->userName
         );
 
@@ -840,11 +840,11 @@ class Svnuser extends Base
         }
 
         if ($dataSource['user_source'] == 'ldap') {
-            return message(200, 0, '当前SVN用户来源为LDAP-不支持此操作');
+            return message(200, 0, \L::operation_not_support_for_ldap_account);  //'当前SVN用户来源为LDAP-不支持此操作'
         }
 
         if (trim($this->payload['svn_user_pass']) == '') {
-            return message(200, 0, '密码不能为空');
+            return message(200, 0, \L::password_cannot_be_empty);   //'密码不能为空'
         }
 
         if ($this->enableCheckout == 'svn') {
@@ -852,9 +852,9 @@ class Svnuser extends Base
             $result = $this->SVNAdmin->UpdUserPass($this->passwdContent, $this->payload['svn_user_name'], $this->payload['svn_user_pass'], !$this->payload['svn_user_status']);
             if (is_numeric($result)) {
                 if ($result == 621) {
-                    return message(200, 0, '文件格式错误(不存在[users]标识)');
+                    return message(200, 0, \L::file_format_wrong_no_users_field);  //'文件格式错误(不存在[users]标识)'
                 } elseif ($result == 710) {
-                    return message(200, 0, '用户不存在 请管理员同步用户后重试');
+                    return message(200, 0, \L::user_not_exist_try_again_after_sync);  //'用户不存在 请管理员同步用户后重试'
                 } else {
                     return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
@@ -891,7 +891,7 @@ class Svnuser extends Base
         }
 
         if ($dataSource['user_source'] == 'ldap') {
-            return message(200, 0, '当前SVN用户来源为LDAP-不支持此操作');
+            return message(200, 0, \L::operation_not_support_for_ldap_account);  //'当前SVN用户来源为LDAP-不支持此操作'
         }
 
         if ($this->enableCheckout == 'svn') {
@@ -899,9 +899,9 @@ class Svnuser extends Base
             $resultPasswd = $this->SVNAdmin->DelUserFromPasswd($this->passwdContent, $this->payload['svn_user_name'], !$this->payload['svn_user_status']);
             if (is_numeric($resultPasswd)) {
                 if ($resultPasswd == 621) {
-                    return message(200, 0, '文件格式错误(不存在[users]标识)');
+                    return message(200, 0, \L::file_format_wrong_no_users_field);  //'文件格式错误(不存在[users]标识)'
                 } elseif ($resultPasswd == 710) {
-                    return message(200, 0, '用户不存在');
+                    return message(200, 0, \L::user_not_exists);    //'用户不存在'
                 } else {
                     return message(200, 0, \L::error_code . $resultPasswd);  //"错误码$resultPasswd"
                 }
@@ -916,16 +916,16 @@ class Svnuser extends Base
         }
 
         if ($this->authzContent == '') {
-            return message(200, 0, \\L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
+            return message(200, 0, \L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
         }
 
         //从authz文件中删除
         $resultAuthz = $this->SVNAdmin->DelObjectFromAuthz($this->authzContent, $this->payload['svn_user_name'], 'user');
         if (is_numeric($resultAuthz)) {
             if ($resultAuthz == 621) {
-                return message(200, 0, '文件格式错误(不存在[users]标识)');
+                return message(200, 0, \L::file_format_wrong_no_users_field);  //'文件格式错误(不存在[users]标识)'
             } elseif ($resultAuthz == 901) {
-                return message(200, 0, '不支持的授权对象类型');
+                return message(200, 0, \L::not_supported_permission_object_type);    //'不支持的授权对象类型'
             } else {
                 return message(200, 0, \L::error_code . $resultAuthz);  //"错误码$resultAuthz"
             }
@@ -940,8 +940,8 @@ class Svnuser extends Base
 
         //日志
         $this->ServiceLogs->InsertLog(
-            '删除用户',
-            sprintf("用户名:%s", $this->payload['svn_user_name']),
+            \L::delete_user,    //'删除用户'
+            sprintf(\L::username_is, $this->payload['svn_user_name']),  //"用户名:%s"
             $this->userName
         );
 

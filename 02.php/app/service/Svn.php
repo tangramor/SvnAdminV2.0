@@ -197,7 +197,7 @@ class Svn extends Base
             );
 
             if (!is_writable($this->configSvn['ldap_config_file'])) {
-                return message(200, 0, sprintf('文件[%s]不可写或不存在', $this->configSvn['ldap_config_file']));
+                return message(200, 0, sprintf(\L::file_not_exist_or_not_writable, $this->configSvn['ldap_config_file']));  //'文件[%s]不可写或不存在'
             }
             $old = file_get_contents($this->configSvn['ldap_config_file']);
 
@@ -306,14 +306,14 @@ class Svn extends Base
     public function UpdSaslStatusStart()
     {
         if (empty($this->configBin['saslauthd'])) {
-            return message(200, 0, '未在 config/bin.php 文件中配置 saslauthd 路径');
+            return message(200, 0, \L::saslauthd_path_not_configured);  //'未在 config/bin.php 文件中配置 saslauthd 路径'
         }
 
         if (file_exists($this->configSvn['saslauthd_pid_file'])) {
             $pid = trim(file_get_contents($this->configSvn['saslauthd_pid_file']));
             clearstatcache();
             if (is_dir("/proc/$pid")) {
-                return message(200, 0, '服务运行中');
+                return message(200, 0, \L::service_running);    //'服务运行中'
             }
         }
 
@@ -330,22 +330,22 @@ class Svn extends Base
         $result = funShellExec($cmdStart, true);
 
         if ($result['code'] != 0) {
-            return message(200, 0, '启动进程失败: ' . $result['error']);
+            return message(200, 0, \L::start_process_failed . $result['error']);    //'启动进程失败: '
         }
 
         sleep(1);
 
         $result = funShellExec(sprintf("ps aux | grep -v grep | grep %s | awk 'NR==1' | awk '{print $2}'", $unique));
         if ($result['code'] != 0) {
-            return message(200, 0, '获取进程失败: ' . $result['error']);
+            return message(200, 0, \L::get_process_failed . $result['error']);  //'获取进程失败: '
         }
 
         funFilePutContents($this->configSvn['saslauthd_pid_file'], trim($result['result']), true);
         if (!file_exists($this->configSvn['saslauthd_pid_file'])) {
-            return message(200, 0, sprintf('无法强制写入文件[%s]-请为数据目录授权', $this->configSvn['saslauthd_pid_file']));
+            return message(200, 0, sprintf(\L::cannot_write_file_need_permission_for_dir, $this->configSvn['saslauthd_pid_file'])); //'无法强制写入文件[%s]-请为数据目录授权'
         }
         if (file_get_contents($this->configSvn['saslauthd_pid_file']) !== trim($result['result'])) {
-            return message(200, 0, '进程启动成功-但是写入pid文件失败-请联系管理员');
+            return message(200, 0, \L::started_process_but_failed_write_pid_file);  //'进程启动成功-但是写入pid文件失败-请联系管理员'
         }
 
         return message();
@@ -375,14 +375,14 @@ class Svn extends Base
         $result = funShellExec(sprintf("kill -15 %s", $pid), true);
 
         if ($result['code'] != 0) {
-            return message(200, 0, 'saslauthd服务停止失败: ' . $result['error']);
+            return message(200, 0, \L::failed_to_stop_saslauthd . ': ' . $result['error']);    //'saslauthd服务停止失败: '
         }
 
         sleep(1);
 
         clearstatcache();
         if (is_dir("/proc/$pid")) {
-            return message(200, 0, 'saslauthd服务停止失败');
+            return message(200, 0, \L::failed_to_stop_saslauthd);   //'saslauthd服务停止失败'
         }
 
         return message();
@@ -410,7 +410,9 @@ class Svn extends Base
                 }
             }
 
-            return message(200, 1, $statusRun ? '服务正常' : 'svnserve服务未在运行，出于安全原因，SVN用户将无法使用系统的仓库在线内容浏览功能，其它功能不受影响', $statusRun);
+            return message(200, 1, $statusRun ? \L::service_normal  //'服务正常' 
+                : \L::svnserve_not_running_cannot_view_repo_content //'svnserve服务未在运行，出于安全原因，SVN用户将无法使用系统的仓库在线内容浏览功能，其它功能不受影响'
+                , $statusRun);
         } else {
             return message();
         }
@@ -483,7 +485,7 @@ class Svn extends Base
 
         clearstatcache();
         if (is_dir("/proc/$pid")) {
-            return message(200, 0, 'svnserve服务停止失败');
+            return message(200, 0, \L::failed_to_stop_svnserve);    //'svnserve服务停止失败'
         }
 
         return message();
@@ -500,14 +502,14 @@ class Svn extends Base
 
         $result = $this->UpdUsesaslStatus($con, 'true');
         if (is_numeric($result)) {
-            return message(200, 0, 'svn开启use-sasl失败');
+            return message(200, 0, \L::failed_to_use_sasl_for_svn); //'svn开启use-sasl失败'
         }
         if ($result == $con) {
             return message();
         }
         $result = file_put_contents($this->configSvn['svn_conf_file'], $result);
         if (!$result) {
-            return message(200, 0, sprintf('文件[%s]写入失败', $this->configSvn['svn_conf_file']));
+            return message(200, 0, sprintf(\L::failed_to_write_file, $this->configSvn['svn_conf_file']));   //'文件[%s]写入失败'
         }
 
         return message();
@@ -524,14 +526,14 @@ class Svn extends Base
 
         $result = $this->UpdUsesaslStatus($con, 'false');
         if (is_numeric($result)) {
-            return message(200, 0, 'svn开启use-sasl失败');
+            return message(200, 0, \L::failed_to_use_sasl_for_svn); //'svn开启use-sasl失败'
         }
         if ($result == $con) {
             return message();
         }
         $result = file_put_contents($this->configSvn['svn_conf_file'], $result);
         if (!$result) {
-            return message(200, 0, sprintf('文件[%s]写入失败', $this->configSvn['svn_conf_file']));
+            return message(200, 0, sprintf(\L::failed_to_write_file, $this->configSvn['svn_conf_file']));   //'文件[%s]写入失败'
         }
 
         return message();

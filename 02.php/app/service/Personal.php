@@ -35,7 +35,7 @@ class Personal extends Base
     public function EditAdminUserName()
     {
         if ($this->payload['userName'] != $this->payload['confirm']) {
-            return message(200, 0, '输入不一致');
+            return message(200, 0, \L::input_inconsistent);  //'输入不一致'
         }
 
         if (trim($this->payload['userName']) == '') {
@@ -62,7 +62,7 @@ class Personal extends Base
             \L::time   //'时间：'
             . date('Y-m-d H:i:s'));
 
-        return message(200, 1, '修改密码成功');
+        return message(200, 1, \L::modify_password_success);    //'修改密码成功'
     }
 
     /**
@@ -71,11 +71,11 @@ class Personal extends Base
     public function EditAdminUserPass()
     {
         if ($this->payload['password'] != $this->payload['confirm']) {
-            return message(200, 0, '输入不一致');
+            return message(200, 0, \L::input_inconsistent);  //'输入不一致'
         }
 
         if (trim($this->payload['password']) == '') {
-            return message(200, 0, '密码不合法');
+            return message(200, 0, \L::illegal_password);   //'密码不合法'
         }
 
         $this->database->update('admin_users', [
@@ -85,11 +85,13 @@ class Personal extends Base
         ]);
 
         //邮件
-        $this->Mail->SendMail('Personal/EditAdminUserPass', '管理人员修改密码通知', '账号：' . $this->userName . ' '  . 
+        $this->Mail->SendMail('Personal/EditAdminUserPass', \L::notice_of_admin_modify_password, //'管理人员修改密码通知'
+            \L::user_account    //'账号：' 
+            . $this->userName . ' '  . 
             \L::time   //'时间：'
             . date('Y-m-d H:i:s'));
 
-        return message(200, 1, '修改密码成功');
+        return message(200, 1, \L::modify_password_success);    //'修改密码成功'
     }
 
     /**
@@ -104,24 +106,24 @@ class Personal extends Base
         }
 
         if ($dataSource['user_source'] == 'ldap') {
-            return message(200, 0, '当前SVN用户来源为LDAP-不支持此操作');
+            return message(200, 0, \L::operation_not_support_for_ldap_account);  //'当前SVN用户来源为LDAP-不支持此操作'
         }
 
         if ($this->payload['newPassword'] != $this->payload['confirm']) {
-            return message(200, 0, '输入不一致');
+            return message(200, 0, \L::input_inconsistent);  //'输入不一致'
         }
 
         if (trim($this->payload['newPassword']) == '') {
-            return message(200, 0, '密码不合法');
+            return message(200, 0, \L::illegal_password);   //'密码不合法'
         }
 
         if ($this->enableCheckout == 'svn') {
             $result = $this->SVNAdmin->UpdUserPass($this->passwdContent, $this->userName, $this->payload['newPassword']);
             if (is_numeric($result)) {
                 if ($result == 621) {
-                    return message(200, 0, '文件格式错误(不存在[users]标识)');
+                    return message(200, 0, \L::file_format_wrong_no_users_field);  //'文件格式错误(不存在[users]标识)'
                 } elseif ($result == 710) {
-                    return message(200, 0, '用户不存在 请管理员同步用户后重试');
+                    return message(200, 0, \L::user_not_exist_try_again_after_sync);  //'用户不存在 请管理员同步用户后重试'
                 } else {
                     return message(200, 0, \L::error_code . $result);  //"错误码$result"
                 }
@@ -142,11 +144,15 @@ class Personal extends Base
         ]);
 
         //邮件
-        $this->Mail->SendMail('Personal/EditSvnUserPass', 'SVN用户修改密码通知', '账号：' . $this->userName . ' ' . '新密码：' . $this->payload['newPassword'] . ' ' . 
+        $this->Mail->SendMail('Personal/EditSvnUserPass', \L::notice_about_user_change_password, //'SVN用户修改密码通知' 
+            \L::user_account    //'账号：'
+            . $this->userName . ' ' . 
+            \L::new_password    //'新密码：' 
+            . $this->payload['newPassword'] . ' ' . 
             \L::time   //'时间：'
             . date('Y-m-d H:i:s'));
 
-        return message(200, 1, '修改密码成功');
+        return message(200, 1, \L::modify_password_success);    //'修改密码成功'
     }
 
     /**
@@ -155,11 +161,11 @@ class Personal extends Base
     public function UpdSubadminUserPass()
     {
         if ($this->payload['password'] != $this->payload['confirm']) {
-            return message(200, 0, '输入不一致');
+            return message(200, 0, \L::input_inconsistent);  //'输入不一致'
         }
 
         if (trim($this->payload['password']) == '') {
-            return message(200, 0, '密码不合法');
+            return message(200, 0, \L::illegal_password);   //'密码不合法'
         }
 
         $this->database->update('subadmin', [
@@ -169,10 +175,12 @@ class Personal extends Base
         ]);
 
         //邮件
-        $this->Mail->SendMail('Personal/UpdSubadminUserPass', '子管理员修改密码通知', '账号：' . $this->userName . ' '  . 
+        $this->Mail->SendMail('Personal/UpdSubadminUserPass', \L::notice_of_subadmin_modify_password,    //'子管理员修改密码通知'
+            \L::user_account    //'账号：'
+            . $this->userName . ' '  . 
             \L::time   //'时间：'
             . date('Y-m-d H:i:s'));
 
-        return message(200, 1, '修改密码成功');
+        return message(200, 1, \L::modify_password_success);    //'修改密码成功'
     }
 }

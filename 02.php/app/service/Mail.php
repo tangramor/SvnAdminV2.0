@@ -282,7 +282,7 @@ class Mail extends Base
             $timeout
         );
 
-        return message(200, $result === true ? 1 : 0, $result === true ? \\L::sent_success : $result);  //'发送成功'
+        return message(200, $result === true ? 1 : 0, $result === true ? \L::sent_success : $result);  //'发送成功'
     }
 
     /**
@@ -342,7 +342,7 @@ class Mail extends Base
             $timeout
         );
 
-        return message(200, $result === true ? 1 : 0, $result === true ? \\L::sent_success : $result);  //'发送成功'
+        return message(200, $result === true ? 1 : 0, $result === true ? \L::sent_success : $result);  //'发送成功'
     }
 
     /**
@@ -389,7 +389,7 @@ class Mail extends Base
             $timeout
         );
 
-        return message(200, $result === true ? 1 : 0, $result === true ? \\L::sent_success : $result);  //'发送成功'
+        return message(200, $result === true ? 1 : 0, $result === true ? \L::sent_success : $result);  //'发送成功'
     }
 
     /**

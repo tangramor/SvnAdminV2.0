@@ -1800,7 +1800,7 @@ class Base
 
             //检查输入参数包含svn仓库名
             if (!isset($this->payload['rep_name'])) {
-                return message(200, 0, '缺少svn仓库名');
+                return message(200, 0, \L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
             }
             $repName = $this->payload['rep_name'];
 

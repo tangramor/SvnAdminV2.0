@@ -581,7 +581,7 @@ class Ldap extends Base
         $dataSource = $dataSource['ldap'];
 
         if ($this->authzContent == '') {
-            return message(200, 0, \\L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
+            return message(200, 0, \L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
         }
 
         //从ldap获取分组和用户

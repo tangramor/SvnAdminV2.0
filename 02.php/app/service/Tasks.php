@@ -61,7 +61,7 @@ class Tasks extends Base
         //获取任务的日志路径
         $file = $result['task_log_file'];
         if (!file_exists($file)) {
-            return message(200, 0, sprintf('日志文件[%s]不存在或不可读', $file));
+            return message(200, 0, sprintf(\L::log_file_not_exists_or_not_readable, $file));    //'日志文件[%s]不存在或不可读'
         }
 
         //读取日志返回
@@ -69,7 +69,7 @@ class Tasks extends Base
         return message(200, 1, \L::success, [    //‘成功'
             'task_name' => $result['task_name'],
             'task_running' => true,
-            'task_log' => $filesize > 10 ? sprintf('日志文件[%s]体积超过10M需手动查看', $file) : file_get_contents($file),
+            'task_log' => $filesize > 10 ? sprintf(\L::log_file_size_exceed_10m, $file) : file_get_contents($file), //'日志文件[%s]体积超过10M需手动查看'
             'task_queue_count' => $total
         ]);
     }
@@ -201,13 +201,13 @@ class Tasks extends Base
             'task_id' => $this->payload['task_id']
         ]);
         if (empty($result)) {
-            return message(200, 1, '任务不存在');
+            return message(200, 1, \L::task_not_exists);    //'任务不存在'
         }
 
         //获取任务的日志路径
         $file = $result['task_log_file'];
         if (!file_exists($file)) {
-            return message(200, 0, sprintf('日志文件[%s]不存在或不可读', $file));
+            return message(200, 0, sprintf(\L::log_file_not_exists_or_not_readable, $file));    //'日志文件[%s]不存在或不可读'
         }
 
         //读取日志返回
@@ -280,7 +280,7 @@ class Tasks extends Base
             'task_id' => $task_id
         ]);
         if (empty($result)) {
-            return message(200, 0, '任务不存在');
+            return message(200, 0, \L::task_not_exists);    //'任务不存在'
         }
 
         if ($result['task_status'] == 2) {
@@ -288,7 +288,7 @@ class Tasks extends Base
 
             $result = funShellExec(sprintf("ps aux | grep -v grep | grep %s | awk 'NR==1' | awk '{print $2}'", $result['task_unique']));
             if ($result['code'] != 0) {
-                return message(200, 0, '获取进程失败: ' . $result['error']);
+                return message(200, 0, \L::get_process_failed . $result['error']);  //'获取进程失败: '
             }
 
             $pid = trim($result['result']);
@@ -343,6 +343,6 @@ class Tasks extends Base
             return message();
         }
 
-        return message(200, 0, '不支持当前操作');
+        return message(200, 0, \L::current_operation_is_not_support);   //'不支持当前操作'
     }
 }

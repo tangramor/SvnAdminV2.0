@@ -90,7 +90,7 @@ class Base
         /**
          * 2、检查接口类型
          */
-        !in_array($parm['type'], array_keys($configRouters['public'])) ? json1(401, 0, \L::base_invalid_interface_type) : '';  //'无效的接口类型'
+        !in_array($parm['type'], array_keys($configRouters['public'])) ? json1(401, 0, \L::invalid_interface_type) : '';  //'无效的接口类型'
 
         if (!in_array($parm['controller_prefix'] . '/' . $parm['action'], $configRouters['public'][$parm['type']])) {
             /**
@@ -99,19 +99,19 @@ class Base
              * 如果请求不在对应类型的白名单中 则需要进行token校验
              */
 
-            empty($parm['token']) ? json1(401, 0, \L::base_token_empty) : '';    //'token为空'
+            empty($parm['token']) ? json1(401, 0, \L::token_empty) : '';    //'token为空'
 
-            substr_count($parm['token'], $configSign['signSeparator']) != 4 ? json1(401, 0, \L::base_token_format_error) : ''; //'token格式错误'
+            substr_count($parm['token'], $configSign['signSeparator']) != 4 ? json1(401, 0, \L::token_format_error) : ''; //'token格式错误'
             $arr = explode($configSign['signSeparator'], $parm['token']);
             foreach ($arr as $value) {
-                trim($value) == '' ? json1(401, 0, \L::base_token_format_error) : '';   //'token格式错误'
+                trim($value) == '' ? json1(401, 0, \L::token_format_error) : '';   //'token格式错误'
             }
 
             $part1 =  hash_hmac('md5', $arr[0] . $configSign['signSeparator'] . $arr[1] . $configSign['signSeparator'] . $arr[2] . $configSign['signSeparator'] . $arr[3], $configSign['signature']);
             $part2 = $arr[4];
-            $part1 != $part2 ? json1(401, 0, \L::base_token_verify_fail) : '';  //'token校验失败'
+            $part1 != $part2 ? json1(401, 0, \L::token_verify_fail) : '';  //'token校验失败'
 
-            time() > $arr[3] ? json1(401, 0, \L::base_login_expires) : '';  //'登陆过期'
+            time() > $arr[3] ? json1(401, 0, \L::login_expires) : '';  //'登陆过期'
 
             /**
              * 5、检查特定角色权限路由
@@ -121,7 +121,7 @@ class Base
             $userName = $info[1];
             if ($userRoleId == 2) {
                 if (!in_array($parm['controller_prefix'] . '/' . $parm['action'], array_merge($configRouters['svn_user_routers'], $configRouters['public'][$parm['type']]))) {
-                    json1(401, 0, \L::base_no_permission);  //'无权限'
+                    json1(401, 0, \L::no_permission);  //'无权限'
                 }
             } elseif ($userRoleId == 3) {
                 $subadminFunctions = $database->get('subadmin', 'subadmin_functions', [
@@ -129,7 +129,7 @@ class Base
                 ]);
                 $subadminFunctions = json_decode($subadminFunctions, true);
                 if (empty($subadminFunctions) || !in_array($parm['controller_prefix'] . '/' . $parm['action'], $subadminFunctions)) {
-                    json1(403, 0, \L::base_permissions_not_assigned);   //'权限未分配'
+                    json1(403, 0, \L::permissions_not_assigned);   //'权限未分配'
                 }
             }
 
@@ -151,7 +151,7 @@ class Base
             }
             if (!empty($status)) {
                 if ($status != $parm['token']) {
-                    json1(401, 0, \L::base_logged_in_another_device);   //'当前账户在其它设备登录'
+                    json1(401, 0, \L::logged_in_another_device);   //'当前账户在其它设备登录'
                 }
             }
 
@@ -159,7 +159,7 @@ class Base
              * 8、检查token是否已注销
              */
             $black = $database->get('black_token', 'token_id', ['token' => $parm['token']]);
-            !empty($black) ? json1(401, 0, \L::base_token_cancelled) : '';  //'token已注销'
+            !empty($black) ? json1(401, 0, \L::token_cancelled) : '';  //'token已注销'
         }
 
         /**
@@ -184,11 +184,11 @@ class Base
                 }
                 if (substr($key, -5) == '_path') {
                     if (!is_writable($value)) {
-                        json1(200, 0, sprintf(\L::base_dir_not_exist_or_not_writable, $value)); //'目录[%s]不存在或不可写'
+                        json1(200, 0, sprintf(\L::dir_not_exist_or_not_writable, $value)); //'目录[%s]不存在或不可写'
                     }
                 } elseif (substr($key, -5) == '_file') {
                     if (!is_writable($value)) {
-                        json1(200, 0, sprintf(\L::base_file_not_exist_or_not_writable, $value));    //'文件[%s]不存在或不可写'
+                        json1(200, 0, sprintf(\L::file_not_exist_or_not_writable, $value));    //'文件[%s]不存在或不可写'
                     }
                 }
             }

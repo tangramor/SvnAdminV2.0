@@ -66,7 +66,7 @@ class Setting extends Base
         }
 
         if (!preg_match('/^(?!(http|https):\/\/).*$/m', $this->payload['dockerHost']['docker_host'], $result)) {
-            return message(200, 0, '主机地址无需携带协议前缀');
+            return message(200, 0, \L::host_address_not_need_carry_protocol_prefix);    //'主机地址无需携带协议前缀'
         }
 
         $this->database->update('options', [
@@ -92,7 +92,7 @@ class Setting extends Base
         }
 
         if ($this->payload['svn_single_authz'] == $this->configSvn['svn_single_authz']) {
-            return message(200, 0, '无需修改');
+            return message(200, 0, \L::no_need_to_change);  //'无需修改'
         }
 
         define('BASE_PATH', __DIR__);
@@ -178,7 +178,7 @@ class Setting extends Base
         }
 
         if ($this->payload['listen_port'] == $this->localSvnPort) {
-            return message(200, 0, '无需更换，端口相同');
+            return message(200, 0, \L::no_need_to_change_port); //'无需更换，端口相同'
         }
 
         //停止
@@ -224,11 +224,11 @@ class Setting extends Base
         }
 
         if (!preg_match('/^(?!(http|https):\/\/).*$/m', $this->payload['listen_host'], $result)) {
-            return message(200, 0, '主机地址无需携带协议前缀');
+            return message(200, 0, \L::host_address_not_need_carry_protocol_prefix);    //'主机地址无需携带协议前缀'
         }
 
         if ($this->payload['listen_host'] == $this->localSvnHost) {
-            return message(200, 0, '无需更换，地址相同');
+            return message(200, 0, \L::no_need_to_change_address);  //'无需更换，地址相同'
         }
 
         //停止
@@ -267,39 +267,39 @@ class Setting extends Base
     {
         return message(200, 1, \L::success, [    //‘成功'
             [
-                'key' => '主目录',
+                'key' => \L::home_directory,    //'主目录'
                 'value' => $this->configSvn['home_path']
             ],
             [
-                'key' => '仓库父目录',
+                'key' => \L::repo_parent_directory,    //'仓库父目录'
                 'value' => $this->configSvn['rep_base_path']
             ],
             [
-                'key' => '仓库配置文件',
+                'key' => \L::repo_config_file,  //'仓库配置文件'
                 'value' => $this->configSvn['svn_conf_file']
             ],
             [
-                'key' => 'svn_single_authz',    //'启用单一仓库权限文件',
+                'key' => 'svn_single_authz',    //'启用单一仓库权限文件'
                 'value' => $this->configSvn['svn_single_authz']
             ],
             [
-                'key' => '仓库权限文件',
+                'key' => \L::repo_permission_file,  //'仓库权限文件'
                 'value' => $this->configSvn['svn_authz_file']
             ],
             [
-                'key' => '每个仓库使用各自的authz文件',
+                'key' => \L::each_repo_use_its_own_authz_file,  //'每个仓库使用各自的authz文件'
                 'value' => $this->configSvn['svn_standalone_authz_file']
             ],
             [
-                'key' => '用户账号文件',
+                'key' => \L::user_account_file, //'用户账号文件'
                 'value' => $this->configSvn['svn_passwd_file']
             ],
             [
-                'key' => '备份目录',
+                'key' => \L::backup_directory,  //'备份目录'
                 'value' => $this->configSvn['backup_base_path']
             ],
             [
-                'key' => 'svnserve环境变量文件',
+                'key' => \L::svnserve_env_file, //'svnserve环境变量文件'
                 'value' => $this->configSvn['svnserve_env_file']
             ],
         ]);
@@ -312,14 +312,14 @@ class Setting extends Base
     {
         $code = 200;
         $status = 0;
-        $message = '更新服务器故障';
+        $message = \L::update_server_error; //'更新服务器故障'
 
         $configVersion = Config::get('version');
 
         $configUpdate = Config::get('update');
 
         if (!function_exists('curl_init')) {
-            return message(200, 0, '请先安装或启用php的curl扩展');
+            return message(200, 0, \L::install_activate_php_curl);  //'请先安装或启用php的curl扩展'
         }
 
         foreach ($configUpdate['update_server'] as $key1 => $value1) {
@@ -366,7 +366,7 @@ class Setting extends Base
         $safe_config_null = [
             [
                 'name' => 'login_verify_code',
-                'note' => '登录验证码',
+                'note' => \L::login_verify_code,    //'登录验证码'
                 'enable' => true,
             ]
         ];
@@ -420,13 +420,13 @@ class Setting extends Base
         $result = $this->GetSafeInfo();
 
         if ($result['status'] != 1) {
-            return message(200, 0, '获取配置信息出错');
+            return message(200, 0, \L::get_config_info_error);  //'获取配置信息出错'
         }
 
         $safeConfig = $result['data'];
         $index = array_search('login_verify_code', array_column($safeConfig, 'name'));
         if ($index === false) {
-            return message(200, 0, '获取配置信息出错');
+            return message(200, 0, \L::get_config_info_error);  //'获取配置信息出错'
         }
 
         return message(200, 1, \L::success, $safeConfig[$index]);

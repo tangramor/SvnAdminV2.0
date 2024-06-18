@@ -33,7 +33,7 @@ class Secondpri extends Base
         }
 
         if (!in_array($this->payload['type'], [0, 1])) {
-            return message(200, 0, '不支持的类型');
+            return message(200, 0, \L::unsupport_type); //'不支持的类型'
         }
 
         if ($this->payload['type'] == 1) {
@@ -116,18 +116,18 @@ class Secondpri extends Base
         }
 
         if (!in_array($this->payload['objectType'], ['user', 'group', 'aliase'])) {
-            return message(200, 0, '不允许的对象类型');
+            return message(200, 0, \L::unpermitted_object_type);    //'不允许的对象类型'
         }
 
         $userName = $this->database->get('svn_user_pri_paths', 'svn_user_name', [
             'svnn_user_pri_path_id' => $this->payload['svnn_user_pri_path_id']
         ]);
         if (empty($userName)) {
-            return message(200, 0, '权限路径记录不存在');
+            return message(200, 0, \L::permission_path_record_not_exist);   //'权限路径记录不存在'
         }
 
         if ($this->payload['objectType'] == 'user' && $this->payload['objectName'] == $userName) {
-            return message(200, 0, '可管理对象不能包括本身');
+            return message(200, 0, \L::manageable_object_cannot_include_itself);    //'可管理对象不能包括本身'
         }
 
         $result = $this->database->get('svn_second_pri', 'svn_second_pri_id', [
@@ -137,7 +137,7 @@ class Secondpri extends Base
         ]);
 
         if (!empty($result)) {
-            return message(200, 0, '对象已存在');
+            return message(200, 0, \L::object_already_exists);    //'对象已存在'
         }
 
         $this->database->insert('svn_second_pri', [

@@ -115,7 +115,7 @@ class Subadmin extends Base
             'svn_user_name' => $this->payload['subadmin_name']
         ]);
         if (!empty($result) || !empty($result2) || !empty($result3)) {
-            return message(200, 0, '用户已存在');
+            return message(200, 0, \L::user_already_exists);    //'用户已存在'
         }
 
         //写入数据库
@@ -133,8 +133,8 @@ class Subadmin extends Base
 
         //日志
         $this->Logs->InsertLog(
-            '创建子管理员',
-            sprintf("用户名:%s", $this->payload['subadmin_name']),
+            \L::创建子管理员,   //'创建子管理员'
+            sprintf(\L::username_is, $this->payload['subadmin_name']),  //"用户名:%s"
             $this->userName
         );
 
@@ -167,8 +167,8 @@ class Subadmin extends Base
 
         //日志
         $this->Logs->InsertLog(
-            '删除子管理员',
-            sprintf("用户名:%s", $subadminName),
+            \L::delete_subadmin,    //'删除子管理员'
+            sprintf(\L::username_is, $subadminName),    //"用户名:%s"
             $this->userName
         );
 
@@ -204,8 +204,8 @@ class Subadmin extends Base
 
         //日志
         $this->Logs->InsertLog(
-            '修改子管理员密码',
-            sprintf("用户名:%s", $subadminName),
+            \L::modify_subadmin_password,   //'修改子管理员密码'
+            sprintf(\L::username_is, $subadminName),    //"用户名:%s"
             $this->userName
         );
 
@@ -241,7 +241,7 @@ class Subadmin extends Base
 
         //日志
         $this->Logs->InsertLog(
-            '修改子管理员状态',
+            \L::modify_subadmin_status,   //'修改子管理员状态'
             sprintf("用户名:%s 状态:%s", $subadminName, $this->payload['status'] == true ? '启用' : '禁用'),
             $this->userName
         );
@@ -278,8 +278,8 @@ class Subadmin extends Base
 
         //日志
         $this->Logs->InsertLog(
-            '修改子管理员备注',
-            sprintf("用户名:%s", $subadminName),
+            \L::modify_subadmin_note,   //'修改子管理员备注'
+            sprintf(\L::username_is, $subadminName),    //"用户名:%s"
             $this->userName
         );
 
