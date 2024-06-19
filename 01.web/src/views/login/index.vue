@@ -265,6 +265,7 @@ export default {
           var result = response.data;
           if (result.status == 1) {
             //存储
+            sessionStorage.setItem("lang", that.lang);
             sessionStorage.setItem("token", result.data.token);
             sessionStorage.setItem("user_name", result.data.user_name);
             sessionStorage.setItem("user_role_id", result.data.user_role_id);
