@@ -19,7 +19,7 @@ export default {
                     if (result.status == 1) {
                         configList = result.data;
                         that.svn_single_authz = configList.svn_single_authz;
-                        console.log({ content: result.data });
+                        // console.log({ content: result.data });
                     } else {
                         console.log({ content: result.message });
                     }

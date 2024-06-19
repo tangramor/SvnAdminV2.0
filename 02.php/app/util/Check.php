@@ -19,7 +19,7 @@ class Check
     /**
      * 检查SVN仓库名称
      */
-    public function CheckRepName($repName, $message = 'SVN仓库名称只能包含字母、数字、破折号、下划线、点，不能以点开头或结尾')
+    public function CheckRepName($repName, $message = \L::svn_repo_name_limit)  //'SVN仓库名称只能包含字母、数字、破折号、下划线、点，不能以点开头或结尾'
     {
         if (preg_match($this->configReg['REG_SVN_REP_NAME'], $repName) != 1) {
             return ['code' => 200, 'status' => 0, 'message' => $message, 'data' => []];
@@ -33,7 +33,7 @@ class Check
     public function CheckRepUser($repUserName)
     {
         if (preg_match($this->configReg['REG_SVN_USER_NAME'], $repUserName) != 1) {
-            return ['code' => 200, 'status' => 0, 'message' => 'SVN用户名只能包含字母、数字、破折号、下划线、点', 'data' => []];
+            return ['code' => 200, 'status' => 0, 'message' => \L::svn_user_name_limit, 'data' => []];  //'SVN用户名只能包含字母、数字、破折号、下划线、点'
         }
         return ['code' => 200, 'status' => 1, 'message' => '', 'data' => []];
     }
@@ -44,7 +44,7 @@ class Check
     public function CheckRepGroup($repGroupName)
     {
         if (preg_match($this->configReg['REG_SVN_GROUP_NAME'], $repGroupName) != 1) {
-            return ['code' => 200, 'status' => 0, 'message' => 'SVN分组名只能包含字母、数字、破折号、下划线、点', 'data' => []];
+            return ['code' => 200, 'status' => 0, 'message' => \L::svn_group_name_limit, 'data' => []]; //'SVN分组名只能包含字母、数字、破折号、下划线、点'
         }
         return ['code' => 200, 'status' => 1, 'message' => '', 'data' => []];
     }
@@ -55,7 +55,7 @@ class Check
     public function CheckMail($mail)
     {
         if (preg_match_all($this->configReg['REG_MAIL'], $mail) == 1) {
-            return ['code' => 200, 'status' => 0, 'message' => '邮箱错误', 'data' => []];
+            return ['code' => 200, 'status' => 0, 'message' => \L::email_error, 'data' => []];  //'邮箱错误'
         }
         return ['code' => 200, 'status' => 1, 'message' => '', 'data' => []];
     }

@@ -770,7 +770,7 @@ export default {
       that.$axios
         .post("api.php?c=Crond&a=GetRepList&t=web", data)
         .then(function (response) {
-          console.log(response.data);
+          // console.log(response.data);
           if(response.data.data && response.data.data.length > 0) {
             var result = response.data;
             that.loadingGetRepoList = false;
