@@ -26,6 +26,8 @@ auto_require(BASE_PATH . '/../config/');
 
 auto_require(BASE_PATH . '/../app/function/');
 
+auto_require(BASE_PATH . '/../extension/Philipp15b/i18n.class.php');
+
 function auto_require($path, $recursively = false)
 {
     if (is_file($path)) {
@@ -50,6 +52,7 @@ function auto_require($path, $recursively = false)
 
 class Install
 {
+
     private $configDb;
     private $configReg;
     private $configSvn;
@@ -60,19 +63,19 @@ class Install
     private $scripts = [
         [
             'index' => 1,
-            'note' => '帮我安装并配置Subversion'
+            'note' => \L::help_install_config_svn   //'帮我安装并配置Subversion'
         ],
         [
             'index' => 2,
-            'note' => '按照本系统的要求初始化Subversion（针对以其它方式安装的Subversion）'
+            'note' => \L::initial_svn_for_this_system   //'按照本系统的要求初始化Subversion（针对以其它方式安装的Subversion）'
         ],
         [
             'index' => 3,
-            'note' => '检测SVNAdmin的新版本'
+            'note' => \L::check_new_version   //'检测SVNAdmin的新版本'
         ],
         [
             'index' => 4,
-            'note' => '修改当前的数据存储主目录'
+            'note' => \L::change_data_storage_dir   //'修改当前的数据存储主目录'
         ]
     ];
 
@@ -98,7 +101,7 @@ class Install
             $result = funCurlRequest(sprintf($value1['url'], $this->configVersion['version']));
 
             if (empty($result)) {
-                echo sprintf('节点[%s]访问超时-切换下一节点%s', $value1['nodeName'], PHP_EOL);
+                echo sprintf(\L::timeout_on_access_node, $value1['nodeName'], PHP_EOL); //'节点[%s]访问超时-切换下一节点%s'
                 echo '===============================================' . PHP_EOL;
                 continue;
             }
@@ -107,61 +110,61 @@ class Install
             $result = json_decode($result, true);
 
             if (!isset($result['code'])) {
-                echo sprintf('节点[%s]返回信息错误-切换下一节点%s', $value1['nodeName'], PHP_EOL);
+                echo sprintf(\L::response_error_from_node, $value1['nodeName'], PHP_EOL);   //'节点[%s]返回信息错误-切换下一节点%s'
                 echo '===============================================' . PHP_EOL;
                 continue;
             }
 
             if ($result['code'] != 200) {
-                echo sprintf('节点[%s]返回状态码[%s]状态[%s]错误信息[%s]-切换下一节点%s', $value1['nodeName'], $result['status'], $result['message'], $result['code'], PHP_EOL);
+                echo sprintf(\L::error_code_return_from_node, $value1['nodeName'], $result['status'], $result['message'], $result['code'], PHP_EOL);    //'节点[%s]返回状态码[%s]状态[%s]错误信息[%s]-切换下一节点%s'
                 echo '===============================================' . PHP_EOL;
                 continue;
             }
 
             if (empty($result['data'])) {
-                echo sprintf('当前为最新版[%s]%s', $this->configVersion['version'], PHP_EOL);
+                echo sprintf(\L::is_newest_version, $this->configVersion['version'], PHP_EOL);  //'当前为最新版[%s]%s'
                 echo '===============================================' . PHP_EOL;
                 exit();
             }
 
-            echo sprintf('有新版本[%s]%s', $result['data']['version'], PHP_EOL);
+            echo sprintf(\L::new_version_available, $result['data']['version'], PHP_EOL);   //'有新版本[%s]%s'
 
-            echo sprintf('修复内容如下:%s', PHP_EOL);
+            echo sprintf(\L::fixed_bugs, PHP_EOL);  //'修复内容如下:%s'
             foreach ($result['data']['fixd']['con'] as $cons) {
                 echo sprintf('    [%s] %s%s', $cons['title'], $cons['content'], PHP_EOL);
                 // echo '    [' . $cons['title'] . ']' . ' ' . $cons['content'] . PHP_EOL;
             }
 
-            echo sprintf('新增内容如下:%s', PHP_EOL);
+            echo sprintf(\L::added_features, PHP_EOL);  //'新增内容如下:%s'
             foreach ($result['data']['add']['con'] as $cons) {
                 echo sprintf('    [%s] %s%s', $cons['title'], $cons['content'], PHP_EOL);
                 // echo '    [' . $cons['title'] . ']' . ' ' . $cons['content'] . PHP_EOL;
             }
 
-            echo sprintf('移除内容如下:%s', PHP_EOL);
+            echo sprintf(\L::removed_features, PHP_EOL);    //'移除内容如下:%s'
             foreach ($result['data']['remove']['con'] as $cons) {
                 echo sprintf('    [%s] %s%s', $cons['title'], $cons['content'], PHP_EOL);
                 // echo '    [' . $cons['title'] . ']' . ' ' . $cons['content'] . PHP_EOL;
             }
 
-            echo sprintf('确定要升级到[%s]版本吗[y/n]: ', $result['data']['version']);
+            echo sprintf(\L::confirm_upgrade, $result['data']['version']);  //'确定要升级到[%s]版本吗[y/n]: '
 
             $answer = strtolower(trim(fgets(STDIN)));
 
             if (!in_array($answer, ['y', 'n'])) {
-                echo sprintf('不正确的选项%s', PHP_EOL);
+                echo sprintf(\L::wrong_answer, PHP_EOL);    //'不正确的选项%s'
                 echo '===============================================' . PHP_EOL;
                 exit();
             }
 
             if ($answer == 'n') {
-                echo sprintf('已取消%s', PHP_EOL);
+                echo sprintf(\L::cancelled, PHP_EOL);   //'已取消%s'
                 echo '===============================================' . PHP_EOL;
                 exit();
             }
 
             //下载并执行升级脚本
-            echo sprintf('开始下载升级包%s', PHP_EOL);
+            echo sprintf(\L::start_download_upgrade_package, PHP_EOL);  //'开始下载升级包%s'
             echo '===============================================' . PHP_EOL;
             $packages = isset($result['data']['update']['download'][$key1]['packages']) ? $result['data']['update']['download'][$key1]['packages'] : [];
             $forList = array_column($packages, 'for');
@@ -170,7 +173,7 @@ class Install
                 'dest' => $result['data']['version']
             ];
             if (!in_array($current, $forList)) {
-                echo sprintf('没有合适的升级包-请尝试直接手动安装最新版%s', PHP_EOL);
+                echo sprintf(\L::no_upgrade_package_available, PHP_EOL);    //'没有合适的升级包-请尝试直接手动安装最新版%s'
                 echo '===============================================' . PHP_EOL;
                 exit();
             }
@@ -178,42 +181,42 @@ class Install
             $update_download_url = $packages[$index]['url'];
             $update_zip = funCurlRequest($update_download_url);
             if ($update_zip == null) {
-                echo sprintf('从节点[%s]下载升级包超时-切换下一节点%s', $value1['nodeName'], PHP_EOL);
+                echo sprintf(\L::timeout_on_download_upgrade_package_from_node, $value1['nodeName'], PHP_EOL);  //'从节点[%s]下载升级包超时-切换下一节点%s'
                 echo '===============================================' . PHP_EOL;
                 continue;
             }
             file_put_contents(BASE_PATH . '/update.zip', $update_zip);
-            echo sprintf('升级包下载完成%s', PHP_EOL);
+            echo sprintf(\L::upgrade_package_downloaded, PHP_EOL);  //'升级包下载完成%s'
             echo '===============================================' . PHP_EOL;
 
-            echo sprintf('开始解压升级包[覆盖解压]%s', PHP_EOL);
+            echo sprintf(\L::decompress_upgrade_package, PHP_EOL);  //'开始解压升级包[覆盖解压]%s'
             echo '===============================================' . PHP_EOL;
             passthru('unzip -o ' . BASE_PATH . '/update.zip');
             if (!is_dir(BASE_PATH . '/update')) {
-                echo sprintf('解压升级包出错-请尝试手动解压并执行升级程序[php update/index.php]%s', PHP_EOL);
+                echo sprintf(\L::error_on_decompress_upgrade_package, PHP_EOL); //'解压升级包出错-请尝试手动解压并执行升级程序[php update/index.php]%s'
                 echo '===============================================' . PHP_EOL;
                 exit();
             }
-            echo sprintf('升级包解压完成%s', PHP_EOL);
+            echo sprintf(\L::upgrade_package_decompressed, PHP_EOL);    //'升级包解压完成%s'
             echo '===============================================' . PHP_EOL;
 
-            echo sprintf('确定要执行升级程序吗[y/n]: ');
+            echo sprintf(\L::confirm_exec_upgrade); //'确定要执行升级程序吗[y/n]: '
 
             $answer = strtolower(trim(fgets(STDIN)));
 
             if (!in_array($answer, ['y', 'n'])) {
-                echo sprintf('不正确的选项%s', PHP_EOL);
+                echo sprintf(\L::wrong_answer, PHP_EOL);    //'不正确的选项%s'
                 echo '===============================================' . PHP_EOL;
                 exit();
             }
 
             if ($answer == 'n') {
-                echo sprintf('已取消%s', PHP_EOL);
+                echo sprintf(\L::cancelled, PHP_EOL);   //'已取消%s'
                 echo '===============================================' . PHP_EOL;
                 exit();
             }
 
-            echo sprintf('正在执行升级程序%s', PHP_EOL);
+            echo sprintf(\L::upgrading, PHP_EOL);   //'正在执行升级程序%s'
             echo '===============================================' . PHP_EOL;
 
             passthru('php ' . BASE_PATH . '/update/index.php');
@@ -222,7 +225,7 @@ class Install
 
             echo '===============================================' . PHP_EOL;
 
-            echo sprintf('升级成功-请重启守护进程使部分配置文件生效%s', PHP_EOL);
+            echo sprintf(\L::upgrade_success, PHP_EOL); //'升级成功-请重启守护进程使部分配置文件生效%s'
             echo '===============================================' . PHP_EOL;
             exit();
         }
@@ -314,22 +317,22 @@ class Install
          * 1、检测 which 工具是否安装
          */
         if (trim(shell_exec('which which 2>/dev/null')) == '') {
-            echo '当前环境没有安装 which 工具 不会自动检测软件安装位置！' . PHP_EOL;
+            echo \L::which_is_not_installed . PHP_EOL;  //'当前环境没有安装 which 工具 不会自动检测软件安装位置！'
             echo '===============================================' . PHP_EOL;
         }
 
         echo PHP_EOL . '===============================================' . PHP_EOL;
-        echo '确定要开始配置Subversion程序吗[y/n]：';
+        echo \L::confirm_config_svn;    //'确定要开始配置Subversion程序吗[y/n]：'
         $continue = strtolower(trim(fgets(STDIN)));
 
         if (!in_array($continue, ['y', 'n'])) {
-            echo '不正确的选项！'  . PHP_EOL;
+            echo \L::wrong_answer2 . PHP_EOL;   //'不正确的选项！'
             echo '===============================================' . PHP_EOL;
             exit();
         }
 
         if ($continue == 'n') {
-            echo '已取消！' . PHP_EOL;
+            echo \L::cancelled2 . PHP_EOL;  //'已取消！'
             echo '===============================================' . PHP_EOL;
             exit();
         }
@@ -339,7 +342,7 @@ class Install
          */
         //检测是否有正在运行的进程
         if (shell_exec('ps auxf|grep -v "grep"|grep svnserve') != '') {
-            echo '请先手动停止正在运行的 svnserve 程序后重试！' . PHP_EOL;
+            echo \L::need_stop_svnserve_manually . PHP_EOL; //'请先手动停止正在运行的 svnserve 程序后重试！'
             echo '===============================================' . PHP_EOL;
             exit();
         }
@@ -364,20 +367,21 @@ class Install
         ];
 
         echo '===============================================' . PHP_EOL;
-        echo '开始配置Subversion程序！' . PHP_EOL;
+        echo \L::start_config_svn . PHP_EOL;    //'开始配置Subversion程序！'
         echo '===============================================' . PHP_EOL;
 
         foreach ($needBin as $key => $value) {
-            echo "请输入[$key]程序位置：" . PHP_EOL;
+            // echo "请输入[$key]程序位置：" . PHP_EOL;
+            echo sprintf(\L::input_program_location, $key) . PHP_EOL;    //"请输入[%s]程序位置："
             if ($key == 'svnauthz-validate') {
-                echo 'CentOS 下 svnauthz-validate 的位置通常为 /usr/bin/svn-tools/svnauthz-validate' . PHP_EOL;
+                echo \L::centos_svnauthz_validate_location . PHP_EOL;   //'CentOS 下 svnauthz-validate 的位置通常为 /usr/bin/svn-tools/svnauthz-validate'
             }
-            echo '自动检测到以下程序路径：' . PHP_EOL;
+            echo \L::auto_detected_location . PHP_EOL;  //'自动检测到以下程序路径：'
             passthru("which $key 2>/dev/null");
-            echo '请输入回车使用默认检测路径或手动输入：';
+            echo \L::input_enter_or_manual_input;   //'请输入回车使用默认检测路径或手动输入：'
             $binPath = fgets(STDIN);
             if ($binPath == '') {
-                echo '输入不能为空！' . PHP_EOL;
+                echo \L::input_cannot_be_empty . PHP_EOL;   //'输入不能为空！'
                 echo '===============================================' . PHP_EOL;
                 exit();
             }
@@ -391,11 +395,11 @@ class Install
                         'httpd',
                         'htpasswd'
                     ])) {
-                        echo "未检测到 $key ，请手动输入程序路径！" . PHP_EOL;
-                        echo "由于 $key 在当前版本非必要，因此无安装可忽略" . PHP_EOL;
+                        echo sprintf(\L::need_input_program_path_manually, $key) . PHP_EOL;  //"未检测到 $key ，请手动输入程序路径！"
+                        echo sprintf(\L::this_isnt_necessary_can_ignore, $key) . PHP_EOL;  //"由于 $key 在当前版本非必要，因此无安装可忽略"
                         echo '===============================================' . PHP_EOL;
                     } else {
-                        echo "未检测到 $key ，请手动输入程序路径！" . PHP_EOL;
+                        echo sprintf(\L::need_input_program_path_manually, $key) . PHP_EOL;  //"未检测到 $key ，请手动输入程序路径！"
                         echo '===============================================' . PHP_EOL;
                         exit();
                     }
@@ -403,7 +407,7 @@ class Install
             } else {
                 $binPath = trim($binPath);
             }
-            echo "$key 程序位置：$binPath" . PHP_EOL;
+            echo sprintf(\L::program_location_is, $key, $binPath) . PHP_EOL;    //"$key 程序位置：$binPath"
             echo '===============================================' . PHP_EOL;
             $needBin[$key] = $binPath;
         }
@@ -435,7 +439,7 @@ CON;
          */
         $templete_path = BASE_PATH . '/../templete/';
 
-        echo '创建相关目录' . PHP_EOL;
+        echo \L::create_related_folders . PHP_EOL;  //'创建相关目录'
 
         clearstatcache();
 
@@ -471,7 +475,7 @@ CON;
 
         echo '===============================================' . PHP_EOL;
 
-        echo '创建相关文件' . PHP_EOL;
+        echo \L::create_related_files . PHP_EOL;    //'创建相关文件'
 
         //写入svnserve环境变量文件
         $con_svnserve_env_file = file_get_contents($templete_path . 'svnserve/svnserve');
@@ -489,11 +493,11 @@ CON;
         $con_svn_authz_file = file_get_contents($templete_path . 'svnserve/authz');
         if (file_exists($this->configSvn['svn_authz_file'])) {
             echo PHP_EOL . '===============================================' . PHP_EOL;
-            echo '要覆盖原有的权限配置文件 authz 吗？[y/n]：';
+            echo \L::confirm_overwrite_authz;   //'要覆盖原有的权限配置文件 authz 吗？[y/n]：'
             $continue = strtolower(trim(fgets(STDIN)));
 
             if (!in_array($continue, ['y', 'n'])) {
-                echo '不正确的选项！'  . PHP_EOL;
+                echo \L::wrong_answer2 . PHP_EOL;   //'不正确的选项！'
                 echo '===============================================' . PHP_EOL;
                 exit();
             }
@@ -517,11 +521,11 @@ CON;
         $con_svn_passwd_file = file_get_contents($templete_path . 'svnserve/passwd');
         if (file_exists($this->configSvn['svn_passwd_file'])) {
             echo PHP_EOL . '===============================================' . PHP_EOL;
-            echo '要覆盖原有的权限配置文件 passwd 吗？[y/n]：';
+            echo \L::confirm_overwrite_passwd;  //'要覆盖原有的权限配置文件 passwd 吗？[y/n]：'
             $continue = strtolower(trim(fgets(STDIN)));
 
             if (!in_array($continue, ['y', 'n'])) {
-                echo '不正确的选项！'  . PHP_EOL;
+                echo \L::wrong_answer2 . PHP_EOL;   //'不正确的选项！'
                 echo '===============================================' . PHP_EOL;
                 exit();
             }
@@ -548,7 +552,7 @@ CON;
          * 5、关闭selinux 
          * 包括临时关闭和永久关闭
          */
-        echo '临时关闭并永久关闭seliux' . PHP_EOL;
+        echo \L::disable_selinux . PHP_EOL; //'临时关闭并永久关闭seliux'
 
         //临时关闭selinux
         shell_exec('setenforce 0');
@@ -561,15 +565,15 @@ CON;
         /**
          * 6、配置SQLite数据库文件
          */
-        echo '配置并启用SQLite数据库' . PHP_EOL;
+        echo \L::config_and_use_sqlite . PHP_EOL;   //'配置并启用SQLite数据库'
 
         if (file_exists($this->configSvn['home_path'] . 'svnadmin.db')) {
             echo PHP_EOL . '===============================================' . PHP_EOL;
-            echo '要覆盖原有的SQLite数据库文件 svnadmin.db 吗？[y/n]：';
+            echo \L::confirm_overwrite_svnadmin_db; //'要覆盖原有的SQLite数据库文件 svnadmin.db 吗？[y/n]：'
             $continue = strtolower(trim(fgets(STDIN)));
 
             if (!in_array($continue, ['y', 'n'])) {
-                echo '不正确的选项！'  . PHP_EOL;
+                echo \L::wrong_answer2 . PHP_EOL;   //'不正确的选项！'
                 echo '===============================================' . PHP_EOL;
                 exit();
             }
@@ -589,7 +593,7 @@ CON;
         /**
          * 8、将svnserve注册为系统服务
          */
-        echo '清理之前注册的svnserve服务' . PHP_EOL;
+        echo \L::clean_old_svnserve . PHP_EOL;  //'清理之前注册的svnserve服务'
 
         passthru('systemctl stop svnserve.service');
         passthru('systemctl disable svnserve.service');
@@ -597,7 +601,7 @@ CON;
 
         echo '===============================================' . PHP_EOL;
 
-        echo '注册新的svnserve服务' . PHP_EOL;
+        echo \L::register_new_svnserve . PHP_EOL;   //'注册新的svnserve服务'
 
         $os = $this->GetOS();
         $con_svnserve_service_file = file_get_contents($templete_path . 'svnserve/svnserve.service');
@@ -611,14 +615,14 @@ CON;
         } else {
             file_put_contents($this->configSvn['svnserve_service_file']['centos'], $con_svnserve_service_file);
             echo '===============================================' . PHP_EOL;
-            echo '警告！当前操作系统版本未测试，使用过程中可能会遇到问题！' . PHP_EOL;
+            echo \L::warn_about_untested_os_version . PHP_EOL;  //'警告！当前操作系统版本未测试，使用过程中可能会遇到问题！'
             echo '===============================================' . PHP_EOL;
         }
 
         echo '===============================================' . PHP_EOL;
 
         //启动
-        echo '开始启动svnserve服务' . PHP_EOL;
+        echo \L::start_svnserve . PHP_EOL;  //'开始启动svnserve服务'
 
         passthru('systemctl daemon-reload');
         passthru('systemctl start svnserve');
@@ -626,14 +630,14 @@ CON;
         echo '===============================================' . PHP_EOL;
 
         //开机自启动
-        echo '将svnserve服务加入到开机自启动' . PHP_EOL;
+        echo \L::auto_start_svnserve . PHP_EOL; //'将svnserve服务加入到开机自启动'
 
         passthru('systemctl enable svnserve');
 
         echo '===============================================' . PHP_EOL;
 
         //查看状态
-        echo 'svnserve安装成功，打印运行状态：' . PHP_EOL;
+        echo \L::svnserve_running_status . PHP_EOL; //'svnserve安装成功，打印运行状态：'
 
         passthru('systemctl status svnserve');
 
@@ -647,17 +651,17 @@ CON;
     {
         //检查是否停止了svnserve
         if (shell_exec('ps auxf|grep -v "grep"|grep svnserve') != '') {
-            echo '请先手动停止正在运行的 svnserve 程序后重试！' . PHP_EOL;
+            echo \L::need_stop_svnserve_manually . PHP_EOL; //'请先手动停止正在运行的 svnserve 程序后重试！'
             echo '===============================================' . PHP_EOL;
             exit();
         }
 
         //输入路径
-        echo '请输入目标目录的绝对路径：';
+        echo \L::input_full_path_of_target_directory;   //'请输入目标目录的绝对路径：'
         $newHomePath = trim(fgets(STDIN));
         if ($newHomePath == '') {
             echo '===============================================' . PHP_EOL;
-            echo '输入不能为空！' . PHP_EOL;
+            echo \L::input_cannot_be_empty . PHP_EOL;   //'输入不能为空！'
             echo '===============================================' . PHP_EOL;
             exit();
         }
@@ -666,7 +670,7 @@ CON;
         clearstatcache();
         if (!is_dir($newHomePath)) {
             echo '===============================================' . PHP_EOL;
-            echo '目标目录不存在！' . PHP_EOL;
+            echo \L::target_directory_not_exists . PHP_EOL; //'目标目录不存在！'
             echo '===============================================' . PHP_EOL;
             exit();
         }
@@ -674,7 +678,7 @@ CON;
         //路径是否相同
         if ($newHomePath == $this->configSvn['home_path']) {
             echo '===============================================' . PHP_EOL;
-            echo '路径无变化！'  . PHP_EOL;
+            echo \L::no_change_on_path . PHP_EOL;   //'路径无变化！'
             echo '===============================================' . PHP_EOL;
             exit();
         }
@@ -682,16 +686,16 @@ CON;
         //检查目标路径是否为空
         if (!$this->IsDirEmpty($newHomePath)) {
             echo '===============================================' . PHP_EOL;
-            echo '目标目录需要为空！' . PHP_EOL;
+            echo \L::target_directory_should_be_empty . PHP_EOL;    //'目标目录需要为空！'
             echo '===============================================' . PHP_EOL;
             exit();
         }
 
         echo '===============================================' . PHP_EOL;
-        echo '提醒！该步骤适用于您之前执行过 [1] 或 [2] 步骤进行过初始化配置的情况' . PHP_EOL;
+        echo \L::notice_this_step_for_config_initialized . PHP_EOL; //'提醒！该步骤适用于您之前执行过 [1] 或 [2] 步骤进行过初始化配置的情况'
 
         echo '===============================================' . PHP_EOL;
-        echo '提醒！不建议将数据存储主目录移动到 root 目录下，因为这会导致读取权限出现问题（除非将 root 目录设置 777 ，但是也不是好主意）' . PHP_EOL;
+        echo \L::notice_not_suggest_to_move_data_storage_to_root . PHP_EOL; //'提醒！不建议将数据存储主目录移动到 root 目录下，因为这会导致读取权限出现问题（除非将 root 目录设置 777 ，但是也不是好主意）'
 
         //对输入的路径规范化，如果末尾没有带有 / 则自动补全
         if (substr($newHomePath, -1) != '/') {
@@ -700,20 +704,20 @@ CON;
 
         //再次确认
         echo '===============================================' . PHP_EOL;
-        echo sprintf('将数据存储主目录从 %s 修改为 %s', $this->configSvn['home_path'], $newHomePath) . PHP_EOL;
+        echo sprintf(\L::change_data_storage_dir_to, $this->configSvn['home_path'], $newHomePath) . PHP_EOL;    //'将数据存储主目录从 %s 修改为 %s'
         echo '===============================================' . PHP_EOL;
-        echo '确定要继续操作吗[y/n]：';
+        echo \L::confirm_continue;  //'确定要继续操作吗[y/n]：'
         $continue = strtolower(trim(fgets(STDIN)));
         echo '===============================================' . PHP_EOL;
 
         if (!in_array($continue, ['y', 'n'])) {
-            echo '不正确的选项！'  . PHP_EOL;
+            echo \L::wrong_answer2 . PHP_EOL;   //'不正确的选项！'
             echo '===============================================' . PHP_EOL;
             exit();
         }
 
         if ($continue == 'n') {
-            echo '已取消！' . PHP_EOL;
+            echo \L::cancelled2 . PHP_EOL;  //'已取消！'
             echo '===============================================' . PHP_EOL;
             exit();
         }
@@ -731,7 +735,7 @@ CON;
         $newConfigSvn = Config::get('svn');
 
         //修改svnserve文件中的仓库路径、配置文件路径、日志文件路径
-        echo '修改svnserve环境变量文件' . PHP_EOL;
+        echo \L::modify_env_file_of_svnserve . PHP_EOL; //'修改svnserve环境变量文件'
 
         $templete_path = BASE_PATH . '/../templete/';
         $con_svnserve_env_file = file_get_contents($templete_path . 'svnserve/svnserve');
@@ -741,13 +745,13 @@ CON;
         echo '===============================================' . PHP_EOL;
 
         //开始移动主目录
-        echo '开始移动主目录' . PHP_EOL;
+        echo \L::start_move_home_dir . PHP_EOL; //'开始移动主目录'
 
         passthru(sprintf("mv %s* %s", $oldConfigSvn['home_path'], $newConfigSvn['home_path']));
 
         echo '===============================================' . PHP_EOL;
 
-        echo '清理之前注册的svnserve服务' . PHP_EOL;
+        echo \L::clean_old_svnserve . PHP_EOL;  //'清理之前注册的svnserve服务'
 
         passthru('systemctl stop svnserve.service');
         passthru('systemctl disable svnserve.service');
@@ -755,7 +759,7 @@ CON;
 
         echo '===============================================' . PHP_EOL;
 
-        echo '注册新的svnserve服务' . PHP_EOL;
+        echo \L::register_new_svnserve . PHP_EOL;   //'注册新的svnserve服务'
 
         $os = $this->GetOS();
         $con_svnserve_service_file = file_get_contents($templete_path . 'svnserve/svnserve.service');
@@ -769,14 +773,14 @@ CON;
         } else {
             file_put_contents($newConfigSvn['svnserve_service_file']['centos'], $con_svnserve_service_file);
             echo '===============================================' . PHP_EOL;
-            echo '警告！当前操作系统版本未测试，使用过程中可能会遇到问题！' . PHP_EOL;
+            echo \L::warn_about_untested_os_version . PHP_EOL;  //'警告！当前操作系统版本未测试，使用过程中可能会遇到问题！'
             echo '===============================================' . PHP_EOL;
         }
 
         echo '===============================================' . PHP_EOL;
 
         //启动
-        echo '开始启动svnserve服务' . PHP_EOL;
+        echo \L::start_svnserve . PHP_EOL;  //'开始启动svnserve服务'
 
         passthru('systemctl daemon-reload');
         passthru('systemctl start svnserve');
@@ -784,21 +788,21 @@ CON;
         echo '===============================================' . PHP_EOL;
 
         //开机自启动
-        echo '将svnserve服务加入到开机自启动' . PHP_EOL;
+        echo \L::auto_start_svnserve . PHP_EOL; //'将svnserve服务加入到开机自启动'
 
         passthru('systemctl enable svnserve');
 
         echo '===============================================' . PHP_EOL;
 
         //查看状态
-        echo 'svnserve重新配置成功，打印运行状态：' . PHP_EOL;
+        echo \L::reconfigured_svnserve_and_print_status . PHP_EOL;  //'svnserve重新配置成功，打印运行状态：'
 
         passthru('systemctl status svnserve');
 
         echo '===============================================' . PHP_EOL;
 
         //重启守护进程
-        echo '请运行 svnadmind.php 程序手动重启后台程序！' . PHP_EOL;
+        echo \L::need_restart_daemon_manually . PHP_EOL;    //'请运行 svnadmind.php 程序手动重启后台程序！'
 
         passthru('php svnadmind.php stop');
 
@@ -820,14 +824,14 @@ CON;
 
         echo '===============================================' . PHP_EOL;
 
-        echo '请输入命令编号：';
+        echo \L::input_command_number;  //'请输入命令编号：'
 
         $answer = trim(fgets(STDIN));
 
         echo '===============================================' . PHP_EOL;
 
         if (!in_array($answer, array_column($this->scripts, 'index'))) {
-            exit('错误的命令编号：' . PHP_EOL);
+            exit(\L::wrong_command_number . PHP_EOL);   //'错误的命令编号：'
         }
 
         if ($answer == 1) {
@@ -836,24 +840,24 @@ CON;
             $shellPath = BASE_PATH . '/../templete/install/WANdisco/';
 
             if (!is_dir($shellPath)) {
-                exit('安装脚本目录不存在！' . PHP_EOL);
+                exit(\L::install_script_dir_not_exists . PHP_EOL);  //'安装脚本目录不存在！'
             }
 
             $shell = scandir($shellPath);
 
-            echo '| Subversion安装脚本来自 WANdiso' . PHP_EOL;
+            echo \L::desc_of_svn_install_script_1 . PHP_EOL;    //'| Subversion安装脚本来自 WANdiso'
 
-            echo '| 当前提供的安装脚本不一定适配所有操作系统！如部分的ubuntu和rokcy等' . PHP_EOL;
+            echo \L::desc_of_svn_install_script_2 . PHP_EOL;    //'| 当前提供的安装脚本不一定适配所有操作系统！如部分的ubuntu和rokcy等'
 
-            echo '| 如果当前操作系统平台提供的Subversion版本较低（<1.8）才推荐使用此方法安装Subversion！' . PHP_EOL;
+            echo \L::desc_of_svn_install_script_3 . PHP_EOL;    //'| 如果当前操作系统平台提供的Subversion版本较低（<1.8）才推荐使用此方法安装Subversion！'
 
-            echo '| 如果由于网络延迟原因安装失败，可手动停止后多尝试几次' . PHP_EOL;
+            echo \L::desc_of_svn_install_script_4 . PHP_EOL;    //'| 如果由于网络延迟原因安装失败，可手动停止后多尝试几次'
 
-            echo '| 在通过脚本安装Subversion的过程中，请注意信息交互！' . PHP_EOL;
+            echo \L::desc_of_svn_install_script_5 . PHP_EOL;    //'| 在通过脚本安装Subversion的过程中，请注意信息交互！'
 
             echo '===============================================' . PHP_EOL;
 
-            echo '可选择的Subversion版本如下：' . PHP_EOL;
+            echo \L::svn_versions . PHP_EOL;    //'可选择的Subversion版本如下：'
 
             echo '===============================================' . PHP_EOL;
 
@@ -867,26 +871,26 @@ CON;
             }
 
             if ($noShell) {
-                exit('没有可选的安装脚本！' . PHP_EOL);
+                exit(\L::no_install_script . PHP_EOL);  //'没有可选的安装脚本！'
             }
 
             echo '===============================================' . PHP_EOL;
 
-            echo '请注意SVNAdmin支持管理的Subversion版本为1.8+！' . PHP_EOL;
+            echo \L::notice_supported_versions . PHP_EOL;   //'请注意SVNAdmin支持管理的Subversion版本为1.8+！'
 
             echo '===============================================' . PHP_EOL;
 
-            echo '请输入要安装的Subversion版本（推荐Subversion-1.10）：';
+            echo \L::input_version_to_install;  //'请输入要安装的Subversion版本（推荐Subversion-1.10）：'
 
             $answer = trim(fgets(STDIN));
 
             echo '===============================================' . PHP_EOL;
 
             if (!file_exists($shellPath . 'subversion_installer_' . $answer . '.sh')) {
-                exit('请选择正确的版本！' . PHP_EOL);
+                exit(\L::need_correct_version . PHP_EOL);   //'请选择正确的版本！'
             }
 
-            echo '现在开始执行脚本：' . 'subversion_installer_' . $answer . '.sh' . PHP_EOL;
+            echo \L::start_exec_script . 'subversion_installer_' . $answer . '.sh' . PHP_EOL;   //'现在开始执行脚本：'
 
             echo '===============================================' . PHP_EOL;
 
@@ -911,9 +915,47 @@ $require_functions = ['shell_exec', 'passthru'];
 $disable_functions = explode(',', ini_get('disable_functions'));
 foreach ($disable_functions as $disable) {
     if (in_array(trim($disable), $require_functions)) {
-        echo "需要的 $disable 函数被禁用" . PHP_EOL;
+        echo sprintf(\L::function_disabled, $disable) . PHP_EOL;   //"需要的 $disable 函数被禁用"
         exit();
     }
 }
 
-(new Install())->Run();
+function getTranslations()
+{
+    $i18nPath = BASE_PATH . '/../app/lang/';
+    $translations = [];
+    $i18nFiles = array_diff(scandir($i18nPath), [".", ".."]);
+    foreach ($i18nFiles as $key => $value) {
+        $translations[] = pathinfo($value, PATHINFO_FILENAME);
+    }
+    return $translations;
+}
+
+echo '================Language=================' . PHP_EOL;
+
+$languages = ['zh-CN' => '中文', 'en-US' => 'English'];
+
+$translations = getTranslations();
+foreach ($translations as $i => $lang) {
+    echo '[' . $i . '] ' . $languages[$lang] . PHP_EOL;
+}
+
+echo "Choose language: ";
+
+$answer = trim(fgets(STDIN));
+if (!in_array($answer, array_keys($translations))) {
+    exit("Wrong option number!" . PHP_EOL);
+} else {
+    $i18n = null;
+    $i18n = new i18n();
+    $i18n->setForcedLang($translations[intval($answer)]);
+    $i18n->setCachePath('/tmp/langcache');
+    $i18n->setFilePath(BASE_PATH . '/../app/lang/{LANGUAGE}.ini'); // language file path
+    $i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
+    $i18n->setFallbackLang('en-US');
+    $i18n->setSectionSeparator('_');
+    $i18n->setMergeFallback(false); // make keys available from the fallback language
+    $i18n->init();
+
+    (new Install())->Run();
+}
