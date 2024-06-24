@@ -26,8 +26,20 @@ define('IPC_SVNADMIN', BASE_PATH . '/server/svnadmind.socket');
 
 require_once BASE_PATH . '/app/util/Config.php';
 require_once BASE_PATH . '/extension/Medoo-1.7.10/src/Medoo.php';
+require_once BASE_PATH . '/extension/Philipp15b/i18n.class.php';
 
 use Medoo\Medoo;
+
+use i18n;
+
+$i18n = new i18n();
+$i18n->setCachePath('/tmp/langcache');
+$i18n->setFilePath(BASE_PATH . '/app/lang/{LANGUAGE}.ini'); // language file path
+$i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
+$i18n->setFallbackLang('en-US');
+$i18n->setSectionSeparator('_');
+$i18n->setMergeFallback(false); // make keys available from the fallback language
+$i18n->init();
 
 class Daemon
 {
@@ -62,13 +74,13 @@ class Daemon
         }
 
         //创建套接字
-        $socket = @socket_create(AF_UNIX, SOCK_STREAM, 0) or die(sprintf('创建套接字失败[%s]%s', socket_strerror(socket_last_error()), PHP_EOL));
+        $socket = @socket_create(AF_UNIX, SOCK_STREAM, 0) or die(sprintf(\L::failed_to_create_socket, socket_strerror(socket_last_error()), PHP_EOL));  //'创建套接字失败[%s]%s'
 
         //绑定地址和端口
-        @socket_bind($socket, IPC_SVNADMIN, 0) or die(sprintf('绑定失败[%s][%s]%s', socket_strerror(socket_last_error()), IPC_SVNADMIN, PHP_EOL));
+        @socket_bind($socket, IPC_SVNADMIN, 0) or die(sprintf(\L::failed_to_bind, socket_strerror(socket_last_error()), IPC_SVNADMIN, PHP_EOL));    //'绑定失败[%s][%s]%s'
 
         //监听 设置并发队列的最大长度
-        @socket_listen($socket, $this->configDaemon['socket_listen_backlog']) or die(sprintf('监听失败[%s]%s', socket_strerror(socket_last_error()), PHP_EOL));
+        @socket_listen($socket, $this->configDaemon['socket_listen_backlog']) or die(sprintf(\L::failed_to_listen, socket_strerror(socket_last_error()), PHP_EOL)); //'监听失败[%s]%s'
 
         //使其它用户可用
         shell_exec('chmod 777 ' . IPC_SVNADMIN);
@@ -76,7 +88,7 @@ class Daemon
         // 创建任务进程 用于处理任务
         $pid = pcntl_fork();
         if ($pid == -1) {
-            die(sprintf('pcntl_fork失败[%s]%s', socket_strerror(socket_last_error()), PHP_EOL));
+            die(sprintf(\L::failed_to_pcntl_fork, socket_strerror(socket_last_error()), PHP_EOL));  //'pcntl_fork失败[%s]%s'
         } elseif ($pid == 0) {
             file_put_contents($this->taskPidFile, getmypid());
 
@@ -92,14 +104,14 @@ class Daemon
             //非阻塞式回收僵尸进程
             pcntl_wait($status, WNOHANG);
 
-            $client = @socket_accept($socket) or die(sprintf('接收连接失败[%s]%s', socket_strerror(socket_last_error()), PHP_EOL));
+            $client = @socket_accept($socket) or die(sprintf(\L::failed_to_accept_socket, socket_strerror(socket_last_error()), PHP_EOL));  //'接收连接失败[%s]%s'
 
             //非阻塞式回收僵尸进程
             pcntl_wait($status, WNOHANG);
 
             $pid = pcntl_fork();
             if ($pid == -1) {
-                die(sprintf('pcntl_fork失败[%s]%s', socket_strerror(socket_last_error()), PHP_EOL));
+                die(sprintf(\L::failed_to_pcntl_fork, socket_strerror(socket_last_error()), PHP_EOL));  //'pcntl_fork失败[%s]%s'
             } elseif ($pid == 0) {
                 $this->HandleRequest($client);
             } else {
@@ -124,7 +136,7 @@ class Daemon
         try {
             $database = new Medoo($configDatabase);
         } catch (\Exception $e) {
-            $message = sprintf('[%s][任务清理守护进程异常][%s]%s', date('Y-m-d H:i:s'), $e->getMessage(), PHP_EOL);
+            $message = sprintf(\L::task_clean_daemon_exception, date('Y-m-d H:i:s'), $e->getMessage(), PHP_EOL);    //'[%s][任务清理守护进程异常][%s]%s'
             file_put_contents($task_error_log_file, $message, FILE_APPEND);
             return;
         }
@@ -199,7 +211,7 @@ class Daemon
         try {
             $database = new Medoo($configDatabase);
         } catch (\Exception $e) {
-            $message = sprintf('[%s][任务处理守护进程异常][120s后重试][%s]', date('Y-m-d H:i:s'), $e->getMessage(), PHP_EOL);
+            $message = sprintf(\L::task_process_daemon_exception, date('Y-m-d H:i:s'), $e->getMessage(), PHP_EOL);  //'[%s][任务处理守护进程异常][120s后重试][%s]'
             file_put_contents($task_error_log_file, $message, FILE_APPEND);
             sleep(120);
             return;
@@ -229,7 +241,7 @@ class Daemon
             ]);
 
             file_put_contents($task['task_log_file'], sprintf('%s%s', $task['task_name'], PHP_EOL), FILE_APPEND);
-            file_put_contents($task['task_log_file'], sprintf('%s------------------任务执行中------------------%s', PHP_EOL, PHP_EOL), FILE_APPEND);
+            file_put_contents($task['task_log_file'], sprintf(\L::task_processing, PHP_EOL, PHP_EOL), FILE_APPEND); //'%s------------------任务执行中------------------%s'
 
             ob_start();
             if ($task['task_type'] == 'svnadmin:load') {
@@ -250,7 +262,7 @@ class Daemon
                 'task_id' => $task['task_id']
             ]);
 
-            file_put_contents($task['task_log_file'], sprintf('%s------------------任务结束------------------%s', PHP_EOL, PHP_EOL), FILE_APPEND);
+            file_put_contents($task['task_log_file'], sprintf(\L::task_end, PHP_EOL, PHP_EOL), FILE_APPEND);    //'%s------------------任务结束------------------%s'
         }
     }
 
@@ -317,7 +329,7 @@ class Daemon
         }
 
         //返回json格式
-        @socket_write($client, json_encode($result), $length) or die(sprintf('socket_write失败[%s]%s', socket_strerror(socket_last_error()), PHP_EOL));
+        @socket_write($client, json_encode($result), $length) or die(sprintf(\L::failed_on_socket_write, socket_strerror(socket_last_error()), PHP_EOL));   //'socket_write失败[%s]%s'
 
         //关闭会话
         socket_close($client);
@@ -332,7 +344,7 @@ class Daemon
     private function CheckSysType()
     {
         if (PHP_OS != 'Linux') {
-            die(sprintf('当前操作系统不为Linux%s', PHP_EOL));
+            die(sprintf(\L::os_is_not_linux, PHP_EOL)); //'当前操作系统不为Linux%s'
         }
         if (file_exists('/etc/redhat-release')) {
             $readhat_release = file_get_contents('/etc/redhat-release');
@@ -344,21 +356,21 @@ class Daemon
                     // return 'centos 7';
                 } else {
                     echo '===============================================' . PHP_EOL;
-                    echo '警告！当前操作系统版本未测试，使用过程中可能会遇到问题！' . PHP_EOL;
+                    echo \L::warn_about_untested_os_version . PHP_EOL;  //'警告！当前操作系统版本未测试，使用过程中可能会遇到问题！'
                     echo '===============================================' . PHP_EOL;
                 }
             } elseif (strstr($readhat_release, 'rocky')) {
                 // return 'rocky';
             } else {
                 echo '===============================================' . PHP_EOL;
-                echo '警告！当前操作系统版本未测试，使用过程中可能会遇到问题！' . PHP_EOL;
+                echo \L::warn_about_untested_os_version . PHP_EOL;  //'警告！当前操作系统版本未测试，使用过程中可能会遇到问题！'
                 echo '===============================================' . PHP_EOL;
             }
         } elseif (file_exists('/etc/lsb-release')) {
             // return 'ubuntu';
         } else {
             echo '===============================================' . PHP_EOL;
-            echo '警告！当前操作系统版本未测试，使用过程中可能会遇到问题！' . PHP_EOL;
+            echo \L::warn_about_untested_os_version . PHP_EOL;  //'警告！当前操作系统版本未测试，使用过程中可能会遇到问题！'
             echo '===============================================' . PHP_EOL;
         }
     }
@@ -371,12 +383,12 @@ class Daemon
         $version = Config::get('version');
         if (isset($version['php']['lowest']) && !empty($version['php']['lowest'])) {
             if (PHP_VERSION < $version['php']['lowest']) {
-                die(sprintf('支持的最低PHP版本为[%s]当前的PHP版本为[%s]%s', $version['php']['lowest'], PHP_VERSION, PHP_EOL));
+                die(sprintf(\L::lowest_php_version_is . '%s', $version['php']['lowest'], PHP_VERSION, PHP_EOL));    //'支持的最低PHP版本为[%s]当前的PHP版本为[%s]'
             }
         }
         if (isset($version['php']['highest']) && !empty($version['php']['highest'])) {
             if (PHP_VERSION >= $version['php']['highest']) {
-                die(sprintf('支持的最高PHP版本为[%s]当前的PHP版本为[%s]%s', $version['php']['highest'], PHP_VERSION, PHP_EOL));
+                die(sprintf(\L::highest_php_version_is . '%s', $version['php']['highest'], PHP_VERSION, PHP_EOL));  //'支持的最高PHP版本为[%s]当前的PHP版本为[%s]'
             }
         }
     }
@@ -390,7 +402,7 @@ class Daemon
         $disable_functions = explode(',', ini_get('disable_functions'));
         foreach ($disable_functions as $disable) {
             if (in_array(trim($disable), $require_functions)) {
-                exit("启动失败：需要的 $disable 函数被禁用" . PHP_EOL);
+                exit(sprintf(\L::failed_to_start_by_function_disabled, $disable, PHP_EOL)); //"启动失败：需要的 $disable 函数被禁用"
             }
         }
     }
@@ -437,8 +449,8 @@ class Daemon
             if (!empty($result)) {
                 $result2 = shell_exec("ps auxf | grep -v 'grep' | grep -v " . getmypid() . " | grep svnadmind.php");
                 if (!empty($result2)) {
-                    echo '请确保您成功关闭了该守护进程程序！' . PHP_EOL;
-                    echo '因为检测到以下疑似进程正在运行:' . PHP_EOL;
+                    echo \L::ensure_you_have_stopped_the_daemon . PHP_EOL;  //'请确保您成功关闭了该守护进程程序！'
+                    echo \L::detected_process_running . PHP_EOL;    //'因为检测到以下疑似进程正在运行:'
                     echo $result2;
                 }
             }
@@ -455,8 +467,8 @@ class Daemon
 
         echo PHP_EOL;
         echo '----------------------------------------' . PHP_EOL;
-        echo '守护进程(svnadmind)启动成功' . PHP_EOL;
-        echo '已自动更改系统加密密钥，在线用户会退出登录' . PHP_EOL;
+        echo \L::svnadmin_daemon_started . PHP_EOL; //'守护进程(svnadmind)启动成功'
+        echo \L::system_encryption_key_auto_changed . PHP_EOL;  //'已自动更改系统加密密钥，在线用户会退出登录'
         echo '----------------------------------------' . PHP_EOL;
         echo PHP_EOL;
 
@@ -483,7 +495,7 @@ class Daemon
             $pid = file_get_contents($this->masterPidFile);
             $result = trim(shell_exec("ps -ax | awk '{ print $1 }' | grep -e \"^$pid$\""));
             if (strstr($result, $pid)) {
-                exit('无法进入调试模式，请先停止后台程序' . PHP_EOL);
+                exit(\L::stop_daemon_before_enter_debug_mode . PHP_EOL);    //'无法进入调试模式，请先停止后台程序'
             }
         }
         $this->InitSocket();
@@ -494,7 +506,7 @@ class Daemon
         if (isset($argv[1])) {
             $this->workMode = $argv[1];
             if (!in_array($this->workMode, $this->scripts)) {
-                exit('用法：php svnadmin.php [' . implode(' | ', $this->scripts) . ']' . PHP_EOL);
+                exit(\L::usage . 'php svnadmin.php [' . implode(' | ', $this->scripts) . ']' . PHP_EOL);    //'用法：'
             }
             if ($this->workMode == 'stop') {
                 $this->Stop();
@@ -509,7 +521,7 @@ class Daemon
                 }
             }
         } else {
-            exit('用法：php svnadmin.php [' . implode(' | ', $this->scripts) . ']' . PHP_EOL);
+            exit(\L::usage . 'php svnadmin.php [' . implode(' | ', $this->scripts) . ']' . PHP_EOL);    //'用法：'
         }
     }
 }

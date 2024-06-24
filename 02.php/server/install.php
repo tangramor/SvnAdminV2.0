@@ -920,6 +920,7 @@ foreach ($disable_functions as $disable) {
     }
 }
 
+
 function getTranslations()
 {
     $i18nPath = BASE_PATH . '/../app/lang/';
@@ -946,7 +947,6 @@ $answer = trim(fgets(STDIN));
 if (!in_array($answer, array_keys($translations))) {
     exit("Wrong option number!" . PHP_EOL);
 } else {
-    $i18n = null;
     $i18n = new i18n();
     $i18n->setForcedLang($translations[intval($answer)]);
     $i18n->setCachePath('/tmp/langcache');
