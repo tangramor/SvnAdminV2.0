@@ -938,7 +938,11 @@ $languages = ['zh-CN' => '中文', 'en-US' => 'English'];
 
 $translations = getTranslations();
 foreach ($translations as $i => $lang) {
-    echo '[' . $i . '] ' . $languages[$lang] . PHP_EOL;
+    if (array_key_exists($lang, $languages)) {
+        echo '[' . $i . '] ' . $languages[$lang] . PHP_EOL;
+    } else {
+        echo '[' . $i . '] ' . $lang . PHP_EOL;
+    }
 }
 
 echo "Choose language: ";
@@ -947,6 +951,12 @@ $answer = trim(fgets(STDIN));
 if (!in_array($answer, array_keys($translations))) {
     exit("Wrong option number!" . PHP_EOL);
 } else {
+    //修改配置文件 svn.php
+    $con = file_get_contents(BASE_PATH . '/../config/svn.php');
+    $con  = preg_replace("/'default_lang'[\s]*=>[\s]*'[^',]+',/", sprintf("'default_lang' => '%s',", $translations[intval($answer)]), $con);
+    //判断是否匹配成功
+    file_put_contents(BASE_PATH . '/../config/svn.php', $con);
+
     $i18n = new i18n();
     $i18n->setForcedLang($translations[intval($answer)]);
     $i18n->setCachePath('/tmp/langcache');

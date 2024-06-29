@@ -18,6 +18,11 @@ $home = '/home/svnadmin/';
 
 return [
     /**
+     * 缺省的语言
+     */
+    'default_lang' => 'en-US',
+
+    /**
      * SVNAdmin软件配置信息的主目录
      */
     'home_path' => $home,
