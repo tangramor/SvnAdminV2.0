@@ -48,9 +48,9 @@
         <!-- 分割线 -->
         <Divider type="vertical" v-if="currentRoleId != 2" />
         <!-- 用户身份 -->
-        <a style="margin-left: 8px; color: #fff; cursor: default">{{
-          $t('roles.' + currentRoleName)
-        }}</a>
+        <a style="margin-left: 8px; color: #fff; cursor: default">
+          {{ currentRoleName }}
+        </a>
         <!-- 分割线 -->
         <Divider type="vertical" />
         <!-- 当前登录用户 -->
