@@ -79,7 +79,7 @@ class Common extends Base
                 ], [
                     'uuid' => $this->payload['uuid']
                 ]);
-                return message(200, 0, \L::login_filed_by_wrong_captcha, $endTime); //'登录失败[验证码错误]'
+                return message(200, 0, \L::login_failed_by_wrong_captcha, $endTime); //'登录失败[验证码错误]'
             }
             if ($endTime == 0) {
                 return message(200, 0, \L::login_failed_by_invalid_captcha);    //'登陆失败[验证码失效]'
