@@ -407,25 +407,25 @@ class Mail extends Base
             [
                 'trigger' => 'Common/Login',
                 'type' => 'mail',
-                'note' => \L::user_login, //'用户登录'
+                'note' => 'user_login', //'用户登录'
                 'enable' => false,
             ],
             [
                 'trigger' => 'Personal/EditAdminUserName',
                 'type' => 'mail',
-                'note' => \L::admin_modify_username,    //'管理人员修改账户名'
+                'note' => 'admin_modify_username',    //'管理人员修改账户名'
                 'enable' => false,
             ],
             [
                 'trigger' => 'Personal/EditAdminUserPass',
                 'type' => 'mail',
-                'note' => \L::admin_modify_password,    //'管理人员修改密码'
+                'note' => 'admin_modify_password',    //'管理人员修改密码'
                 'enable' => false,
             ],
             [
                 'trigger' => 'Personal/EditSvnUserPass',
                 'type' => 'mail',
-                'note' => \L::svnuser_modify_password,  //'SVN用户修改密码'
+                'note' => 'svnuser_modify_password',  //'SVN用户修改密码'
                 'enable' => false,
             ],
         ];

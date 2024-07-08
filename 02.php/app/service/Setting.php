@@ -267,15 +267,19 @@ class Setting extends Base
     {
         return message(200, 1, \L::success, [    //‘成功'
             [
-                'key' => \L::home_directory,    //'主目录'
+                'key' => 'default_lang',    //'缺省语言'
+                'value' => $this->configSvn['default_lang']
+            ],
+            [
+                'key' => 'home_directory',    //'主目录'
                 'value' => $this->configSvn['home_path']
             ],
             [
-                'key' => \L::repo_parent_directory,    //'仓库父目录'
+                'key' => 'repo_parent_directory',    //'仓库父目录'
                 'value' => $this->configSvn['rep_base_path']
             ],
             [
-                'key' => \L::repo_config_file,  //'仓库配置文件'
+                'key' => 'repo_config_file',  //'仓库配置文件'
                 'value' => $this->configSvn['svn_conf_file']
             ],
             [
@@ -283,23 +287,23 @@ class Setting extends Base
                 'value' => $this->configSvn['svn_single_authz']
             ],
             [
-                'key' => \L::repo_permission_file,  //'仓库权限文件'
+                'key' => 'repo_permission_file',  //'仓库权限文件'
                 'value' => $this->configSvn['svn_authz_file']
             ],
             [
-                'key' => \L::each_repo_use_its_own_authz_file,  //'每个仓库使用各自的authz文件'
+                'key' => 'each_repo_use_its_own_authz_file',  //'每个仓库使用各自的authz文件'
                 'value' => $this->configSvn['svn_standalone_authz_file']
             ],
             [
-                'key' => \L::user_account_file, //'用户账号文件'
+                'key' => 'user_account_file', //'用户账号文件'
                 'value' => $this->configSvn['svn_passwd_file']
             ],
             [
-                'key' => \L::backup_directory,  //'备份目录'
+                'key' => 'backup_directory',  //'备份目录'
                 'value' => $this->configSvn['backup_base_path']
             ],
             [
-                'key' => \L::svnserve_env_file, //'svnserve环境变量文件'
+                'key' => 'svnserve_env_file', //'svnserve环境变量文件'
                 'value' => $this->configSvn['svnserve_env_file']
             ],
         ]);
