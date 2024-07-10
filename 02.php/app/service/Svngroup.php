@@ -436,9 +436,10 @@ class Svngroup extends Base
         ]);
 
         //日志
+        $L = \LangManager::getInstance($this->configSvn['default_lang']);
         $this->ServiceLogs->InsertLog(
-            $this->L->translate('create_group'),   //'创建分组'
-            sprintf($this->L->translate('repo_name_and_group_name'), $repName, $svnGroupName), //"仓库名:%s, 分组名:%s"
+            $L->translate('create_group'),   //'创建分组'
+            sprintf($L->translate('repo_name_and_group_name'), $repName, $svnGroupName), //"仓库名:%s, 分组名:%s"
             $this->userName
         );
     }
@@ -538,9 +539,10 @@ class Svngroup extends Base
             funFilePutContents($this->configSvn['svn_authz_file'], $result);
 
             //日志
+            $L = \LangManager::getInstance($this->configSvn['default_lang']);
             $this->ServiceLogs->InsertLog(
-                $this->L->translate('delete_group'),   //'删除分组'
-                sprintf($this->L->translate('group_name_is'), $this->payload['svn_group_name']),   //"分组名:%s"
+                $L->translate('delete_group'),   //'删除分组'
+                sprintf($L->translate('group_name_is'), $this->payload['svn_group_name']),   //"分组名:%s"
                 $this->userName
             );
             
@@ -574,9 +576,10 @@ class Svngroup extends Base
             funFilePutContents($this->authzPath, $result);
 
             //日志
+            $L = \LangManager::getInstance($this->configSvn['default_lang']);
             $this->ServiceLogs->InsertLog(
-                $this->L->translate('delete_group'),   //'删除分组'
-                sprintf($this->L->translate('repo_name_and_group_name'), $repName, $this->payload['svn_group_name']),  //"仓库名:%s, 分组名:%s"
+                $L->translate('delete_group'),   //'删除分组'
+                sprintf($L->translate('repo_name_and_group_name'), $repName, $this->payload['svn_group_name']),  //"仓库名:%s, 分组名:%s"
                 $this->userName
             );
 

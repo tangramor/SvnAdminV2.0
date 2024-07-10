@@ -12,6 +12,7 @@ namespace app\service;
 use Verifycode;
 use app\service\Ldap as ServiceLdap;
 use app\service\Apache as ServiceApache;
+use LangManager;
 
 class Common extends Base
 {
@@ -226,9 +227,10 @@ class Common extends Base
         }
 
         //日志
+        $L = \LangManager::getInstance($this->configSvn['default_lang']);
         $this->Logs->InsertLog(
-            $this->L->translate('user_login'), //'用户登录'
-            sprintf($this->L->translate('account_and_ip'), $userName, funGetCip()),    //"账号:%s IP地址:%s"
+            $L->translate('user_login'), //'用户登录'
+            sprintf($L->translate('account_and_ip'), $userName, funGetCip()),    //"账号:%s IP地址:%s"
             $userName
         );
 
@@ -308,9 +310,10 @@ class Common extends Base
         $this->AddBlack();
 
         //日志
+        $L = \LangManager::getInstance($this->configSvn['default_lang']);
         $this->Logs->InsertLog(
-            $this->L->translate('user_logout'),    //'用户注销'
-            sprintf($this->L->translate('account_and_ip'), $this->userName, funGetCip()),  //"账号:%s IP地址:%s"
+            $L->translate('user_logout'),    //'用户注销'
+            sprintf($L->translate('account_and_ip'), $this->userName, funGetCip()),  //"账号:%s IP地址:%s"
             $this->userName
         );
 

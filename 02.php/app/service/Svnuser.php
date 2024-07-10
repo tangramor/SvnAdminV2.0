@@ -819,9 +819,10 @@ class Svnuser extends Base
         ]);
 
         //日志
+        $L = \LangManager::getInstance($this->configSvn['default_lang']);
         $this->ServiceLogs->InsertLog(
-            $this->L->translate('create_user'),    //'创建用户'
-            sprintf($this->L->translate('username_is'), $this->payload['svn_user_name']),  //"用户名:%s"
+            $L->translate('create_user'),    //'创建用户'
+            sprintf($L->translate('username_is'), $this->payload['svn_user_name']),  //"用户名:%s"
             $this->userName
         );
 
@@ -939,9 +940,10 @@ class Svnuser extends Base
         funFilePutContents($this->authzPath, $resultAuthz);
 
         //日志
+        $L = \LangManager::getInstance($this->configSvn['default_lang']);
         $this->ServiceLogs->InsertLog(
-            $this->L->translate('delete_user'),    //'删除用户'
-            sprintf($this->L->translate('username_is'), $this->payload['svn_user_name']),  //"用户名:%s"
+            $L->translate('delete_user'),    //'删除用户'
+            sprintf($L->translate('username_is'), $this->payload['svn_user_name']),  //"用户名:%s"
             $this->userName
         );
 
