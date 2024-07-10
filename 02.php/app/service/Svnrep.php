@@ -2551,7 +2551,7 @@ class Svnrep extends Base
             }
             //svn: E170001类型的其它错误
             if (strstr($result['error'], 'svn: E170001')) {
-                return ['code' => 200, 'status' => 0, 'message' => $this->L->translate('no_access.'-svn:') E170001', 'data' => []];    //无访问权限
+                return ['code' => 200, 'status' => 0, 'message' => $this->L->translate('no_access').'-svn: E170001', 'data' => []];    //无访问权限
             }
             //: Invalid authz configuration
             if (strstr($result['error'], 'svn: E220003')) {
