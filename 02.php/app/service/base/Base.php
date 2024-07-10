@@ -128,9 +128,6 @@ class Base
     //http
     public $httpPrefix = '';
 
-    //i18n
-    public $i18n;
-
     /**
      * 子管理员权限树
      *

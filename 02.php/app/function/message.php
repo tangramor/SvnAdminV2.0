@@ -7,7 +7,7 @@
  * @Description: QQ:1801168257
  */
 
-function message($code = 200, $status = 1, $message = $this->L->translate('success'), $data = [])
+function message($code = 200, $status = 1, $message = 'Success', $data = [])
 {
     return [
         'code' => $code,
@@ -17,7 +17,7 @@ function message($code = 200, $status = 1, $message = $this->L->translate('succe
     ];
 }
 
-function message2($message = ['code' => 200, 'status' => 1, 'message' => $this->L->translate('success'), 'data' => []])
+function message2($message = ['code' => 200, 'status' => 1, 'message' => 'Success', 'data' => []])
 {
     return [
         'code' => $message['code'],
@@ -27,7 +27,7 @@ function message2($message = ['code' => 200, 'status' => 1, 'message' => $this->
     ];
 }
 
-function json1($code = 200, $status = 1, $message = $this->L->translate('success'), $data = [])
+function json1($code = 200, $status = 1, $message = 'Success', $data = [])
 {
     header('Content-Type:application/json; charset=utf-8');
     // ob_end_clean();
@@ -40,7 +40,7 @@ function json1($code = 200, $status = 1, $message = $this->L->translate('success
     ]));
 }
 
-function json2($message = ['code' => 200, 'status' => 1, 'message' => $this->L->translate('success'), 'data' => []])
+function json2($message = ['code' => 200, 'status' => 1, 'message' => 'Success', 'data' => []])
 {
     header('Content-Type:application/json; charset=utf-8');
     // ob_end_clean();
