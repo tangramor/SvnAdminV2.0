@@ -186,7 +186,7 @@ class i18n {
 
                 $compiled = "<?php class " . $langClass . " {\n"
                     . $this->compile($config)
-                    . 'public static function __callStatic($string, $args) {' . "\n"
+                    . 'public static function translate($string, $args) {' . "\n"
                     . '    return vsprintf(constant("self::" . $string), $args);'
                     . "\n}\n}\n";
                     // . "function ".$langClass .'($string, $args=NULL) {'."\n"
@@ -431,13 +431,8 @@ class LangManager {
         return self::$instance;
     }
 
-    public function translate($name) {
-        // 使用反射获取常量值，避免未声明的静态属性错误
-        $class = new ReflectionClass($this->langClass);
-        if ($class->hasConstant($name)) {
-            return $class->getConstant($name);
-        } else {
-            throw new Exception("Constant $name not found in class {$this->langClass}");
-        }
+    public function translate($name, $args = null) {
+        $class = $this->langClass;
+        return $class::translate($name, $args);
     }
 }
