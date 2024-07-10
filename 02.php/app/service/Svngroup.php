@@ -112,9 +112,9 @@ class Svngroup extends Base
             $svnGroupList = $this->SVNAdmin->GetGroupInfo($this->authzContent);
             if (is_numeric($svnGroupList)) {
                 if ($svnGroupList == 612) {
-                    return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
+                    return message(200, 0, $this->L->translate('file_format_wrong_no_groups_field'));    //'文件格式错误(不存在[groups]标识)'
                 } else {
-                    return message(200, 0, \L::error_code . $svnGroupList);  //"错误码$svnGroupList"
+                    return message(200, 0, $this->L->translate('error_code') . $svnGroupList);  //"错误码$svnGroupList"
                 }
             }
 
@@ -181,9 +181,9 @@ class Svngroup extends Base
                 
                 if (is_numeric($svnGroupList)) {
                     if ($svnGroupList == 612) {
-                        return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
+                        return message(200, 0, $this->L->translate('file_format_wrong_no_groups_field'));    //'文件格式错误(不存在[groups]标识)'
                     } else {
-                        return message(200, 0, \L::error_code . $svnGroupList);  //"错误码$svnGroupList"
+                        return message(200, 0, $this->L->translate('error_code') . $svnGroupList);  //"错误码$svnGroupList"
                     }
                 }
 
@@ -259,10 +259,10 @@ class Svngroup extends Base
 
         //检查排序字段
         if (!in_array($this->payload['sortName'], ['svn_group_id', 'svn_group_name'])) {
-            return message(2000, \L::disallowed_sort_fields);   //'不允许的排序字段'
+            return message(2000, $this->L->translate('disallowed_sort_fields'));   //'不允许的排序字段'
         }
         if (!in_array($this->payload['sortType'], ['asc', 'desc', 'ASC', 'DESC'])) {
-            return message(2000, \L::disallowed_sort_type); //'不允许的排序类型'
+            return message(2000, $this->L->translate('disallowed_sort_type')); //'不允许的排序类型'
         }
 
         $sync = $this->payload['sync'];
@@ -384,7 +384,7 @@ class Svngroup extends Base
             $result = array_slice($result, $begin, $pageSize);
         }
 
-        return message(200, 1, \L::success, [   //'成功'
+        return message(200, 1, $this->L->translate('success'), [   //'成功'
             'data' => array_values($result),
             'total' => $total
         ]);
@@ -401,7 +401,7 @@ class Svngroup extends Base
             'svn_group_name' => $this->payload['svn_group_name']
         ]);
 
-        return message(200, 1, \L::saved);  //'已保存'
+        return message(200, 1, $this->L->translate('saved'));  //'已保存'
     }
 
     private function AddGroup($authzContent, $authzPath, $repName, $svnGroupName, $svnGroupNote)
@@ -410,11 +410,11 @@ class Svngroup extends Base
         $result = $this->SVNAdmin->AddGroup($authzContent, $svnGroupName);
         if (is_numeric($result)) {
             if ($result == 612) {
-                return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
+                return message(200, 0, $this->L->translate('file_format_wrong_no_groups_field'));    //'文件格式错误(不存在[groups]标识)'
             } elseif ($result == 820) {
-                return message(200, 0, \L::group_already_exists);   //'分组已存在'
+                return message(200, 0, $this->L->translate('group_already_exists'));   //'分组已存在'
             } else {
-                return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
             }
         }
 
@@ -437,8 +437,8 @@ class Svngroup extends Base
 
         //日志
         $this->ServiceLogs->InsertLog(
-            \L::create_group,   //'创建分组'
-            sprintf(\L::repo_name_and_group_name, $repName, $svnGroupName), //"仓库名:%s, 分组名:%s"
+            $this->L->translate('create_group'),   //'创建分组'
+            sprintf($this->L->translate('repo_name_and_group_name'), $repName, $svnGroupName), //"仓库名:%s, 分组名:%s"
             $this->userName
         );
     }
@@ -455,7 +455,7 @@ class Svngroup extends Base
         }
 
         if ($dataSource['user_source'] == 'ldap' && $dataSource['group_source'] == 'ldap') {
-            return message(200, 0, \L::operation_not_support_for_ldap_group);   //'当前SVN分组来源为LDAP-不支持此操作'
+            return message(200, 0, $this->L->translate('operation_not_support_for_ldap_group'));   //'当前SVN分组来源为LDAP-不支持此操作'
         }
 
         //检查分组名是否合法
@@ -476,11 +476,11 @@ class Svngroup extends Base
 
             //检查输入参数包含svn仓库名
             if (!isset($this->payload['rep_name'])) {
-                return message(200, 0, \L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
+                return message(200, 0, $this->L->translate('miss_rep_name_param'));  //'缺少SVN仓库名rep_name参数'
             }
             $repName = $this->payload['rep_name'];
 
-            if ($repName == \L::all_repos) {    //'所有仓库'
+            if ($repName == $this->L->translate('all_repos')) {    //'所有仓库'
                 $repList = $this->database->select('svn_reps', [
                     'rep_name'
                 ]);
@@ -514,7 +514,7 @@ class Svngroup extends Base
         }
 
         if ($dataSource['user_source'] == 'ldap' && $dataSource['group_source'] == 'ldap') {
-            return message(200, 0, \L::operation_not_support_for_ldap_group);   //'当前SVN分组来源为LDAP-不支持此操作'
+            return message(200, 0, $this->L->translate('operation_not_support_for_ldap_group'));   //'当前SVN分组来源为LDAP-不支持此操作'
         }
 
         //从数据库删除
@@ -527,11 +527,11 @@ class Svngroup extends Base
             $result = $this->SVNAdmin->DelObjectFromAuthz($this->authzContent, $this->payload['svn_group_name'], 'group');
             if (is_numeric($result)) {
                 if ($result == 612) {
-                    return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
+                    return message(200, 0, $this->L->translate('file_format_wrong_no_groups_field'));    //'文件格式错误(不存在[groups]标识)'
                 } elseif ($result == 901) {
-                    return message(200, 0, \L::not_supported_permission_object_type);    //'不支持的授权对象类型'
+                    return message(200, 0, $this->L->translate('not_supported_permission_object_type'));    //'不支持的授权对象类型'
                 } else {
-                    return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                    return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
                 }
             }
 
@@ -539,8 +539,8 @@ class Svngroup extends Base
 
             //日志
             $this->ServiceLogs->InsertLog(
-                \L::delete_group,   //'删除分组'
-                sprintf(\L::group_name_is, $this->payload['svn_group_name']),   //"分组名:%s"
+                $this->L->translate('delete_group'),   //'删除分组'
+                sprintf($this->L->translate('group_name_is'), $this->payload['svn_group_name']),   //"分组名:%s"
                 $this->userName
             );
             
@@ -550,7 +550,7 @@ class Svngroup extends Base
 
             //检查输入参数包含svn仓库名
             if (!isset($this->payload['rep_name'])) {
-                return message(200, 0, \L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
+                return message(200, 0, $this->L->translate('miss_rep_name_param'));  //'缺少SVN仓库名rep_name参数'
             }
             $repName = $this->payload['rep_name'];
 
@@ -563,11 +563,11 @@ class Svngroup extends Base
             $result = $this->SVNAdmin->DelObjectFromAuthz($this->authzContent, $this->payload['svn_group_name'], 'group');
             if (is_numeric($result)) {
                 if ($result == 612) {
-                    return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
+                    return message(200, 0, $this->L->translate('file_format_wrong_no_groups_field'));    //'文件格式错误(不存在[groups]标识)'
                 } elseif ($result == 901) {
-                    return message(200, 0, \L::not_supported_permission_object_type);    //'不支持的授权对象类型'
+                    return message(200, 0, $this->L->translate('not_supported_permission_object_type'));    //'不支持的授权对象类型'
                 } else {
-                    return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                    return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
                 }
             }
 
@@ -575,8 +575,8 @@ class Svngroup extends Base
 
             //日志
             $this->ServiceLogs->InsertLog(
-                \L::delete_group,   //'删除分组'
-                sprintf(\L::repo_name_and_group_name, $repName, $this->payload['svn_group_name']),  //"仓库名:%s, 分组名:%s"
+                $this->L->translate('delete_group'),   //'删除分组'
+                sprintf($this->L->translate('repo_name_and_group_name'), $repName, $this->payload['svn_group_name']),  //"仓库名:%s, 分组名:%s"
                 $this->userName
             );
 
@@ -596,7 +596,7 @@ class Svngroup extends Base
         }
 
         if ($dataSource['user_source'] == 'ldap' && $dataSource['group_source'] == 'ldap') {
-            return message(200, 0, \L::operation_not_support_for_ldap_group);   //'当前SVN分组来源为LDAP-不支持此操作'
+            return message(200, 0, $this->L->translate('operation_not_support_for_ldap_group'));   //'当前SVN分组来源为LDAP-不支持此操作'
         }
 
         //新分组名称是否合法
@@ -616,26 +616,26 @@ class Svngroup extends Base
         }
 
         if ($this->authzContent == '') {
-            return message(200, 0, \L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
+            return message(200, 0, $this->L->translate('miss_rep_name_param'));  //'缺少SVN仓库名rep_name参数'
         }
 
         $result = $this->SVNAdmin->UpdObjectFromAuthz($this->authzContent, $this->payload['groupNameOld'], $this->payload['groupNameNew'], 'group');
         
         if (is_numeric($result)) {
             if ($result == 611) {
-                return message(200, 0, \L::authz_file_format_error_no_alias_field);     //'authz文件格式错误(不存在[aliases]标识)'
+                return message(200, 0, $this->L->translate('authz_file_format_error_no_alias_field'));     //'authz文件格式错误(不存在[aliases]标识)'
             } elseif ($result == 612) {
-                return message(200, 0, \L::authz_file_format_error_no_groups_field);    //'authz文件格式错误(不存在[groups]标识)'
+                return message(200, 0, $this->L->translate('authz_file_format_error_no_groups_field'));    //'authz文件格式错误(不存在[groups]标识)'
             } elseif ($result == 901) {
-                return message(200, 0, \L::not_supported_permission_object_type);    //'不支持的授权对象类型'
+                return message(200, 0, $this->L->translate('not_supported_permission_object_type'));    //'不支持的授权对象类型'
             } elseif ($result == 821) {
-                return message(200, 0, \L::the_new_group_already_exists);   //'要修改的新分组已经存在'
+                return message(200, 0, $this->L->translate('the_new_group_already_exists'));   //'要修改的新分组已经存在'
             } elseif ($result == 831) {
-                return message(200, 0, \L::the_new_alias_already_exists);   //'要修改的新别名已经存在'
+                return message(200, 0, $this->L->translate('the_new_alias_already_exists'));   //'要修改的新别名已经存在'
             } elseif ($result == 731) {
-                return message(200, 0, \L::the_alias_not_exists);   //'要修改的别名不存在'
+                return message(200, 0, $this->L->translate('the_alias_not_exists'));   //'要修改的别名不存在'
             } else {
-                return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
             }
         }
 
@@ -685,7 +685,7 @@ class Svngroup extends Base
                 'objectType' => 'group',
                 'objectName' => $this->payload['svn_group_name']
             ], $filters)) {
-                return message(200, 0, \L::operating_object_without_privileges);    //'无权限的操作对象'
+                return message(200, 0, $this->L->translate('operating_object_without_privileges'));    //'无权限的操作对象'
             }
         }
 
@@ -694,17 +694,17 @@ class Svngroup extends Base
         }
 
         if ($this->authzContent == '') {
-            return message(200, 0, \L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
+            return message(200, 0, $this->L->translate('miss_rep_name_param'));  //'缺少SVN仓库名rep_name参数'
         }
 
         $list = $this->SVNAdmin->GetGroupInfo($this->authzContent, $this->payload['svn_group_name']);
         if (is_numeric($list)) {
             if ($list == 612) {
-                return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
+                return message(200, 0, $this->L->translate('file_format_wrong_no_groups_field'));    //'文件格式错误(不存在[groups]标识)'
             } elseif ($list == 720) {
-                return message(200, 0, \L::the_group_not_exists);   //'指定的分组不存在'
+                return message(200, 0, $this->L->translate('the_group_not_exists'));   //'指定的分组不存在'
             } else {
-                return message(200, 0, \L::error_code . $list);  //"错误码$list"
+                return message(200, 0, $this->L->translate('error_code') . $list);  //"错误码$list"
             }
         }
 
@@ -734,7 +734,7 @@ class Svngroup extends Base
             }
         }
 
-        return message(200, 1, \L::success, $result);
+        return message(200, 1, $this->L->translate('success'), $result);
     }
 
     /**
@@ -750,7 +750,7 @@ class Svngroup extends Base
         }
 
         if ($dataSource['user_source'] == 'ldap' && $dataSource['group_source'] == 'ldap') {
-            return message(200, 0, \L::operation_not_support_for_ldap_group);   //'当前SVN分组来源为LDAP-不支持此操作'
+            return message(200, 0, $this->L->translate('operation_not_support_for_ldap_group'));   //'当前SVN分组来源为LDAP-不支持此操作'
         }
 
         if (!$this->configSvn['svn_single_authz']) {
@@ -758,27 +758,27 @@ class Svngroup extends Base
         }
 
         if ($this->authzContent == '') {
-            return message(200, 0, \L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
+            return message(200, 0, $this->L->translate('miss_rep_name_param'));  //'缺少SVN仓库名rep_name参数'
         }
 
         $result = $this->SVNAdmin->UpdGroupMember($this->authzContent, $this->payload['svn_group_name'], $this->payload['objectName'], $this->payload['objectType'], $this->payload['actionType']);
         if (is_numeric($result)) {
             if ($result == 612) {
-                return message(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
+                return message(200, 0, $this->L->translate('file_format_wrong_no_groups_field'));    //'文件格式错误(不存在[groups]标识)'
             } elseif ($result == 720) {
-                return message(200, 0, \L::group_not_exists);   //'分组不存在'
+                return message(200, 0, $this->L->translate('group_not_exists'));   //'分组不存在'
             } elseif ($result == 803) {
-                return message(200, 0, \L::group_exists_for_object_to_add); //'要添加的对象已存在该分组'
+                return message(200, 0, $this->L->translate('group_exists_for_object_to_add')); //'要添加的对象已存在该分组'
             } elseif ($result == 703) {
-                return message(200, 0, \L::group_not_exists_for_object_to_delete);  //'要删除的对象不存在该分组'
+                return message(200, 0, $this->L->translate('group_not_exists_for_object_to_delete'));  //'要删除的对象不存在该分组'
             } elseif ($result == 901) {
-                return message(200, 0, \L::invalid_object_type);    //'无效的对象类型 user|group|aliase'
+                return message(200, 0, $this->L->translate('invalid_object_type'));    //'无效的对象类型 user|group|aliase'
             } elseif ($result == 902) {
-                return message(200, 0, \L::invalid_operation_type); //'无效的操作类型 add|delete'
+                return message(200, 0, $this->L->translate('invalid_operation_type')); //'无效的操作类型 add|delete'
             } elseif ($result == 802) {
-                return message(200, 0, \L::cannot_operate_groups_with_same_name);   //'不能操作相同名称的分组'
+                return message(200, 0, $this->L->translate('cannot_operate_groups_with_same_name'));   //'不能操作相同名称的分组'
             } else {
-                return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
             }
         }
         if ($this->payload['objectType'] == 'group' && $this->payload['actionType'] == 'add') {
@@ -787,7 +787,7 @@ class Svngroup extends Base
             $groupGroupList = $this->SVNAdmin->GetSvnGroupAllGroupList($this->authzContent, $this->payload['svn_group_name']);
 
             if (in_array($this->payload['objectName'], $groupGroupList)) {
-                return message(200, 0, \L::nested_grouping_loops_exist);    //'存在分组循环嵌套的情况'
+                return message(200, 0, $this->L->translate('nested_grouping_loops_exist'));    //'存在分组循环嵌套的情况'
             }
         }
 

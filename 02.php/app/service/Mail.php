@@ -186,7 +186,7 @@ class Mail extends Base
                 'option_value' => serialize($mail_smtp_null),
                 'option_description' => ''
             ]);
-            return message(200, 1, \L::success, $mail_smtp_null);
+            return message(200, 1, $this->L->translate('success'), $mail_smtp_null);
         }
         if ($mail_smtp['option_value'] == '') {
             $this->database->update('options', [
@@ -194,10 +194,10 @@ class Mail extends Base
             ], [
                 'option_name' => 'mail_smtp',
             ]);
-            return message(200, 1, \L::success, $mail_smtp_null);
+            return message(200, 1, $this->L->translate('success'), $mail_smtp_null);
         }
 
-        return message(200, 1, \L::success, unserialize($mail_smtp['option_value']));
+        return message(200, 1, $this->L->translate('success'), unserialize($mail_smtp['option_value']));
     }
 
     /**
@@ -254,8 +254,8 @@ class Mail extends Base
         $encryption = $this->payload['encryption'];
         $autotls = $this->payload['autotls'];
         $port = $this->payload['port'];
-        $subject = \L::test_email_subject;  //"SVNAdmin的测试邮件"
-        $body = \L::test_email_body; //"此邮件为SVNAdmin系统发送的测试邮件，当您收到此邮件，代表您的邮件服务已经配置正确。"
+        $subject = $this->L->translate('test_email_subject');  //"SVNAdmin的测试邮件"
+        $body = $this->L->translate('test_email_body'); //"此邮件为SVNAdmin系统发送的测试邮件，当您收到此邮件，代表您的邮件服务已经配置正确。"
         $to = [
             ['address' => $this->payload['test'], 'name' => '']
         ];
@@ -282,7 +282,7 @@ class Mail extends Base
             $timeout
         );
 
-        return message(200, $result === true ? 1 : 0, $result === true ? \L::sent_success : $result);  //'发送成功'
+        return message(200, $result === true ? 1 : 0, $result === true ? $this->L->translate('sent_success') : $result);  //'发送成功'
     }
 
     /**
@@ -295,7 +295,7 @@ class Mail extends Base
 
         //检查邮件服务是否启用
         if (!$mail_smtp['status']) {
-            return message(200, 0, \L::email_service_not_start);    //'邮件服务未开启'
+            return message(200, 0, $this->L->translate('email_service_not_start'));    //'邮件服务未开启'
         }
 
         //检查触发条件
@@ -304,11 +304,11 @@ class Mail extends Base
 
         $triggers = array_column($message_push, 'trigger');
         if (!in_array($trigger, $triggers)) {
-            return message(200, 0, \L::trigger_condition_not_exist);    //'触发条件不存在'
+            return message(200, 0, $this->L->translate('trigger_condition_not_exist'));    //'触发条件不存在'
         }
         $options = array_combine($triggers, array_column($message_push, 'enable'));
         if (!$options[$trigger]) {
-            return message(200, 0, \L::trigger_condition_not_activate); //'触发条件未开启'
+            return message(200, 0, $this->L->translate('trigger_condition_not_activate')); //'触发条件未开启'
         }
 
         $host = $mail_smtp['host'];
@@ -342,7 +342,7 @@ class Mail extends Base
             $timeout
         );
 
-        return message(200, $result === true ? 1 : 0, $result === true ? \L::sent_success : $result);  //'发送成功'
+        return message(200, $result === true ? 1 : 0, $result === true ? $this->L->translate('sent_success') : $result);  //'发送成功'
     }
 
     /**
@@ -355,7 +355,7 @@ class Mail extends Base
 
         //检查邮件服务是否启用
         if (!$mail_smtp['status']) {
-            return message(200, 0, \L::email_service_not_start);    //'邮件服务未开启'
+            return message(200, 0, $this->L->translate('email_service_not_start'));    //'邮件服务未开启'
         }
 
         $host = $mail_smtp['host'];
@@ -389,7 +389,7 @@ class Mail extends Base
             $timeout
         );
 
-        return message(200, $result === true ? 1 : 0, $result === true ? \L::sent_success : $result);  //'发送成功'
+        return message(200, $result === true ? 1 : 0, $result === true ? $this->L->translate('sent_success') : $result);  //'发送成功'
     }
 
     /**
@@ -437,7 +437,7 @@ class Mail extends Base
                 'option_description' => ''
             ]);
 
-            return message(200, 1, \L::success, $message_push_null);
+            return message(200, 1, $this->L->translate('success'), $message_push_null);
         }
         if ($message_push['option_value'] == '') {
             $this->database->update('options', [
@@ -446,10 +446,10 @@ class Mail extends Base
                 'option_name' => 'message_push',
             ]);
 
-            return message(200, 1, \L::success, $message_push_null);
+            return message(200, 1, $this->L->translate('success'), $message_push_null);
         }
 
-        return message(200, 1, \L::success, unserialize($message_push['option_value']));
+        return message(200, 1, $this->L->translate('success'), unserialize($message_push['option_value']));
     }
 
     /**

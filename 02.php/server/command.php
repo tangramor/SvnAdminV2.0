@@ -48,15 +48,7 @@ use app\service\Svngroup as ServiceSvngroup;
 use app\service\Svnrep as ServiceSvnrep;
 
 use i18n;
-
-$i18n = new i18n();
-$i18n->setCachePath('/tmp/langcache');
-$i18n->setFilePath(BASE_PATH . '/../app/lang/{LANGUAGE}.ini'); // language file path
-$i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
-$i18n->setFallbackLang('en-US');
-$i18n->setSectionSeparator('_');
-$i18n->setMergeFallback(false); // make keys available from the fallback language
-$i18n->init();
+use LangManager;
 
 class Command
 {
@@ -78,6 +70,8 @@ class Command
 
     private $currentRep = '';
 
+    private $L;
+
     private $taskType = [
         '1' => '仓库备份[dump-全量]',
         '2' => '仓库备份[dump-增量-deltas]',
@@ -92,9 +86,20 @@ class Command
 
     function __construct($argc, $argv)
     {
+        $i18n = new i18n();
+        $i18n->setCachePath('/tmp/langcache');
+        $i18n->setFilePath(BASE_PATH . '/app/lang/{LANGUAGE}.ini'); // language file path
+        $i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
+        $i18n->setFallbackLang('en-US');
+        $i18n->setSectionSeparator('_');
+        $i18n->setMergeFallback(false); // make keys available from the fallback language
+        $i18n->init();
+
+        $this->L = LangManager::getInstance($i18n->getAppliedLang());
+
         //接收参数 校验参数
         if (!isset($argv[1]) || !isset($argv[2])) {
-            print_r(sprintf(\L::auto_exit_by_incomplete_param, PHP_EOL));   //'参数不完整-自动退出%s'
+            print_r(sprintf($this->L->translate('auto_exit_by_incomplete_param'), PHP_EOL));   //'参数不完整-自动退出%s'
             exit;
         }
 
@@ -115,7 +120,7 @@ class Command
         try {
             $this->database = new Medoo($this->configDb);
         } catch (\Exception $e) {
-            print_r(sprintf(\L::failed_to_connect_db, $e->getMessage()));   //'数据库连接失败[%s]'
+            print_r(sprintf($this->L->translate('failed_to_connect_db'), $e->getMessage()));   //'数据库连接失败[%s]'
             exit;
         }
 
@@ -126,7 +131,7 @@ class Command
         ]);
 
         if (empty($this->crond)) {
-            print_r(sprintf(\L::auto_exit_by_no_related_cron_in_db, $this->argv[2], PHP_EOL));  //'数据库中没有与标识[%s]相匹配的任务计划-自动退出%s'
+            print_r(sprintf($this->L->translate('auto_exit_by_no_related_cron_in_db'), $this->argv[2], PHP_EOL));  //'数据库中没有与标识[%s]相匹配的任务计划-自动退出%s'
             exit;
         }
 
@@ -157,30 +162,30 @@ class Command
     {
         if ($this->crond['notice'] == 1 || $this->crond['notice'] == 3) {
             if ($this->code == 0) {
-                $subject = $this->code == 0 ? \L::notice_of_cron_task_execution_success //'任务计划执行成功通知'
-                    : \L::notice_of_cron_task_execution_fail;   //'任务计划执行失败通知'
-                $body = sprintf(\L::task_name_and_current_time, $this->crond['task_name'], date('Y-m-d H:i:s'));    //"任务名称: %s\n当前时间: %s\n"
+                $subject = $this->code == 0 ? $this->L->translate('notice_of_cron_task_execution_success') //'任务计划执行成功通知'
+                    : $this->L->translate('notice_of_cron_task_execution_fail');   //'任务计划执行失败通知'
+                $body = sprintf($this->L->translate('task_name_and_current_time'), $this->crond['task_name'], date('Y-m-d H:i:s'));    //"任务名称: %s\n当前时间: %s\n"
 
                 $result = (new Mail())->SendMail2($subject, $body);
                 if ($result['status'] == 1) {
-                    print_r(sprintf(\L::mail_sent_success, PHP_EOL));   //'邮件发送成功%s'
+                    print_r(sprintf($this->L->translate('mail_sent_success'), PHP_EOL));   //'邮件发送成功%s'
                 } else {
-                    print_r(sprintf(\L::mail_send_fail, $result['message'], PHP_EOL));  //'邮件发送失败[%s]%s'
+                    print_r(sprintf($this->L->translate('mail_send_fail'), $result['message'], PHP_EOL));  //'邮件发送失败[%s]%s'
                 }
             }
         }
 
         if ($this->crond['notice'] == 2 || $this->crond['notice'] == 3) {
             if ($this->code != 0) {
-                $subject = $this->code == 0 ? \L::notice_of_cron_task_execution_success //'任务计划执行成功通知'
-                    : \L::notice_of_cron_task_execution_fail;   //'任务计划执行失败通知'
-                $body = sprintf(\L::task_name_and_current_time, $this->crond['task_name'], date('Y-m-d H:i:s'));    //"任务名称: %s\n当前时间: %s\n"
+                $subject = $this->code == 0 ? $this->L->translate('notice_of_cron_task_execution_success') //'任务计划执行成功通知'
+                    : $this->L->translate('notice_of_cron_task_execution_fail');   //'任务计划执行失败通知'
+                $body = sprintf($this->L->translate('task_name_and_current_time'), $this->crond['task_name'], date('Y-m-d H:i:s'));    //"任务名称: %s\n当前时间: %s\n"
 
                 $result = (new Mail())->SendMail2($subject, $body);
                 if ($result['status'] == 1) {
-                    print_r(sprintf(\L::mail_sent_success, PHP_EOL));   //'邮件发送成功%s'
+                    print_r(sprintf($this->L->translate('mail_sent_success'), PHP_EOL));   //'邮件发送成功%s'
                 } else {
-                    print_r(sprintf(\L::mail_send_fail, $result['message'], PHP_EOL));  //'邮件发送失败[%s]%s'
+                    print_r(sprintf($this->L->translate('mail_send_fail'), $result['message'], PHP_EOL));  //'邮件发送失败[%s]%s'
                 }
             }
         }
@@ -197,9 +202,9 @@ class Command
 
         if (in_array('-1', $repList)) {
             $repList = $this->database->select('svn_reps', 'rep_name');
-            print_r(sprintf(\L::all_backup_mode_repo_list, implode('|', $repList), PHP_EOL));   //'当前模式为备份所有仓库-仓库列表[%s]%s'
+            print_r(sprintf($this->L->translate('all_backup_mode_repo_list'), implode('|', $repList), PHP_EOL));   //'当前模式为备份所有仓库-仓库列表[%s]%s'
         } else {
-            print_r(sprintf(\L::partial_backup_mode_repo_list, implode('|', $repList), PHP_EOL));   //'当前模式为备份部分仓库-仓库列表[%s]%s'
+            print_r(sprintf($this->L->translate('partial_backup_mode_repo_list'), implode('|', $repList), PHP_EOL));   //'当前模式为备份部分仓库-仓库列表[%s]%s'
         }
 
         foreach ($repList as $rep) {
@@ -207,7 +212,7 @@ class Command
 
             clearstatcache();
             if (!is_dir($this->configSvn['rep_base_path'] .  $rep)) {
-                print_r(sprintf(\L::auto_skip_not_exist_repo, $rep, PHP_EOL));  //'仓库[%s]在磁盘中不存在-自动跳过%s'
+                print_r(sprintf($this->L->translate('auto_skip_not_exist_repo'), $rep, PHP_EOL));  //'仓库[%s]在磁盘中不存在-自动跳过%s'
                 continue;
             }
 
@@ -228,12 +233,12 @@ class Command
             if ($this->crond['save_count'] <= count($backupList)) {
                 rsort($backupList);
                 for ($i = $this->crond['save_count']; $i <= count($backupList); $i++) {
-                    print_r(sprintf(\L::remove_redundant_backup_files, $rep, $backupList[$i - 1], PHP_EOL));    //'删除仓库[%s]多余的备份文件[%s]%s'
+                    print_r(sprintf($this->L->translate('remove_redundant_backup_files'), $rep, $backupList[$i - 1], PHP_EOL));    //'删除仓库[%s]多余的备份文件[%s]%s'
                     @unlink($this->configSvn['backup_base_path'] . '/' . $backupList[$i - 1]);
                 }
             }
 
-            print_r(sprintf(\L::start_backup_on_repo, $rep, PHP_EOL));  //'仓库[%s]开始执行备份程序%s'
+            print_r(sprintf($this->L->translate('start_backup_on_repo'), $rep, PHP_EOL));  //'仓库[%s]开始执行备份程序%s'
 
             $stderrFile = tempnam(sys_get_temp_dir(), 'svnadmin_');
 
@@ -244,9 +249,9 @@ class Command
             // passthru($cmd . " 2>$stderrFile", $this->code);
 
             if ($this->code == 0) {
-                print_r(sprintf(\L::end_backup_on_repo, $rep, PHP_EOL));    //'仓库[%s]备份结束%s'
+                print_r(sprintf($this->L->translate('end_backup_on_repo'), $rep, PHP_EOL));    //'仓库[%s]备份结束%s'
             } else {
-                print_r(sprintf(\L::end_backup_on_repo_with_error, $rep, file_get_contents($stderrFile), PHP_EOL)); //'仓库[%s]备份结束-有错误信息[%s]%s'
+                print_r(sprintf($this->L->translate('end_backup_on_repo_with_error'), $rep, file_get_contents($stderrFile), PHP_EOL)); //'仓库[%s]备份结束-有错误信息[%s]%s'
             }
 
             @unlink($stderrFile);
@@ -266,9 +271,9 @@ class Command
 
         if (in_array('-1', $repList)) {
             $repList = $this->database->select('svn_reps', 'rep_name');
-            print_r(sprintf(\L::deltas_all_backup_mode_repo_list, implode('|', $repList), PHP_EOL));    //'当前模式为deltas增量备份所有仓库-仓库列表[%s]%s'
+            print_r(sprintf($this->L->translate('deltas_all_backup_mode_repo_list'), implode('|', $repList), PHP_EOL));    //'当前模式为deltas增量备份所有仓库-仓库列表[%s]%s'
         } else {
-            print_r(sprintf(\L::deltas_partial_backup_mode_repo_list, implode('|', $repList), PHP_EOL));    //'当前模式为deltas增量备份部分仓库-仓库列表[%s]%s'
+            print_r(sprintf($this->L->translate('deltas_partial_backup_mode_repo_list'), implode('|', $repList), PHP_EOL));    //'当前模式为deltas增量备份部分仓库-仓库列表[%s]%s'
         }
 
         foreach ($repList as $rep) {
@@ -276,7 +281,7 @@ class Command
 
             clearstatcache();
             if (!is_dir($this->configSvn['rep_base_path'] .  $rep)) {
-                print_r(sprintf(\L::auto_skip_not_exist_repo, $rep, PHP_EOL));  //'仓库[%s]在磁盘中不存在-自动跳过%s'
+                print_r(sprintf($this->L->translate('auto_skip_not_exist_repo'), $rep, PHP_EOL));  //'仓库[%s]在磁盘中不存在-自动跳过%s'
                 continue;
             }
 
@@ -297,12 +302,12 @@ class Command
             if ($this->crond['save_count'] <= count($backupList)) {
                 rsort($backupList);
                 for ($i = $this->crond['save_count']; $i <= count($backupList); $i++) {
-                    print_r(sprintf(\L::remove_redundant_deltas_backup_files, $rep, $backupList[$i - 1], PHP_EOL)); //'删除仓库[%s]多余的deltas增量备份文件[%s]%s'
+                    print_r(sprintf($this->L->translate('remove_redundant_deltas_backup_files'), $rep, $backupList[$i - 1], PHP_EOL)); //'删除仓库[%s]多余的deltas增量备份文件[%s]%s'
                     @unlink($this->configSvn['backup_base_path'] . '/' . $backupList[$i - 1]);
                 }
             }
 
-            print_r(sprintf(\L::start_deltas_backup_on_repo, $rep, PHP_EOL));   //'仓库[%s]开始执行deltas增量备份程序%s'
+            print_r(sprintf($this->L->translate('start_deltas_backup_on_repo'), $rep, PHP_EOL));   //'仓库[%s]开始执行deltas增量备份程序%s'
 
             $stderrFile = tempnam(sys_get_temp_dir(), 'svnadmin_');
 
@@ -313,9 +318,9 @@ class Command
             // passthru($cmd . " 2>$stderrFile", $this->code);
 
             if ($this->code == 0) {
-                print_r(sprintf(\L::end_deltas_backup_on_repo, $rep, PHP_EOL)); //'仓库[%s]deltas增量备份结束%s'
+                print_r(sprintf($this->L->translate('end_deltas_backup_on_repo'), $rep, PHP_EOL)); //'仓库[%s]deltas增量备份结束%s'
             } else {
-                print_r(sprintf(\L::end_deltas_backup_on_repo_with_error, $rep, file_get_contents($stderrFile), PHP_EOL));  //'仓库[%s]deltas增量备份结束-有错误信息[%s]%s'
+                print_r(sprintf($this->L->translate('end_deltas_backup_on_repo_with_error'), $rep, file_get_contents($stderrFile), PHP_EOL));  //'仓库[%s]deltas增量备份结束-有错误信息[%s]%s'
             }
 
             @unlink($stderrFile);
@@ -353,9 +358,9 @@ class Command
 
         if (in_array('-1', $repList)) {
             $repList = $this->database->select('svn_reps', 'rep_name');
-            print_r(sprintf(\L::all_check_mode_repo_list, implode('|', $repList), PHP_EOL));    //'当前模式为检查所有仓库-仓库列表[%s]%s'
+            print_r(sprintf($this->L->translate('all_check_mode_repo_list'), implode('|', $repList), PHP_EOL));    //'当前模式为检查所有仓库-仓库列表[%s]%s'
         } else {
-            print_r(sprintf(\L::partial_check_mode_repo_list, implode('|', $repList), PHP_EOL));    //'当前模式为检查部分仓库-仓库列表[%s]%s'
+            print_r(sprintf($this->L->translate('partial_check_mode_repo_list'), implode('|', $repList), PHP_EOL));    //'当前模式为检查部分仓库-仓库列表[%s]%s'
         }
 
         foreach ($repList as $rep) {
@@ -363,11 +368,11 @@ class Command
 
             clearstatcache();
             if (!is_dir($this->configSvn['rep_base_path'] .  $rep)) {
-                print_r(sprintf(\L::auto_skip_not_exist_repo, $rep, PHP_EOL));  //'仓库[%s]在磁盘中不存在-自动跳过%s'
+                print_r(sprintf($this->L->translate('auto_skip_not_exist_repo'), $rep, PHP_EOL));  //'仓库[%s]在磁盘中不存在-自动跳过%s'
                 continue;
             }
 
-            print_r(sprintf(\L::start_check_on_repo, $rep, PHP_EOL));   //'仓库[%s]开始执行检查程序%s'
+            print_r(sprintf($this->L->translate('start_check_on_repo'), $rep, PHP_EOL));   //'仓库[%s]开始执行检查程序%s'
 
             $stderrFile = tempnam(sys_get_temp_dir(), 'svnadmin_');
 
@@ -378,9 +383,9 @@ class Command
             passthru($cmd, $this->code);
 
             if ($this->code == 0) {
-                print_r(sprintf(\L::end_check_on_repo, $rep, PHP_EOL)); //'仓库[%s]检查结束%s'
+                print_r(sprintf($this->L->translate('end_check_on_repo'), $rep, PHP_EOL)); //'仓库[%s]检查结束%s'
             } else {
-                print_r(sprintf(\L::end_check_on_repo_with_error, $rep, file_get_contents($stderrFile), PHP_EOL));  //'仓库[%s]检查结束-有错误信息[%s]%s'
+                print_r(sprintf($this->L->translate('end_check_on_repo_with_error'), $rep, file_get_contents($stderrFile), PHP_EOL));  //'仓库[%s]检查结束-有错误信息[%s]%s'
             }
 
             @unlink($stderrFile);
@@ -396,7 +401,7 @@ class Command
      */
     public function Shell()
     {
-        print_r(sprintf(\L::start_script, $this->crond['task_name'], PHP_EOL)); //'脚本[%s]开始执行%s'
+        print_r(sprintf($this->L->translate('start_script'), $this->crond['task_name'], PHP_EOL)); //'脚本[%s]开始执行%s'
 
         $stderrFile = tempnam(sys_get_temp_dir(), 'svnadmin_');
 
@@ -407,9 +412,9 @@ class Command
         passthru($shellFile . " 2>$stderrFile", $this->code);
 
         if ($this->code == 0) {
-            print_r(sprintf(\L::end_script, $this->crond['task_name'], PHP_EOL));   //'脚本[%s]执行结束%s'
+            print_r(sprintf($this->L->translate('end_script'), $this->crond['task_name'], PHP_EOL));   //'脚本[%s]执行结束%s'
         } else {
-            print_r(sprintf(\L::end_script_with_error, $this->crond['task_name'], file_get_contents($stderrFile), PHP_EOL));    //'脚本[%s]执行结束-有错误信息[%s]%s'
+            print_r(sprintf($this->L->translate('end_script_with_error'), $this->crond['task_name'], file_get_contents($stderrFile), PHP_EOL));    //'脚本[%s]执行结束-有错误信息[%s]%s'
         }
 
         @unlink($stderrFile);

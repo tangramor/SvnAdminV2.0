@@ -66,18 +66,11 @@ use Medoo\Medoo;
 use Witersen\SVNAdmin;
 use Witersen\Upload;
 use i18n;
-
-$i18n = new i18n();
-$i18n->setCachePath('/tmp/langcache');
-$i18n->setFilePath(BASE_PATH . '/app/lang/{LANGUAGE}.ini'); // language file path
-$i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
-$i18n->setFallbackLang('en-US');
-$i18n->setSectionSeparator('_');
-$i18n->setMergeFallback(false); // make keys available from the fallback language
-$i18n->init();
+use LangManager;
 
 class Base
 {
+    public $L;
     public $token;
 
     //根据token得到的用户信息
@@ -143,1287 +136,1302 @@ class Base
      *
      * @var array
      */
-    public $subadminTree = [
-        [
-            'title' => \L::backend_tasks,    // '后台任务'
-            'expand' => false,
-            'checked' => true,
-            'disabled' => true,
-            'necessary_functions' => [],
-            'children' => [
-                [
-                    'title' => \L::current_tasks,    // '当前任务'
-                    'expand' => false,
-                    'checked' => true,
-                    'disabled' => true,
-                    'necessary_functions' => [],
-                    'children' => [
-                        [
-                            'title' => \L::get_real_time_task_log,  //'获取后台任务实时日志'
-                            'expand' => false,
-                            'checked' => true,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Tasks/GetTaskRun',
-                            ],
-                            'children' => []
-                        ],
-                    ]
-                ],
-                [
-                    'title' => \L::task_queue,    // '排队任务'
-                    'expand' => false,
-                    'checked' => true,
-                    'disabled' => true,
-                    'necessary_functions' => [],
-                    'children' => [
-                        [
-                            'title' => \L::get_task_queue,  //'获取后台任务队列'
-                            'expand' => false,
-                            'checked' => true,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Tasks/GetTaskQueue',
-                            ],
-                            'children' => [
-                                [
-                                    'title' => \L::stop_task,   //'停止后台任务'
-                                    'expand' => false,
-                                    'checked' => true,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Tasks/UpdTaskStop',
-                                    ],
-                                    'children' => []
-                                ]
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    'title' => \L::task_history,    // '历史任务'
-                    'expand' => false,
-                    'checked' => true,
-                    'disabled' => true,
-                    'necessary_functions' => [],
-                    'children' => [
-                        [
-                            'title' => \L::get_task_history,  //'获取后台任务执行历史'
-                            'expand' => false,
-                            'checked' => true,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Tasks/GetTaskHistory',
-                            ],
-                            'children' => [
-                                [
-                                    'title' => \L::get_task_history_log,  //'获取历史任务日志'
-                                    'expand' => false,
-                                    'checked' => true,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Tasks/GetTaskHistoryLog',
-                                    ],
-                                    'children' => []
-                                ],
-                                [
-                                    'title' => \L::delete_task_history,  //'删除历史执行任务'
-                                    'expand' => false,
-                                    'checked' => true,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Tasks/DelTaskHistory',
-                                    ],
-                                    'children' => []
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ],
-        [
-            'title' => \L::statistics_info,    // '信息统计'
-            'expand' => false,
-            'checked' => false,
-            'disabled' => false,
-            'router_name' => 'index',
-            'necessary_functions' => [
-                'Statistics/GetLoadInfo',
-                'Statistics/GetDiskInfo',
-                'Statistics/GetStatisticsInfo',
-            ],
-            'children' => []
-        ],
-        [
-            'title' => \L::svn_repository,    // 'SVN仓库'
-            'expand' => false,
-            'checked' => false,
-            'disabled' => false,
-            'router_name' => 'repositoryInfo',
-            'necessary_functions' => [
-                'Svnrep/GetRepList',
-                'Svnrep/GetSvnserveStatus',
-                'Svnrep/SyncRepSize',
-                'Svnrep/SyncRepRev',
-            ],
-            'children' => [
-                [
-                    'title' => \L::create_repository,    // '新建仓库'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svnrep/CreateRep',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::authz_check,    // 'authz检测'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svnrep/CheckAuthz',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::update_repository_note,    // '备注信息修改'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svnrep/UpdRepNote',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::repository_content,    // '仓库内容浏览'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svnrep/GetCheckout',
-                        'Svnrep/GetRepCon',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::backup_management,    // '仓库备份管理'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [],
-                    'children' => [
-                        [
-                            'title' => \L::get_backup_list,    // '获取备份文件列表'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Svnrep/GetBackupList',
-                            ],
-                            'children' => []
-                        ],
-                        // [
-                        //     'title' => '生成仓库备份文件(svnadmin dump)',
-                        //     'expand' => false,
-                        //     'checked' => false,
-                        //     'disabled' => true,
-                        //     'necessary_functions' => [
-                        //         'Svnrep/SvnadminDump',
-                        //     ],
-                        //     'children' => []
-                        // ],
-                        [
-                            'title' => \L::delete_backup_file,    // '删除仓库备份文件'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Svnrep/DelRepBackup',
-                            ],
-                            'children' => []
-                        ],
-                    ]
-                ],
-                [
-                    'title' => \L::repository_permission,    // '仓库权限配置'
-                    'expand' => false,
-                    'checked' => true,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svnrep/GetRepTree',
-                        'Svnrep/GetRepPathAllPri',
-                        'Svnrep/DelRepBackup',
-                    ],
-                    'children' => [
-                        [
-                            'title' => \L::repository_authorization_component,    //'仓库授权组件'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [],
-                            'children' => [
-                                [
-                                    'title' => \L::repository_directory_tree_browsing_left,    //'仓库目录树浏览(左侧)'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [],
-                                    'children' => [
-                                        [
-                                            'title' => \L::get_repository_directory_tree,    //'获取仓库目录树'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svnrep/GetRepTree',
-                                            ],
-                                            'children' => []
-                                        ],
-                                        [
-                                            'title' => \L::create_repository_folder,    //'在线创建文件夹'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svnrep/CreateRepFolder',
-                                            ],
-                                            'children' => []
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'title' => \L::repository_path_authorization_right,    //'仓库路径授权(右侧)'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [],
-                                    'children' => [
-                                        [
-                                            'title' => \L::add_permission_under_a_repository_path,    //'增加某个仓库路径下的权限'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svnrep/CreateRepPathPri',
-                                            ],
-                                            'children' => []
-                                        ],
-                                        [
-                                            'title' => \L::get_permission_under_a_repository_path,    //'获取某个仓库路径下的权限'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svnrep/GetRepPathAllPri',
-                                            ],
-                                            'children' => []
-                                        ],
-                                        [
-                                            'title' => \L::modify_permission_under_a_repository_path,    //'修改某个仓库路径下的权限'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svnrep/UpdRepPathPri',
-                                            ],
-                                            'children' => []
-                                        ],
-                                        [
-                                            'title' => \L::delete_permission_under_a_repository_path,    //'删除某个仓库路径下的权限'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svnrep/DelRepPathPri',
-                                            ],
-                                            'children' => []
-                                        ],
-                                    ]
-                                ],
-                            ]
-                        ],
-                        [
-                            'title' => \L::object_list_component,    //'对象列表组件'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [],
-                            'children' => [
-                                [
-                                    'title' => \L::get_svn_user_list,   //'获取SVN用户列表'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Svnuser/GetUserList',
-                                    ],
-                                    'children' => []
-                                ],
-                                [
-                                    'title' => \L::get_svn_group_list,   //'获取SVN分组列表'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Svngroup/GetGroupList',
-                                    ],
-                                    'children' => [
-                                        [
-                                            'title' => \L::get_svn_group_member,   //'获取SVN分组成员'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svngroup/GetGroupMember',
-                                            ],
-                                            'children' => []
-                                        ],
-                                    ]
-                                ],
-                                [
-                                    'title' => \L::get_svn_alias_list,   //'获取SVN别名列表'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Svnaliase/GetAliaseList',
-                                    ],
-                                    'children' => []
-                                ],
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    'title' => \L::edit_repository_hooks,   //'仓库钩子编辑'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [],
-                    'children' => [
-                        [
-                            'title' => \L::get_hooks_list,  //'获取仓库钩子列表'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Svnrep/GetRepHooks'
-                            ],
-                            'children' => []
-                        ],
-                        [
-                            'title' => \L::get_commonly_used_hooks,    //'获取常用钩子列表'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Svnrep/GetRecommendHooks'
-                            ],
-                            'children' => []
-                        ],
-                        [
-                            'title' => \L::modify_repository_hook_content,  //'修改仓库钩子内容'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Svnrep/UpdRepHook'
-                            ],
-                            'children' => []
-                        ],
-                        [
-                            'title' => \L::clear_repository_hook_content,   //'清空仓库钩子内容'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Svnrep/DelRepHook'
-                            ],
-                            'children' => []
-                        ],
-                    ]
-                ],
-                [
-                    'title' => \L::other,  //'其它'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [],
-                    'children' => [
-                        [
-                            'title' => \L::advanced,    //'高级'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
-                            'necessary_functions' => [],
-                            'children' => [
-                                [
-                                    'title' => \L::repository_properties,  //'仓库属性'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Svnrep/GetRepDetail'
-                                    ],
-                                    'children' => []
-                                ],
-                                [
-                                    'title' => \L::repository_backup,   //'仓库备份'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Svnrep/GetRepHooks'
-                                    ],
-                                    'children' => [
-                                        [
-                                            'title' => \L::immediate_backup_repository,  //'立即备份仓库'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svnrep/SvnadminDump'
-                                            ],
-                                            'children' => []
-                                        ],
-                                        [
-                                            'title' => \L::get_php_file_upload_related_parameters,  //'获取php文件上传相关参数'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svnrep/GetUploadInfo'
-                                            ],
-                                            'children' => []
-                                        ],
-                                        [
-                                            'title' => \L::get_backup_file_list,   //'获取备份文件列表'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svnrep/GetBackupList'
-                                            ],
-                                            'children' => []
-                                        ],
-                                        [
-                                            'title' => \L::upload_file_upload_backup_file_to_server,    //'上传文件(上传备份文件到服务器)'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svnrep/UploadBackup'
-                                            ],
-                                            'children' => []
-                                        ],
-                                        [
-                                            'title' => \L::import_repository_backup,    //导入仓库备份(svnadmin load)'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svnrep/SvnadminLoad'
-                                            ],
-                                            'children' => []
-                                        ],
-                                    ]
-                                ],
-                            ]
-                        ],
-                        [
-                            'title' => \L::modify_repository_name,   //'修改(修改仓库名称)'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
-                            'necessary_functions' => [
-                                'Svnrep/UpdRepName'
-                            ],
-                            'children' => []
-                        ],
-                        [
-                            'title' => \L::delete_repository,    //'删除(删除仓库)'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
-                            'necessary_functions' => [
-                                'Svnrep/DelRep'
-                            ],
-                            'children' => []
-                        ],
-                    ]
-                ],
-            ]
-        ],
-        [
-            'title' => \L::svn_user,    // 'SVN用户'
-            'expand' => false,
-            'checked' => false,
-            'disabled' => false,
-            'router_name' => 'repositoryUser',
-            'necessary_functions' => [
-                'Svnuser/GetUserList',
-            ],
-            'children' => [
-                [
-                    'title' => \L::create_svn_user, //'新建SVN用户'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svnuser/CreateUser',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::user_migration,  //'用户迁入'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [],
-                    'children' => [
-                        [
-                            'title' => \L::user_identification, //'用户识别'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Svnuser/UserScan',
-                            ],
-                            'children' => []
-                        ],
-                        [
-                            'title' => \L::confirm_import,  //'确认导入'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Svnuser/UserImport',
-                            ],
-                            'children' => []
-                        ],
-                    ]
-                ],
-                [
-                    'title' => \L::disable_svn_user,    //'弃用或禁用SVN用户'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svnuser/UpdUserStatus',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::modify_user_note,    //'修改SVN用户备注信息'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svnuser/UpdUserNote',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::authorized_path,    //'有权路径'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [],
-                    'children' => [
-                        [
-                            'title' => \L::view,    //'查看'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
-                            'necessary_functions' => [
-                                'Svnrep/GetSvnUserRepList2',
-                            ],
-                            'children' => []
-                        ],
-                        [
-                            'title' => \L::secondary_authorization, //'二次授权'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
-                            'necessary_functions' => [],
-                            'children' => [
-                                [
-                                    'title' => \L::secondary_authorization_status, //'二次授权状态'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Secondpri/UpdSecondpri',
-                                    ],
-                                    'children' => []
-                                ],
-                                [
-                                    'title' => \L::secondary_authorization_objects, //'二次授权对象'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Secondpri/GetSecondpriObjectList',
-                                    ],
-                                    'children' => [
-                                        [
-                                            'title' => \L::create_second_pri_object,    //'添加成员'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Secondpri/CreateSecondpriObject',
-                                            ],
-                                            'children' => []
-                                        ],
-                                        [
-                                            'title' => \L::remove_second_pri_object,    //'移除成员'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Secondpri/DelSecondpriObject',
-                                            ],
-                                            'children' => []
-                                        ],
-                                        [
-                                            'title' => \L::object_list_component,   //'对象列表组件'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [],
-                                            'children' => [
-                                                [
-                                                    'title' => \L::get_svn_user_list,   //'获取SVN用户列表'
-                                                    'expand' => false,
-                                                    'checked' => false,
-                                                    'disabled' => true,
-                                                    'necessary_functions' => [
-                                                        'Svnuser/GetUserList',
-                                                    ],
-                                                    'children' => []
-                                                ],
-                                                [
-                                                    'title' => \L::get_svn_group_list,   //'获取SVN分组列表'
-                                                    'expand' => false,
-                                                    'checked' => false,
-                                                    'disabled' => true,
-                                                    'necessary_functions' => [
-                                                        'Svngroup/GetGroupList',
-                                                    ],
-                                                    'children' => [
-                                                        [
-                                                            'title' => \L::get_svn_group_member,    //'获取SVN分组成员'
-                                                            'expand' => false,
-                                                            'checked' => false,
-                                                            'disabled' => true,
-                                                            'necessary_functions' => [
-                                                                'Svngroup/GetGroupMember',
-                                                            ],
-                                                            'children' => []
-                                                        ],
-                                                    ]
-                                                ],
-                                                [
-                                                    'title' => \L::get_svn_alias_list,  //'获取SVN别名列表'
-                                                    'expand' => false,
-                                                    'checked' => false,
-                                                    'disabled' => true,
-                                                    'necessary_functions' => [
-                                                        'Svnaliase/GetAliaseList',
-                                                    ],
-                                                    'children' => []
-                                                ],
-                                            ]
-                                        ]
-                                    ]
-                                ],
-                            ]
-                        ],
-                    ]
-                ],
-                [
-                    'title' => \L::modify_svn_user_password,    //'修改SVN用户密码'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svnuser/UpdUserPass',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::delete_svn_user, //'删除SVN用户'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svnuser/DelUser',
-                    ],
-                    'children' => []
-                ],
-            ]
-        ],
-        [
-            'title' => \L::svn_group,    // 'SVN分组'
-            'expand' => false,
-            'checked' => false,
-            'disabled' => false,
-            'router_name' => 'repositoryGroup',
-            'necessary_functions' => [
-                'Svngroup/GetGroupList'
-            ],
-            'children' => [
-                [
-                    'title' => \L::create_svn_group,    //'新建SVN分组'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svngroup/CreateGroup',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::group_note,  //'备注信息'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svngroup/UpdGroupNote',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::group_members,   //'成员'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svngroup/CreateGroup',
-                    ],
-                    'children' => [
-                        [
-                            'title' => \L::get_group_member_list,   //'获取分组成员列表'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Svngroup/CreateGroup',
-                            ],
-                            'children' => []
-                        ],
-                        [
-                            'title' => \L::add_or_delete_group_member,  //'添加或删除分组成员'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [
-                                'Svngroup/UpdGroupMember',
-                            ],
-                            'children' => []
-                        ],
-                        [
-                            'title' => \L::object_list_component,   //'对象列表组件'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => true,
-                            'necessary_functions' => [],
-                            'children' => [
-                                [
-                                    'title' => \L::get_svn_user_list,   //'获取SVN用户列表'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Svnuser/GetUserList',
-                                    ],
-                                    'children' => []
-                                ],
-                                [
-                                    'title' => \L::get_svn_group_list,   //'获取SVN分组列表'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Svngroup/GetGroupList',
-                                    ],
-                                    'children' => [
-                                        [
-                                            'title' => \L::get_svn_group_member,   //'获取SVN分组成员'
-                                            'expand' => false,
-                                            'checked' => false,
-                                            'disabled' => true,
-                                            'necessary_functions' => [
-                                                'Svngroup/GetGroupMember',
-                                            ],
-                                            'children' => []
-                                        ],
-                                    ]
-                                ],
-                                [
-                                    'title' => \L::get_svn_alias_list,  //'获取SVN别名列表'
-                                    'expand' => false,
-                                    'checked' => false,
-                                    'disabled' => true,
-                                    'necessary_functions' => [
-                                        'Svnaliase/GetAliaseList',
-                                    ],
-                                    'children' => []
-                                ],
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    'title' => \L::edit_group_name, //'编辑'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svngroup/UpdGroupName',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::delete_group,    //'删除'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'necessary_functions' => [
-                        'Svngroup/DelGroup',
-                    ],
-                    'children' => []
-                ],
-            ]
-        ],
-        [
-            'title' => \L::system_logs,    // '系统日志'
-            'expand' => false,
-            'checked' => false,
-            'disabled' => false,
-            'router_name' => 'logs',
-            'necessary_functions' => [],
-            'children' => [
-                [
-                    'title' => \L::get_log_list,    // '获取日志列表'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'router_name' => 'Logs',
-                    'necessary_functions' => [
-                        'Logs/GetLogList',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::clear_logs,    // '清空日志'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'router_name' => 'Logs',
-                    'necessary_functions' => [
-                        'Logs/DelLogs',
-                    ],
-                    'children' => []
-                ],
-            ]
-        ],
-        [
-            'title' => \L::task_scheduling,    // '任务计划'
-            'expand' => false,
-            'checked' => false,
-            'disabled' => false,
-            'router_name' => 'crond',
-            'necessary_functions' => [
-                'Crond/GetCronStatus',
-                'Crond/GetCrontabList',
-                'Crond/GetRepList'
-            ],
-            'children' => [
-                [
-                    'title' => \L::add_task_schedule,    // '添加任务计划'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'router_name' => 'Crond',
-                    'necessary_functions' => [
-                        'Crond/CreateCrontab',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::enable_or_disable_schedule,    // '启用或禁用任务计划'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'router_name' => 'Crond',
-                    'necessary_functions' => [
-                        'Crond/UpdCrontabStatus',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::other,   //'其它'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => false,
-                    'router_name' => 'Crond',
-                    'necessary_functions' => [],
-                    'children' => [
-                        [
-                            'title' => \L::view_schedule_log,   //'日志(查看任务计划执行日志)'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
-                            'router_name' => 'Crond',
-                            'necessary_functions' => [
-                                'Crond/GetCrontabLog',
-                            ],
-                            'children' => []
-                        ],
-                        [
-                            'title' => \L::edit_schedule,   //'编辑(编辑任务计划)'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
-                            'router_name' => 'Crond',
-                            'necessary_functions' => [
-                                'Crond/UpdCrontab',
-                            ],
-                            'children' => []
-                        ],
-                        [
-                            'title' => \L::delete_schedule, //'删除(删除任务计划)'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
-                            'router_name' => 'Crond',
-                            'necessary_functions' => [
-                                'Crond/DelCrontab',
-                            ],
-                            'children' => []
-                        ],
-                        [
-                            'title' => \L::execute_schedule,    //'执行(立即执行一次任务计划)'
-                            'expand' => false,
-                            'checked' => false,
-                            'disabled' => false,
-                            'router_name' => 'Crond',
-                            'necessary_functions' => [
-                                'Crond/TriggerCrontab',
-                            ],
-                            'children' => []
-                        ],
-                    ]
-                ],
-            ]
-        ],
-        [
-            'title' => \L::personal_center,    // '个人中心'
-            'expand' => false,
-            'checked' => true,
-            'disabled' => true,
-            'router_name' => 'personal',
-            'necessary_functions' => [
-                'Personal/UpdSubadminUserPass',
-                'Setting/CheckUpdate',
-                'Common/Logout'
-            ],
-            'children' => []
-        ],
-        [
-            'title' => \L::system_settings,    // '系统配置'
-            'expand' => false,
-            'checked' => false,
-            'disabled' => false,
-            'router_name' => 'setting',
-            'necessary_functions' => [],
-            'children' => [
-                [
-                    'title' => \L::host_configuration,    // '主机配置'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => true,
-                    'necessary_functions' => [
-                        'Setting/GetDcokerHostInfo',
-                        'Setting/UpdDockerHostInfo',
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::path_info,    // '路径信息'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => true,
-                    'necessary_functions' => [
-                        'Setting/GetDirInfo',
-                        'Setting/UpdSvnAuthzSingle',
-                        'Setting/UpdSvnservePort'
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::svn_protocol_checkout,    // 'svn协议检出'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => true,
-                    'necessary_functions' => [
-                        'Setting/GetSvnInfo',
-
-                        'Setting/UpdSvnEnable',
-
-                        'Setting/UpdSvnserveStatusStop',
-                        'Setting/UpdSvnserveStatusStart',
-
-                        'Setting/UpdSvnservePort',
-                        'Setting/UpdSvnserveHost',
-
-                        'Setting/UpdSaslStatusStart',
-                        'Setting/UpdSaslStatusStop',
-
-                        'Setting/LdapTest',
-                        'Setting/UpdSvnUsersource'
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::http_protocol_checkout,    // 'http协议检出'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => true,
-                    'necessary_functions' => [
-                        'Setting/GetApacheInfo',
-
-                        'Setting/UpdSubversionEnable',
-
-                        'Setting/UpdHttpPort',
-                        'Setting/UpdHttpPrefix',
-
-                        'Setting/LdapTest',
-                        'Setting/UpdHttpUsersource'
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::mail_service,    // '邮件服务'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => true,
-                    'necessary_functions' => [
-                        'Setting/GetMailInfo',
-                        'Setting/GetMailPushInfo',
-                        'Setting/SendMailTest',
-                        'Setting/UpdMailInfo'
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::message_push,    // '消息推送'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => true,
-                    'necessary_functions' => [
-                        'Setting/GetMailPushInfo',
-                        'Setting/UpdPushInfo'
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::security_configuration,    // '安全配置'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => true,
-                    'necessary_functions' => [
-                        'Setting/GetSafeInfo',
-                        'Setting/UpdSafeInfo'
-                    ],
-                    'children' => []
-                ],
-                [
-                    'title' => \L::system_update,    // '系统更新'
-                    'expand' => false,
-                    'checked' => false,
-                    'disabled' => true,
-                    'necessary_functions' => [
-                        'Setting/CheckUpdate'
-                    ],
-                    'children' => []
-                ],
-            ]
-        ],
-    ];
+    public $subadminTree;
 
     /**
      * 所有角色路由
      *
      * @var array
      */
-    public $route = [
-        'name' => 'manage',
-        'path' => '/',
-        'redirect' => [
-            'name' => 'login'
-        ],
-        'meta' => [
-            'title' => 'SVNAdmin',
-            'requireAuth' => false,
-        ],
-        'component' => 'layout/basicLayout/index.vue',
-        'children' => [
-            [
-                'name' => 'index',
-                'path' => '/index',
-                'meta' => [
-                    'title' => \L::statistics_info,    // '信息统计'
-                    'icon' => 'ios-stats',
-                    'requireAuth' => true,
-                    'user_role_id' => [1, 3],
-                    'group' => [
-                        'name' => \L::repository,    //'仓库'
-                        'num' => 1
-                    ],
-                    'id' => 1001
-                ],
-                'component' => 'index/index.vue'
-            ],
-            [
-                'name' => 'repositoryInfo',
-                'path' => '/repositoryInfo',
-                'meta' => [
-                    'title' => \L::svn_repository,  //'SVN仓库'
-                    'icon' => 'logo-buffer',
-                    'requireAuth' => true,
-                    'user_role_id' => [1, 2, 3],
-                    'group' => [
-                        'name' => \L::repository,    //'仓库'
-                        'num' => 1
-                    ],
-                    'id' => 1002
-                ],
-                'component' => 'repositoryInfo/index.vue'
-            ],
-            [
-                'name' => 'repositoryUser',
-                'path' => '/repositoryUser',
-                'meta' => [
-                    'title' => \L::svn_user,    //'SVN用户'
-                    'icon' => 'md-person',
-                    'requireAuth' => true,
-                    'user_role_id' => [1, 3],
-                    'group' => [
-                        'name' => \L::repository,    //'仓库'
-                        'num' => 1
-                    ],
-                    'id' => 1003
-                ],
-                'component' => 'repositoryUser/index.vue'
-            ],
-            [
-                'name' => 'repositoryGroup',
-                'path' => '/repositoryGroup',
-                'meta' => [
-                    'title' => \L::svn_group,    //'SVN分组'
-                    'icon' => 'md-people',
-                    'requireAuth' => true,
-                    'user_role_id' => [1, 3],
-                    'group' => [
-                        'name' => \L::repository,    //'仓库'
-                        'num' => 1
-                    ],
-                    'id' => 1004
-                ],
-                'component' => 'repositoryGroup/index.vue'
-            ],
-            [
-                'name' => 'logs',
-                'path' => '/logs',
-                'meta' => [
-                    'title' => \L::system_logs, //'系统日志'
-                    'icon' => 'md-bug',
-                    'requireAuth' => true,
-                    'user_role_id' => [1, 3],
-                    'group' => [
-                        'name' => \L::operation_and_maintenance,    //'运维'
-                        'num' => 2
-                    ],
-                    'id' => 1005
-                ],
-                'component' => 'logs/index.vue'
-            ],
-            [
-                'name' => 'crond',
-                'path' => '/crond',
-                'meta' => [
-                    'title' => \L::task_scheduling,    //'任务计划'
-                    'icon' => 'ios-alarm',
-                    'requireAuth' => true,
-                    'user_role_id' => [1, 3],
-                    'group' => [
-                        'name' => \L::operation_and_maintenance,    //'运维'
-                        'num' => 2
-                    ],
-                    'id' => 1006
-                ],
-                'component' => 'crond/index.vue'
-            ],
-            [
-                'name' => 'personal',
-                'path' => '/personal',
-                'meta' => [
-                    'title' => \L::personal_center,    //'个人中心'
-                    'icon' => 'md-cube',
-                    'requireAuth' => true,
-                    'user_role_id' => [1, 2, 3],
-                    'group' => [
-                        'name' => \L::advanced, //'高级'
-                        'num' => 3
-                    ],
-                    'id' => 1007
-                ],
-                'component' => 'personal/index.vue'
-            ],
-            [
-                'name' => 'subadmin',
-                'path' => '/subadmin',
-                'meta' => [
-                    'title' => \L::subadmin, //'子管理员'
-                    'icon' => 'md-hand',
-                    'requireAuth' => true,
-                    'user_role_id' => [1],
-                    'group' => [
-                        'name' => \L::advanced, //'高级'
-                        'num' => 3
-                    ],
-                    'id' => 1008
-                ],
-                'component' => 'subadmin/index.vue'
-            ],
-            [
-                'name' => 'setting',
-                'path' => '/setting',
-                'meta' => [
-                    'title' => \L::system_settings, //'系统配置'
-                    'icon' => 'md-settings',
-                    'requireAuth' => true,
-                    'user_role_id' => [1, 3],
-                    'group' => [
-                        'name' => \L::advanced, //'高级'
-                        'num' => 3
-                    ],
-                    'id' => 1009
-                ],
-                'component' => 'setting/index.vue'
-            ],
-        ]
-    ];
+    public $route;
 
     function __construct($parm)
     {
+        $i18n = new i18n();
+        $i18n->setCachePath('/tmp/langcache');
+        $i18n->setFilePath(BASE_PATH . '/app/lang/{LANGUAGE}.ini'); // language file path
+        $i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
+        $i18n->setFallbackLang('en-US');
+        $i18n->setSectionSeparator('_');
+        $i18n->setMergeFallback(false); // make keys available from the fallback language
+        $i18n->init();
+
+        $this->L = LangManager::getInstance($i18n->getAppliedLang());
+
+        $this->subadminTree = [
+            [
+                'title' => $this->L->translate('backend_tasks'),    // '后台任务'
+                'expand' => false,
+                'checked' => true,
+                'disabled' => true,
+                'necessary_functions' => [],
+                'children' => [
+                    [
+                        'title' => $this->L->translate('current_tasks'),    // '当前任务'
+                        'expand' => false,
+                        'checked' => true,
+                        'disabled' => true,
+                        'necessary_functions' => [],
+                        'children' => [
+                            [
+                                'title' => $this->L->translate('get_real_time_task_log'),  //'获取后台任务实时日志'
+                                'expand' => false,
+                                'checked' => true,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Tasks/GetTaskRun',
+                                ],
+                                'children' => []
+                            ],
+                        ]
+                    ],
+                    [
+                        'title' => $this->L->translate('task_queue'),    // '排队任务'
+                        'expand' => false,
+                        'checked' => true,
+                        'disabled' => true,
+                        'necessary_functions' => [],
+                        'children' => [
+                            [
+                                'title' => $this->L->translate('get_task_queue'),  //'获取后台任务队列'
+                                'expand' => false,
+                                'checked' => true,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Tasks/GetTaskQueue',
+                                ],
+                                'children' => [
+                                    [
+                                        'title' => $this->L->translate('stop_task'),   //'停止后台任务'
+                                        'expand' => false,
+                                        'checked' => true,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Tasks/UpdTaskStop',
+                                        ],
+                                        'children' => []
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'title' => $this->L->translate('task_history'),    // '历史任务'
+                        'expand' => false,
+                        'checked' => true,
+                        'disabled' => true,
+                        'necessary_functions' => [],
+                        'children' => [
+                            [
+                                'title' => $this->L->translate('get_task_history'),  //'获取后台任务执行历史'
+                                'expand' => false,
+                                'checked' => true,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Tasks/GetTaskHistory',
+                                ],
+                                'children' => [
+                                    [
+                                        'title' => $this->L->translate('get_task_history_log'),  //'获取历史任务日志'
+                                        'expand' => false,
+                                        'checked' => true,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Tasks/GetTaskHistoryLog',
+                                        ],
+                                        'children' => []
+                                    ],
+                                    [
+                                        'title' => $this->L->translate('delete_task_history'),  //'删除历史执行任务'
+                                        'expand' => false,
+                                        'checked' => true,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Tasks/DelTaskHistory',
+                                        ],
+                                        'children' => []
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            [
+                'title' => $this->L->translate('statistics_info'),    // '信息统计'
+                'expand' => false,
+                'checked' => false,
+                'disabled' => false,
+                'router_name' => 'index',
+                'necessary_functions' => [
+                    'Statistics/GetLoadInfo',
+                    'Statistics/GetDiskInfo',
+                    'Statistics/GetStatisticsInfo',
+                ],
+                'children' => []
+            ],
+            [
+                'title' => $this->L->translate('svn_repository'),    // 'SVN仓库'
+                'expand' => false,
+                'checked' => false,
+                'disabled' => false,
+                'router_name' => 'repositoryInfo',
+                'necessary_functions' => [
+                    'Svnrep/GetRepList',
+                    'Svnrep/GetSvnserveStatus',
+                    'Svnrep/SyncRepSize',
+                    'Svnrep/SyncRepRev',
+                ],
+                'children' => [
+                    [
+                        'title' => $this->L->translate('create_repository'),    // '新建仓库'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svnrep/CreateRep',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('authz_check'),    // 'authz检测'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svnrep/CheckAuthz',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('update_repository_note'),    // '备注信息修改'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svnrep/UpdRepNote',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('repository_content'),    // '仓库内容浏览'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svnrep/GetCheckout',
+                            'Svnrep/GetRepCon',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('backup_management'),    // '仓库备份管理'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [],
+                        'children' => [
+                            [
+                                'title' => $this->L->translate('get_backup_list'),    // '获取备份文件列表'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Svnrep/GetBackupList',
+                                ],
+                                'children' => []
+                            ],
+                            // [
+                            //     'title' => '生成仓库备份文件(svnadmin dump)',
+                            //     'expand' => false,
+                            //     'checked' => false,
+                            //     'disabled' => true,
+                            //     'necessary_functions' => [
+                            //         'Svnrep/SvnadminDump',
+                            //     ],
+                            //     'children' => []
+                            // ],
+                            [
+                                'title' => $this->L->translate('delete_backup_file'),    // '删除仓库备份文件'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Svnrep/DelRepBackup',
+                                ],
+                                'children' => []
+                            ],
+                        ]
+                    ],
+                    [
+                        'title' => $this->L->translate('repository_permission'),    // '仓库权限配置'
+                        'expand' => false,
+                        'checked' => true,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svnrep/GetRepTree',
+                            'Svnrep/GetRepPathAllPri',
+                            'Svnrep/DelRepBackup',
+                        ],
+                        'children' => [
+                            [
+                                'title' => $this->L->translate('repository_authorization_component'),    //'仓库授权组件'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [],
+                                'children' => [
+                                    [
+                                        'title' => $this->L->translate('repository_directory_tree_browsing_left'),    //'仓库目录树浏览(左侧)'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [],
+                                        'children' => [
+                                            [
+                                                'title' => $this->L->translate('get_repository_directory_tree'),    //'获取仓库目录树'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svnrep/GetRepTree',
+                                                ],
+                                                'children' => []
+                                            ],
+                                            [
+                                                'title' => $this->L->translate('create_repository_folder'),    //'在线创建文件夹'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svnrep/CreateRepFolder',
+                                                ],
+                                                'children' => []
+                                            ]
+                                        ]
+                                    ],
+                                    [
+                                        'title' => $this->L->translate('repository_path_authorization_right'),    //'仓库路径授权(右侧)'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [],
+                                        'children' => [
+                                            [
+                                                'title' => $this->L->translate('add_permission_under_a_repository_path'),    //'增加某个仓库路径下的权限'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svnrep/CreateRepPathPri',
+                                                ],
+                                                'children' => []
+                                            ],
+                                            [
+                                                'title' => $this->L->translate('get_permission_under_a_repository_path'),    //'获取某个仓库路径下的权限'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svnrep/GetRepPathAllPri',
+                                                ],
+                                                'children' => []
+                                            ],
+                                            [
+                                                'title' => $this->L->translate('modify_permission_under_a_repository_path'),    //'修改某个仓库路径下的权限'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svnrep/UpdRepPathPri',
+                                                ],
+                                                'children' => []
+                                            ],
+                                            [
+                                                'title' => $this->L->translate('delete_permission_under_a_repository_path'),    //'删除某个仓库路径下的权限'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svnrep/DelRepPathPri',
+                                                ],
+                                                'children' => []
+                                            ],
+                                        ]
+                                    ],
+                                ]
+                            ],
+                            [
+                                'title' => $this->L->translate('object_list_component'),    //'对象列表组件'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [],
+                                'children' => [
+                                    [
+                                        'title' => $this->L->translate('get_svn_user_list'),   //'获取SVN用户列表'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Svnuser/GetUserList',
+                                        ],
+                                        'children' => []
+                                    ],
+                                    [
+                                        'title' => $this->L->translate('get_svn_group_list'),   //'获取SVN分组列表'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Svngroup/GetGroupList',
+                                        ],
+                                        'children' => [
+                                            [
+                                                'title' => $this->L->translate('get_svn_group_member'),   //'获取SVN分组成员'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svngroup/GetGroupMember',
+                                                ],
+                                                'children' => []
+                                            ],
+                                        ]
+                                    ],
+                                    [
+                                        'title' => $this->L->translate('get_svn_alias_list'),   //'获取SVN别名列表'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Svnaliase/GetAliaseList',
+                                        ],
+                                        'children' => []
+                                    ],
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'title' => $this->L->translate('edit_repository_hooks'),   //'仓库钩子编辑'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [],
+                        'children' => [
+                            [
+                                'title' => $this->L->translate('get_hooks_list'),  //'获取仓库钩子列表'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Svnrep/GetRepHooks'
+                                ],
+                                'children' => []
+                            ],
+                            [
+                                'title' => $this->L->translate('get_commonly_used_hooks'),    //'获取常用钩子列表'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Svnrep/GetRecommendHooks'
+                                ],
+                                'children' => []
+                            ],
+                            [
+                                'title' => $this->L->translate('modify_repository_hook_content'),  //'修改仓库钩子内容'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Svnrep/UpdRepHook'
+                                ],
+                                'children' => []
+                            ],
+                            [
+                                'title' => $this->L->translate('clear_repository_hook_content'),   //'清空仓库钩子内容'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Svnrep/DelRepHook'
+                                ],
+                                'children' => []
+                            ],
+                        ]
+                    ],
+                    [
+                        'title' => $this->L->translate('other'),  //'其它'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [],
+                        'children' => [
+                            [
+                                'title' => $this->L->translate('advanced'),    //'高级'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => false,
+                                'necessary_functions' => [],
+                                'children' => [
+                                    [
+                                        'title' => $this->L->translate('repository_properties'),  //'仓库属性'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Svnrep/GetRepDetail'
+                                        ],
+                                        'children' => []
+                                    ],
+                                    [
+                                        'title' => $this->L->translate('repository_backup'),   //'仓库备份'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Svnrep/GetRepHooks'
+                                        ],
+                                        'children' => [
+                                            [
+                                                'title' => $this->L->translate('immediate_backup_repository'),  //'立即备份仓库'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svnrep/SvnadminDump'
+                                                ],
+                                                'children' => []
+                                            ],
+                                            [
+                                                'title' => $this->L->translate('get_php_file_upload_related_parameters'),  //'获取php文件上传相关参数'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svnrep/GetUploadInfo'
+                                                ],
+                                                'children' => []
+                                            ],
+                                            [
+                                                'title' => $this->L->translate('get_backup_file_list'),   //'获取备份文件列表'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svnrep/GetBackupList'
+                                                ],
+                                                'children' => []
+                                            ],
+                                            [
+                                                'title' => $this->L->translate('upload_file_upload_backup_file_to_server'),    //'上传文件(上传备份文件到服务器)'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svnrep/UploadBackup'
+                                                ],
+                                                'children' => []
+                                            ],
+                                            [
+                                                'title' => $this->L->translate('import_repository_backup'),    //导入仓库备份(svnadmin load)'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svnrep/SvnadminLoad'
+                                                ],
+                                                'children' => []
+                                            ],
+                                        ]
+                                    ],
+                                ]
+                            ],
+                            [
+                                'title' => $this->L->translate('modify_repository_name'),   //'修改(修改仓库名称)'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => false,
+                                'necessary_functions' => [
+                                    'Svnrep/UpdRepName'
+                                ],
+                                'children' => []
+                            ],
+                            [
+                                'title' => $this->L->translate('delete_repository'),    //'删除(删除仓库)'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => false,
+                                'necessary_functions' => [
+                                    'Svnrep/DelRep'
+                                ],
+                                'children' => []
+                            ],
+                        ]
+                    ],
+                ]
+            ],
+            [
+                'title' => $this->L->translate('svn_user'),    // 'SVN用户'
+                'expand' => false,
+                'checked' => false,
+                'disabled' => false,
+                'router_name' => 'repositoryUser',
+                'necessary_functions' => [
+                    'Svnuser/GetUserList',
+                ],
+                'children' => [
+                    [
+                        'title' => $this->L->translate('create_svn_user'), //'新建SVN用户'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svnuser/CreateUser',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('user_migration'),  //'用户迁入'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [],
+                        'children' => [
+                            [
+                                'title' => $this->L->translate('user_identification'), //'用户识别'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Svnuser/UserScan',
+                                ],
+                                'children' => []
+                            ],
+                            [
+                                'title' => $this->L->translate('confirm_import'),  //'确认导入'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Svnuser/UserImport',
+                                ],
+                                'children' => []
+                            ],
+                        ]
+                    ],
+                    [
+                        'title' => $this->L->translate('disable_svn_user'),    //'弃用或禁用SVN用户'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svnuser/UpdUserStatus',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('modify_user_note'),    //'修改SVN用户备注信息'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svnuser/UpdUserNote',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('authorized_path'),    //'有权路径'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [],
+                        'children' => [
+                            [
+                                'title' => $this->L->translate('view'),    //'查看'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => false,
+                                'necessary_functions' => [
+                                    'Svnrep/GetSvnUserRepList2',
+                                ],
+                                'children' => []
+                            ],
+                            [
+                                'title' => $this->L->translate('secondary_authorization'), //'二次授权'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => false,
+                                'necessary_functions' => [],
+                                'children' => [
+                                    [
+                                        'title' => $this->L->translate('secondary_authorization_status'), //'二次授权状态'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Secondpri/UpdSecondpri',
+                                        ],
+                                        'children' => []
+                                    ],
+                                    [
+                                        'title' => $this->L->translate('secondary_authorization_objects'), //'二次授权对象'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Secondpri/GetSecondpriObjectList',
+                                        ],
+                                        'children' => [
+                                            [
+                                                'title' => $this->L->translate('create_second_pri_object'),    //'添加成员'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Secondpri/CreateSecondpriObject',
+                                                ],
+                                                'children' => []
+                                            ],
+                                            [
+                                                'title' => $this->L->translate('remove_second_pri_object'),    //'移除成员'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Secondpri/DelSecondpriObject',
+                                                ],
+                                                'children' => []
+                                            ],
+                                            [
+                                                'title' => $this->L->translate('object_list_component'),   //'对象列表组件'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [],
+                                                'children' => [
+                                                    [
+                                                        'title' => $this->L->translate('get_svn_user_list'),   //'获取SVN用户列表'
+                                                        'expand' => false,
+                                                        'checked' => false,
+                                                        'disabled' => true,
+                                                        'necessary_functions' => [
+                                                            'Svnuser/GetUserList',
+                                                        ],
+                                                        'children' => []
+                                                    ],
+                                                    [
+                                                        'title' => $this->L->translate('get_svn_group_list'),   //'获取SVN分组列表'
+                                                        'expand' => false,
+                                                        'checked' => false,
+                                                        'disabled' => true,
+                                                        'necessary_functions' => [
+                                                            'Svngroup/GetGroupList',
+                                                        ],
+                                                        'children' => [
+                                                            [
+                                                                'title' => $this->L->translate('get_svn_group_member'),    //'获取SVN分组成员'
+                                                                'expand' => false,
+                                                                'checked' => false,
+                                                                'disabled' => true,
+                                                                'necessary_functions' => [
+                                                                    'Svngroup/GetGroupMember',
+                                                                ],
+                                                                'children' => []
+                                                            ],
+                                                        ]
+                                                    ],
+                                                    [
+                                                        'title' => $this->L->translate('get_svn_alias_list'),  //'获取SVN别名列表'
+                                                        'expand' => false,
+                                                        'checked' => false,
+                                                        'disabled' => true,
+                                                        'necessary_functions' => [
+                                                            'Svnaliase/GetAliaseList',
+                                                        ],
+                                                        'children' => []
+                                                    ],
+                                                ]
+                                            ]
+                                        ]
+                                    ],
+                                ]
+                            ],
+                        ]
+                    ],
+                    [
+                        'title' => $this->L->translate('modify_svn_user_password'),    //'修改SVN用户密码'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svnuser/UpdUserPass',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('delete_svn_user'), //'删除SVN用户'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svnuser/DelUser',
+                        ],
+                        'children' => []
+                    ],
+                ]
+            ],
+            [
+                'title' => $this->L->translate('svn_group'),    // 'SVN分组'
+                'expand' => false,
+                'checked' => false,
+                'disabled' => false,
+                'router_name' => 'repositoryGroup',
+                'necessary_functions' => [
+                    'Svngroup/GetGroupList'
+                ],
+                'children' => [
+                    [
+                        'title' => $this->L->translate('create_svn_group'),    //'新建SVN分组'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svngroup/CreateGroup',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('group_note'),  //'备注信息'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svngroup/UpdGroupNote',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('group_members'),   //'成员'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svngroup/CreateGroup',
+                        ],
+                        'children' => [
+                            [
+                                'title' => $this->L->translate('get_group_member_list'),   //'获取分组成员列表'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Svngroup/CreateGroup',
+                                ],
+                                'children' => []
+                            ],
+                            [
+                                'title' => $this->L->translate('add_or_delete_group_member'),  //'添加或删除分组成员'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [
+                                    'Svngroup/UpdGroupMember',
+                                ],
+                                'children' => []
+                            ],
+                            [
+                                'title' => $this->L->translate('object_list_component'),   //'对象列表组件'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => true,
+                                'necessary_functions' => [],
+                                'children' => [
+                                    [
+                                        'title' => $this->L->translate('get_svn_user_list'),   //'获取SVN用户列表'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Svnuser/GetUserList',
+                                        ],
+                                        'children' => []
+                                    ],
+                                    [
+                                        'title' => $this->L->translate('get_svn_group_list'),   //'获取SVN分组列表'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Svngroup/GetGroupList',
+                                        ],
+                                        'children' => [
+                                            [
+                                                'title' => $this->L->translate('get_svn_group_member'),   //'获取SVN分组成员'
+                                                'expand' => false,
+                                                'checked' => false,
+                                                'disabled' => true,
+                                                'necessary_functions' => [
+                                                    'Svngroup/GetGroupMember',
+                                                ],
+                                                'children' => []
+                                            ],
+                                        ]
+                                    ],
+                                    [
+                                        'title' => $this->L->translate('get_svn_alias_list'),  //'获取SVN别名列表'
+                                        'expand' => false,
+                                        'checked' => false,
+                                        'disabled' => true,
+                                        'necessary_functions' => [
+                                            'Svnaliase/GetAliaseList',
+                                        ],
+                                        'children' => []
+                                    ],
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'title' => $this->L->translate('edit_group_name'), //'编辑'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svngroup/UpdGroupName',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('delete_group'),    //'删除'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'necessary_functions' => [
+                            'Svngroup/DelGroup',
+                        ],
+                        'children' => []
+                    ],
+                ]
+            ],
+            [
+                'title' => $this->L->translate('system_logs'),    // '系统日志'
+                'expand' => false,
+                'checked' => false,
+                'disabled' => false,
+                'router_name' => 'logs',
+                'necessary_functions' => [],
+                'children' => [
+                    [
+                        'title' => $this->L->translate('get_log_list'),    // '获取日志列表'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'router_name' => 'Logs',
+                        'necessary_functions' => [
+                            'Logs/GetLogList',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('clear_logs'),    // '清空日志'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'router_name' => 'Logs',
+                        'necessary_functions' => [
+                            'Logs/DelLogs',
+                        ],
+                        'children' => []
+                    ],
+                ]
+            ],
+            [
+                'title' => $this->L->translate('task_scheduling'),    // '任务计划'
+                'expand' => false,
+                'checked' => false,
+                'disabled' => false,
+                'router_name' => 'crond',
+                'necessary_functions' => [
+                    'Crond/GetCronStatus',
+                    'Crond/GetCrontabList',
+                    'Crond/GetRepList'
+                ],
+                'children' => [
+                    [
+                        'title' => $this->L->translate('add_task_schedule'),    // '添加任务计划'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'router_name' => 'Crond',
+                        'necessary_functions' => [
+                            'Crond/CreateCrontab',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('enable_or_disable_schedule'),    // '启用或禁用任务计划'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'router_name' => 'Crond',
+                        'necessary_functions' => [
+                            'Crond/UpdCrontabStatus',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('other'),   //'其它'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => false,
+                        'router_name' => 'Crond',
+                        'necessary_functions' => [],
+                        'children' => [
+                            [
+                                'title' => $this->L->translate('view_schedule_log'),   //'日志(查看任务计划执行日志)'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => false,
+                                'router_name' => 'Crond',
+                                'necessary_functions' => [
+                                    'Crond/GetCrontabLog',
+                                ],
+                                'children' => []
+                            ],
+                            [
+                                'title' => $this->L->translate('edit_schedule'),   //'编辑(编辑任务计划)'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => false,
+                                'router_name' => 'Crond',
+                                'necessary_functions' => [
+                                    'Crond/UpdCrontab',
+                                ],
+                                'children' => []
+                            ],
+                            [
+                                'title' => $this->L->translate('delete_schedule'), //'删除(删除任务计划)'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => false,
+                                'router_name' => 'Crond',
+                                'necessary_functions' => [
+                                    'Crond/DelCrontab',
+                                ],
+                                'children' => []
+                            ],
+                            [
+                                'title' => $this->L->translate('execute_schedule'),    //'执行(立即执行一次任务计划)'
+                                'expand' => false,
+                                'checked' => false,
+                                'disabled' => false,
+                                'router_name' => 'Crond',
+                                'necessary_functions' => [
+                                    'Crond/TriggerCrontab',
+                                ],
+                                'children' => []
+                            ],
+                        ]
+                    ],
+                ]
+            ],
+            [
+                'title' => $this->L->translate('personal_center'),    // '个人中心'
+                'expand' => false,
+                'checked' => true,
+                'disabled' => true,
+                'router_name' => 'personal',
+                'necessary_functions' => [
+                    'Personal/UpdSubadminUserPass',
+                    'Setting/CheckUpdate',
+                    'Common/Logout'
+                ],
+                'children' => []
+            ],
+            [
+                'title' => $this->L->translate('system_settings'),    // '系统配置'
+                'expand' => false,
+                'checked' => false,
+                'disabled' => false,
+                'router_name' => 'setting',
+                'necessary_functions' => [],
+                'children' => [
+                    [
+                        'title' => $this->L->translate('host_configuration'),    // '主机配置'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => true,
+                        'necessary_functions' => [
+                            'Setting/GetDcokerHostInfo',
+                            'Setting/UpdDockerHostInfo',
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('path_info'),    // '路径信息'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => true,
+                        'necessary_functions' => [
+                            'Setting/GetDirInfo',
+                            'Setting/UpdSvnAuthzSingle',
+                            'Setting/UpdSvnservePort'
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('svn_protocol_checkout'),    // 'svn协议检出'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => true,
+                        'necessary_functions' => [
+                            'Setting/GetSvnInfo',
+    
+                            'Setting/UpdSvnEnable',
+    
+                            'Setting/UpdSvnserveStatusStop',
+                            'Setting/UpdSvnserveStatusStart',
+    
+                            'Setting/UpdSvnservePort',
+                            'Setting/UpdSvnserveHost',
+    
+                            'Setting/UpdSaslStatusStart',
+                            'Setting/UpdSaslStatusStop',
+    
+                            'Setting/LdapTest',
+                            'Setting/UpdSvnUsersource'
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('http_protocol_checkout'),    // 'http协议检出'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => true,
+                        'necessary_functions' => [
+                            'Setting/GetApacheInfo',
+    
+                            'Setting/UpdSubversionEnable',
+    
+                            'Setting/UpdHttpPort',
+                            'Setting/UpdHttpPrefix',
+    
+                            'Setting/LdapTest',
+                            'Setting/UpdHttpUsersource'
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('mail_service'),    // '邮件服务'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => true,
+                        'necessary_functions' => [
+                            'Setting/GetMailInfo',
+                            'Setting/GetMailPushInfo',
+                            'Setting/SendMailTest',
+                            'Setting/UpdMailInfo'
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('message_push'),    // '消息推送'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => true,
+                        'necessary_functions' => [
+                            'Setting/GetMailPushInfo',
+                            'Setting/UpdPushInfo'
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('security_configuration'),    // '安全配置'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => true,
+                        'necessary_functions' => [
+                            'Setting/GetSafeInfo',
+                            'Setting/UpdSafeInfo'
+                        ],
+                        'children' => []
+                    ],
+                    [
+                        'title' => $this->L->translate('system_update'),    // '系统更新'
+                        'expand' => false,
+                        'checked' => false,
+                        'disabled' => true,
+                        'necessary_functions' => [
+                            'Setting/CheckUpdate'
+                        ],
+                        'children' => []
+                    ],
+                ]
+            ],
+        ];
+
+        $this->route = [
+            'name' => 'manage',
+            'path' => '/',
+            'redirect' => [
+                'name' => 'login'
+            ],
+            'meta' => [
+                'title' => 'SVNAdmin',
+                'requireAuth' => false,
+            ],
+            'component' => 'layout/basicLayout/index.vue',
+            'children' => [
+                [
+                    'name' => 'index',
+                    'path' => '/index',
+                    'meta' => [
+                        'title' => $this->L->translate('statistics_info'),    // '信息统计'
+                        'icon' => 'ios-stats',
+                        'requireAuth' => true,
+                        'user_role_id' => [1, 3],
+                        'group' => [
+                            'name' => $this->L->translate('repository'),    //'仓库'
+                            'num' => 1
+                        ],
+                        'id' => 1001
+                    ],
+                    'component' => 'index/index.vue'
+                ],
+                [
+                    'name' => 'repositoryInfo',
+                    'path' => '/repositoryInfo',
+                    'meta' => [
+                        'title' => $this->L->translate('svn_repository'),  //'SVN仓库'
+                        'icon' => 'logo-buffer',
+                        'requireAuth' => true,
+                        'user_role_id' => [1, 2, 3],
+                        'group' => [
+                            'name' => $this->L->translate('repository'),    //'仓库'
+                            'num' => 1
+                        ],
+                        'id' => 1002
+                    ],
+                    'component' => 'repositoryInfo/index.vue'
+                ],
+                [
+                    'name' => 'repositoryUser',
+                    'path' => '/repositoryUser',
+                    'meta' => [
+                        'title' => $this->L->translate('svn_user'),    //'SVN用户'
+                        'icon' => 'md-person',
+                        'requireAuth' => true,
+                        'user_role_id' => [1, 3],
+                        'group' => [
+                            'name' => $this->L->translate('repository'),    //'仓库'
+                            'num' => 1
+                        ],
+                        'id' => 1003
+                    ],
+                    'component' => 'repositoryUser/index.vue'
+                ],
+                [
+                    'name' => 'repositoryGroup',
+                    'path' => '/repositoryGroup',
+                    'meta' => [
+                        'title' => $this->L->translate('svn_group'),    //'SVN分组'
+                        'icon' => 'md-people',
+                        'requireAuth' => true,
+                        'user_role_id' => [1, 3],
+                        'group' => [
+                            'name' => $this->L->translate('repository'),    //'仓库'
+                            'num' => 1
+                        ],
+                        'id' => 1004
+                    ],
+                    'component' => 'repositoryGroup/index.vue'
+                ],
+                [
+                    'name' => 'logs',
+                    'path' => '/logs',
+                    'meta' => [
+                        'title' => $this->L->translate('system_logs'), //'系统日志'
+                        'icon' => 'md-bug',
+                        'requireAuth' => true,
+                        'user_role_id' => [1, 3],
+                        'group' => [
+                            'name' => $this->L->translate('operation_and_maintenance'),    //'运维'
+                            'num' => 2
+                        ],
+                        'id' => 1005
+                    ],
+                    'component' => 'logs/index.vue'
+                ],
+                [
+                    'name' => 'crond',
+                    'path' => '/crond',
+                    'meta' => [
+                        'title' => $this->L->translate('task_scheduling'),    //'任务计划'
+                        'icon' => 'ios-alarm',
+                        'requireAuth' => true,
+                        'user_role_id' => [1, 3],
+                        'group' => [
+                            'name' => $this->L->translate('operation_and_maintenance'),    //'运维'
+                            'num' => 2
+                        ],
+                        'id' => 1006
+                    ],
+                    'component' => 'crond/index.vue'
+                ],
+                [
+                    'name' => 'personal',
+                    'path' => '/personal',
+                    'meta' => [
+                        'title' => $this->L->translate('personal_center'),    //'个人中心'
+                        'icon' => 'md-cube',
+                        'requireAuth' => true,
+                        'user_role_id' => [1, 2, 3],
+                        'group' => [
+                            'name' => $this->L->translate('advanced'), //'高级'
+                            'num' => 3
+                        ],
+                        'id' => 1007
+                    ],
+                    'component' => 'personal/index.vue'
+                ],
+                [
+                    'name' => 'subadmin',
+                    'path' => '/subadmin',
+                    'meta' => [
+                        'title' => $this->L->translate('subadmin'), //'子管理员'
+                        'icon' => 'md-hand',
+                        'requireAuth' => true,
+                        'user_role_id' => [1],
+                        'group' => [
+                            'name' => $this->L->translate('advanced'), //'高级'
+                            'num' => 3
+                        ],
+                        'id' => 1008
+                    ],
+                    'component' => 'subadmin/index.vue'
+                ],
+                [
+                    'name' => 'setting',
+                    'path' => '/setting',
+                    'meta' => [
+                        'title' => $this->L->translate('system_settings'), //'系统配置'
+                        'icon' => 'md-settings',
+                        'requireAuth' => true,
+                        'user_role_id' => [1, 3],
+                        'group' => [
+                            'name' => $this->L->translate('advanced'), //'高级'
+                            'num' => 3
+                        ],
+                        'id' => 1009
+                    ],
+                    'component' => 'setting/index.vue'
+                ],
+            ]
+        ];
+
         //配置信息
         $this->configBin =  Config::get('bin');                       //可执行文件路径
         $this->configSvn = Config::get('svn');                        //仓库
@@ -1800,7 +1808,7 @@ class Base
 
             //检查输入参数包含svn仓库名
             if (!isset($this->payload['rep_name'])) {
-                return message(200, 0, \L::miss_rep_name_param);  //'缺少SVN仓库名rep_name参数'
+                return message(200, 0, $this->L->translate('miss_rep_name_param'));  //'缺少SVN仓库名rep_name参数'
             }
             $repName = $this->payload['rep_name'];
 

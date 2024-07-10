@@ -34,7 +34,7 @@ class Setting extends Base
      */
     public function GetDcokerHostInfo()
     {
-        return message(200, 1, \L::success, [    //‘成功'
+        return message(200, 1, $this->L->translate('success'), [    //‘成功'
             'docker_host' => $this->dockerHost,
             'docker_svn_port' => $this->dockerSvnPort,
             'docker_http_port' => $this->dockerHttpPort,
@@ -66,7 +66,7 @@ class Setting extends Base
         }
 
         if (!preg_match('/^(?!(http|https):\/\/).*$/m', $this->payload['dockerHost']['docker_host'], $result)) {
-            return message(200, 0, \L::host_address_not_need_carry_protocol_prefix);    //'主机地址无需携带协议前缀'
+            return message(200, 0, $this->L->translate('host_address_not_need_carry_protocol_prefix'));    //'主机地址无需携带协议前缀'
         }
 
         $this->database->update('options', [
@@ -92,7 +92,7 @@ class Setting extends Base
         }
 
         if ($this->payload['svn_single_authz'] == $this->configSvn['svn_single_authz']) {
-            return message(200, 0, \L::no_need_to_change);  //'无需修改'
+            return message(200, 0, $this->L->translate('no_need_to_change'));  //'无需修改'
         }
 
         define('BASE_PATH', __DIR__);
@@ -178,7 +178,7 @@ class Setting extends Base
         }
 
         if ($this->payload['listen_port'] == $this->localSvnPort) {
-            return message(200, 0, \L::no_need_to_change_port); //'无需更换，端口相同'
+            return message(200, 0, $this->L->translate('no_need_to_change_port')); //'无需更换，端口相同'
         }
 
         //停止
@@ -224,11 +224,11 @@ class Setting extends Base
         }
 
         if (!preg_match('/^(?!(http|https):\/\/).*$/m', $this->payload['listen_host'], $result)) {
-            return message(200, 0, \L::host_address_not_need_carry_protocol_prefix);    //'主机地址无需携带协议前缀'
+            return message(200, 0, $this->L->translate('host_address_not_need_carry_protocol_prefix'));    //'主机地址无需携带协议前缀'
         }
 
         if ($this->payload['listen_host'] == $this->localSvnHost) {
-            return message(200, 0, \L::no_need_to_change_address);  //'无需更换，地址相同'
+            return message(200, 0, $this->L->translate('no_need_to_change_address'));  //'无需更换，地址相同'
         }
 
         //停止
@@ -265,7 +265,7 @@ class Setting extends Base
      */
     public function GetDirInfo()
     {
-        return message(200, 1, \L::success, [    //‘成功'
+        return message(200, 1, $this->L->translate('success'), [    //‘成功'
             [
                 'key' => 'default_lang',    //'缺省语言'
                 'value' => $this->configSvn['default_lang']
@@ -316,14 +316,14 @@ class Setting extends Base
     {
         $code = 200;
         $status = 0;
-        $message = \L::update_server_error; //'更新服务器故障'
+        $message = $this->L->translate('update_server_error'); //'更新服务器故障'
 
         $configVersion = Config::get('version');
 
         $configUpdate = Config::get('update');
 
         if (!function_exists('curl_init')) {
-            return message(200, 0, \L::install_activate_php_curl);  //'请先安装或启用php的curl扩展'
+            return message(200, 0, $this->L->translate('install_activate_php_curl'));  //'请先安装或启用php的curl扩展'
         }
 
         foreach ($configUpdate['update_server'] as $key1 => $value1) {
@@ -370,7 +370,7 @@ class Setting extends Base
         $safe_config_null = [
             [
                 'name' => 'login_verify_code',
-                'note' => \L::login_verify_code,    //'登录验证码'
+                'note' => $this->L->translate('login_verify_code'),    //'登录验证码'
                 'enable' => true,
             ]
         ];
@@ -382,7 +382,7 @@ class Setting extends Base
                 'option_description' => ''
             ]);
 
-            return message(200, 1, \L::success, $safe_config_null);
+            return message(200, 1, $this->L->translate('success'), $safe_config_null);
         }
 
         if ($safe_config['option_value'] == '') {
@@ -392,10 +392,10 @@ class Setting extends Base
                 'option_name' => 'safe_config',
             ]);
 
-            return message(200, 1, \L::success, $safe_config_null);
+            return message(200, 1, $this->L->translate('success'), $safe_config_null);
         }
 
-        return message(200, 1, \L::success, unserialize($safe_config['option_value']));
+        return message(200, 1, $this->L->translate('success'), unserialize($safe_config['option_value']));
     }
 
     /**
@@ -424,15 +424,15 @@ class Setting extends Base
         $result = $this->GetSafeInfo();
 
         if ($result['status'] != 1) {
-            return message(200, 0, \L::get_config_info_error);  //'获取配置信息出错'
+            return message(200, 0, $this->L->translate('get_config_info_error'));  //'获取配置信息出错'
         }
 
         $safeConfig = $result['data'];
         $index = array_search('login_verify_code', array_column($safeConfig, 'name'));
         if ($index === false) {
-            return message(200, 0, \L::get_config_info_error);  //'获取配置信息出错'
+            return message(200, 0, $this->L->translate('get_config_info_error'));  //'获取配置信息出错'
         }
 
-        return message(200, 1, \L::success, $safeConfig[$index]);
+        return message(200, 1, $this->L->translate('success'), $safeConfig[$index]);
     }
 }

@@ -86,6 +86,6 @@ class Svnaliase extends Base
             }
         }
 
-        return message(200, 1, \L::success, array_values($result));
+        return message(200, 1, $this->L->translate('success'), array_values($result));
     }
 }

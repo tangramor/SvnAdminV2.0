@@ -39,19 +39,19 @@ class Svnrep extends Base
     public function CheckAuthz()
     {
         if (!array_key_exists('svnauthz-validate', $this->configBin)) {
-            return message(200, 0, \L::need_config_svnauthz_validate);  //'需要在 config/bin.php 文件中配置 svnauthz-validate 的路径'
+            return message(200, 0, $this->L->translate('need_config_svnauthz_validate'));  //'需要在 config/bin.php 文件中配置 svnauthz-validate 的路径'
         }
 
         if (empty($this->configBin['svnauthz-validate'])) {
-            return message(200, 0, \L::svnauthz_validate_not_configured);   //'未在 config/bin.php 文件中配置 svnauthz-validate 路径'
+            return message(200, 0, $this->L->translate('svnauthz_validate_not_configured'));   //'未在 config/bin.php 文件中配置 svnauthz-validate 路径'
         }
 
         if ($this->configSvn['svn_single_authz']) {
             $result = funShellExec(sprintf("'%s' '%s'", $this->configBin['svnauthz-validate'], $this->configSvn['svn_authz_file'], $this->configBin['svnauthz-validate']));
             if ($result['code'] != 0) {
-                return message(200, 2, \L::abnormal_detected, $result['error']);    //'检测到异常'
+                return message(200, 2, $this->L->translate('abnormal_detected'), $result['error']);    //'检测到异常'
             } else {
-                return message(200, 1, \L::authz_file_correct); //'authz文件配置无误'
+                return message(200, 1, $this->L->translate('authz_file_correct')); //'authz文件配置无误'
             }
         } else {
             $limited_repo_list = $this->GetUserRepoList();
@@ -61,18 +61,18 @@ class Svnrep extends Base
             foreach ($list as $value) {
                 $result = funShellExec(sprintf("'%s' '%s'", $this->configBin['svnauthz-validate'], $this->configSvn['rep_base_path'].$value['rep_name'].'/'.$this->configSvn['svn_standalone_authz_file'], $this->configBin['svnauthz-validate']));
                 if ($result['code'] != 0) {
-                    return message(200, 2, \L::abnormal_detected, $result['error']);    //'检测到异常'
+                    return message(200, 2, $this->L->translate('abnormal_detected'), $result['error']);    //'检测到异常'
                 }
                 $confiles .= $this->configSvn['rep_base_path'].$value['rep_name'].'/'.$this->configSvn['svn_standalone_authz_file'] . ";";
             }
 
             if (strlen($confiles) > 0) {
                 $confiles = substr($confiles, 0, -1);
-                return message(200, 1,  $confiles.\L::file_correct);    //' 文件配置无误'
+                return message(200, 1,  $confiles.$this->L->translate('file_correct'));    //' 文件配置无误'
             }
 
-            return message(200, 2, \L::abnormal_detected,  //'检测到异常'
-                \L::no_config_file_found);    //'未找到任何配置文件'
+            return message(200, 2, $this->L->translate('abnormal_detected'),  //'检测到异常'
+                $this->L->translate('no_config_file_found'));    //'未找到任何配置文件'
         }
     }
 
@@ -84,7 +84,7 @@ class Svnrep extends Base
         if ($this->enableCheckout == 'svn') {
             $checkoutHost = $this->dockerSvnPort == 3690 ? $this->dockerHost : $this->dockerHost . ':' . $this->dockerSvnPort;
 
-            return message(200, 1, \L::success, [    //‘成功'
+            return message(200, 1, $this->L->translate('success'), [    //‘成功'
                 'protocal' => 'svn://',
                 'prefix' => $checkoutHost
             ]);
@@ -101,7 +101,7 @@ class Svnrep extends Base
 
             $protocal = $this->dockerHttpPort == 443 ? 'https://' : 'http://';
 
-            return message(200, 1, \L::success, [    //‘成功'
+            return message(200, 1, $this->L->translate('success'), [    //‘成功'
                 'protocal' => $protocal,
                 'prefix' => $checkoutHost
             ]);
@@ -136,7 +136,7 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (is_dir($repPath)) {
-            return message(200, 0, \L::repo_already_exists);    //'仓库已存在'
+            return message(200, 0, $this->L->translate('repo_already_exists'));    //'仓库已存在'
         }
 
         //创建空仓库
@@ -153,7 +153,7 @@ class Svnrep extends Base
 
         //检查是否创建成功
         if (!is_dir($repPath)) {
-            return message(200, 0, \L::failed_to_create_repo);  //'创建仓库失败'
+            return message(200, 0, $this->L->translate('failed_to_create_repo'));  //'创建仓库失败'
         }
 
         if ($this->configSvn['svn_single_authz']) {    //使用单一authz文件
@@ -163,7 +163,7 @@ class Svnrep extends Base
                 if ($result == 851) {
                     $result = $this->authzContent;
                 } else {
-                    return message(200, 0, \L::error_on_sync_to_config_file . $result);    //"同步到配置文件错误$result"
+                    return message(200, 0, $this->L->translate('error_on_sync_to_config_file') . $result);    //"同步到配置文件错误$result"
                 }
             }
             funFilePutContents($this->configSvn['svn_authz_file'], $result);
@@ -183,8 +183,8 @@ class Svnrep extends Base
 
         //日志
         $this->ServiceLogs->InsertLog(
-            \L::create_repo,    //'创建仓库'
-            sprintf(\L::repo_name_is, $repName),    //"仓库名:%s"
+            $this->L->translate('create_repo'),    //'创建仓库'
+            sprintf($this->L->translate('repo_name_is'), $repName),    //"仓库名:%s"
             $this->userName
         );
 
@@ -288,7 +288,7 @@ class Svnrep extends Base
                     if (is_numeric($result)) {
                         if ($result == 851) {
                         } else {
-                            json1(200, 0, \L::error_on_sync_to_config_file . $authzContet);    //"同步到配置文件错误$authzContet"
+                            json1(200, 0, $this->L->translate('error_on_sync_to_config_file') . $authzContet);    //"同步到配置文件错误$authzContet"
                         }
                     } else {
                         $authzContet = $result;
@@ -302,7 +302,7 @@ class Svnrep extends Base
                     if (is_numeric($result)) {
                         if ($result == 751) {
                         } else {
-                            json1(200, 0, \L::error_on_sync_to_config_file . $authzContet);    //"同步到配置文件错误$authzContet"
+                            json1(200, 0, $this->L->translate('error_on_sync_to_config_file') . $authzContet);    //"同步到配置文件错误$authzContet"
                         }
                     } else {
                         $authzContet = $result;
@@ -333,13 +333,13 @@ class Svnrep extends Base
         $userRepList = $this->SVNAdmin->GetUserAllPri($this->authzContent, $this->userName);
         if (is_numeric($userRepList)) {
             if ($userRepList == 612) {
-                json1(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
+                json1(200, 0, $this->L->translate('file_format_wrong_no_groups_field'));    //'文件格式错误(不存在[groups]标识)'
             } elseif ($userRepList == 700) {
-                json1(200, 0, \L::object_not_exists);   //'对象不存在'
+                json1(200, 0, $this->L->translate('object_not_exists'));   //'对象不存在'
             } elseif ($userRepList == 901) {
-                json1(200, 0, \L::not_supported_permission_object_type);    //'不支持的授权对象类型'
+                json1(200, 0, $this->L->translate('not_supported_permission_object_type'));    //'不支持的授权对象类型'
             } else {
-                json1(200, 0, \L::error_code . $userRepList);  //"错误码$userRepList"
+                json1(200, 0, $this->L->translate('error_code') . $userRepList);  //"错误码$userRepList"
             }
         }
 
@@ -396,13 +396,13 @@ class Svnrep extends Base
 
         if (is_numeric($userRepList)) {
             if ($userRepList == 612) {
-                json1(200, 0, \L::file_format_wrong_no_groups_field);    //'文件格式错误(不存在[groups]标识)'
+                json1(200, 0, $this->L->translate('file_format_wrong_no_groups_field'));    //'文件格式错误(不存在[groups]标识)'
             } elseif ($userRepList == 700) {
-                json1(200, 0, \L::object_not_exists);   //'对象不存在'
+                json1(200, 0, $this->L->translate('object_not_exists'));   //'对象不存在'
             } elseif ($userRepList == 901) {
-                json1(200, 0, \L::not_supported_permission_object_type);    //'不支持的授权对象类型'
+                json1(200, 0, $this->L->translate('not_supported_permission_object_type'));    //'不支持的授权对象类型'
             } else {
-                json1(200, 0, \L::error_code . $userRepList);  //"错误码$userRepList"
+                json1(200, 0, $this->L->translate('error_code') . $userRepList);  //"错误码$userRepList"
             }
         }
         $new = [];
@@ -554,7 +554,7 @@ class Svnrep extends Base
             $list[$key]['loading_rep_rev'] = false;
         }
 
-        return message(200, 1, \L::success, [    //‘成功'
+        return message(200, 1, $this->L->translate('success'), [    //‘成功'
             'data' => $list,
             'total' => $total
         ]);
@@ -665,7 +665,7 @@ class Svnrep extends Base
             }
         }
 
-        return message(200, 1, \L::success, [    //‘成功'
+        return message(200, 1, $this->L->translate('success'), [    //‘成功'
             'data' => $list,
             'total' => $total,
             'enableCheckout' => $this->enableCheckout
@@ -729,7 +729,7 @@ class Svnrep extends Base
             'rep_name' => $this->payload['rep_name']
         ]);
 
-        return message(200, 1, \L::saved);  //'已保存'
+        return message(200, 1, $this->L->translate('saved'));  //'已保存'
     }
 
     /**
@@ -749,7 +749,7 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $this->payload['rep_name'])) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         $repPath = $this->payload['path'];
@@ -872,7 +872,7 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $this->payload['rep_name'])) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         /**
@@ -996,7 +996,7 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $repName)) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         //获取全路径的一层目录树
@@ -1077,11 +1077,11 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $repName)) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         if (!$first && substr($repPath, -1) != '/') {
-            return message(200, 0, \L::file_has_no_subtree);    //'请求错误-文件无子树'
+            return message(200, 0, $this->L->translate('file_has_no_subtree'));    //'请求错误-文件无子树'
         }
 
         $result = $this->GetSvnList($repPath, $repName);
@@ -1168,9 +1168,9 @@ class Svnrep extends Base
                     ]
                 ];
             }
-            return message(200, 1, \L::success, $result);
+            return message(200, 1, $this->L->translate('success'), $result);
         } else {
-            return message(200, 1, \L::success, $data);
+            return message(200, 1, $this->L->translate('success'), $data);
         }
     }
 
@@ -1246,7 +1246,7 @@ class Svnrep extends Base
 
         clearstatcache();
         if (!is_dir($folderPath)) {
-            return message(200, 0, sprintf(\L::cannot_create_path, $folderPath));   //'无法创建路径[%s]'
+            return message(200, 0, sprintf($this->L->translate('cannot_create_path'), $folderPath));   //'无法创建路径[%s]'
         }
 
         $user = 'SVNAdmin';
@@ -1261,7 +1261,7 @@ class Svnrep extends Base
 
         @unlink($templetePath);
 
-        return message(200, 1, \L::refresh_page);   //'请刷新页面查看效果'
+        return message(200, 1, $this->L->translate('refresh_page'));   //'请刷新页面查看效果'
     }
 
     /**
@@ -1291,7 +1291,7 @@ class Svnrep extends Base
             }
         }
 
-        return message(200, 1, \L::success, $isFile);
+        return message(200, 1, $this->L->translate('success'), $isFile);
     }
 
     /**
@@ -1312,7 +1312,7 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $this->payload['rep_name'])) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         if ($this->userRoleId == 2) {
@@ -1325,10 +1325,10 @@ class Svnrep extends Base
 
             //校验1 路径长度校验
             if (strlen($this->payload['path']) < strlen($pri['pri_path'])) {
-                return message(200, 0, \L::no_admin_permission_for_path);    //'无路径管理权限'
+                return message(200, 0, $this->L->translate('no_admin_permission_for_path'));    //'无路径管理权限'
             }
             if (substr($this->payload['path'], 0, strlen($pri['pri_path'])) != $pri['pri_path']) {
-                return message(200, 0, \L::no_admin_permission_for_path);    //'无路径管理权限'
+                return message(200, 0, $this->L->translate('no_admin_permission_for_path'));    //'无路径管理权限'
             }
 
             //校验2 路径有权校验
@@ -1348,15 +1348,15 @@ class Svnrep extends Base
                 //没有该路径的记录
                 if ($this->payload['path'] == '/') {
                     //不正常 没有写入仓库记录
-                    return message(200, 0, \L::repo_not_in_config_file);    //'该仓库没有被写入配置文件！请刷新仓库列表以同步'
+                    return message(200, 0, $this->L->translate('repo_not_in_config_file'));    //'该仓库没有被写入配置文件！请刷新仓库列表以同步'
                 } else {
                     //正常 无记录
                     return message();
                 }
             } elseif ($result == 752) {
-                return message(200, 0, \L::repo_path_must_start_with_slash);    //'仓库路径需以/开始'
+                return message(200, 0, $this->L->translate('repo_path_must_start_with_slash'));    //'仓库路径需以/开始'
             } else {
-                return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
             }
         } else {
             //针对SVN用户可管理对象进行过滤
@@ -1383,7 +1383,7 @@ class Svnrep extends Base
                 }
                 $result = array_values($result);
             }
-            return message(200, 1, \L::success, $result);
+            return message(200, 1, $this->L->translate('success'), $result);
         }
     }
 
@@ -1416,7 +1416,7 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $repName)) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         if ($this->userRoleId == 2) {
@@ -1429,10 +1429,10 @@ class Svnrep extends Base
 
             //校验1 路径长度校验
             if (strlen($this->payload['path']) < strlen($pri['pri_path'])) {
-                return message(200, 0, \L::no_admin_permission_for_path);    //'无路径管理权限'
+                return message(200, 0, $this->L->translate('no_admin_permission_for_path'));    //'无路径管理权限'
             }
             if (substr($this->payload['path'], 0, strlen($pri['pri_path'])) != $pri['pri_path']) {
-                return message(200, 0, \L::no_admin_permission_for_path);    //'无路径管理权限'
+                return message(200, 0, $this->L->translate('no_admin_permission_for_path'));    //'无路径管理权限'
             }
 
             //校验2 路径有权校验
@@ -1445,7 +1445,7 @@ class Svnrep extends Base
         //针对SVN用户可管理对象进行过滤
         if ($this->userRoleId == 2) {
             if ($objectType == 'user' && $objectName == $this->userName) {
-                return message(200, 0, \L::user_cannot_operate_self);    //'不可操作自身'
+                return message(200, 0, $this->L->translate('user_cannot_operate_self'));    //'不可操作自身'
             }
 
             $filters = $this->database->select('svn_second_pri', [
@@ -1461,7 +1461,7 @@ class Svnrep extends Base
                 'objectType' => $objectType,
                 'objectName' => $objectName
             ], $filters)) {
-                return message(200, 0, \L::operating_object_without_privileges);    //'无权限的操作对象'
+                return message(200, 0, $this->L->translate('operating_object_without_privileges'));    //'无权限的操作对象'
             }
         }
 
@@ -1480,23 +1480,23 @@ class Svnrep extends Base
                     if ($result == 851) {
                         $result = $this->authzContent;
                     } else {
-                        return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                        return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
                     }
                 } elseif ($result == 752) {
-                    return message(200, 0, \L::repo_path_must_start_with_slash);    //'仓库路径需以/开始'
+                    return message(200, 0, $this->L->translate('repo_path_must_start_with_slash'));    //'仓库路径需以/开始'
                 } else {
                     //重新写入权限
                     $result = $this->SVNAdmin->AddRepPathPri($result, $repName, $path, $objectType, $objectName, $objectPri, false);
                     if (is_numeric($result)) {
-                        return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                        return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
                     }
                 }
             } elseif ($result == 801) {
-                return message(200, 0, \L::object_already_has_auth_record); //'对象已有授权记录'
+                return message(200, 0, $this->L->translate('object_already_has_auth_record')); //'对象已有授权记录'
             } elseif ($result == 901) {
-                return message(200, 0, \L::not_supported_permission_object_type);    //'不支持的授权对象类型'
+                return message(200, 0, $this->L->translate('not_supported_permission_object_type'));    //'不支持的授权对象类型'
             } else {
-                return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
             }
         }
 
@@ -1536,7 +1536,7 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $repName)) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         if ($this->userRoleId == 2) {
@@ -1549,10 +1549,10 @@ class Svnrep extends Base
 
             //校验1 路径长度校验
             if (strlen($this->payload['path']) < strlen($pri['pri_path'])) {
-                return message(200, 0, \L::no_admin_permission_for_path);    //'无路径管理权限'
+                return message(200, 0, $this->L->translate('no_admin_permission_for_path'));    //'无路径管理权限'
             }
             if (substr($this->payload['path'], 0, strlen($pri['pri_path'])) != $pri['pri_path']) {
-                return message(200, 0, \L::no_admin_permission_for_path);    //'无路径管理权限'
+                return message(200, 0, $this->L->translate('no_admin_permission_for_path'));    //'无路径管理权限'
             }
 
             //校验2 路径有权校验
@@ -1565,7 +1565,7 @@ class Svnrep extends Base
         //针对SVN用户可管理对象进行过滤
         if ($this->userRoleId == 2) {
             if ($objectType == 'user' && $objectName == $this->userName) {
-                return message(200, 0, \L::user_cannot_operate_self);    //'不可操作自身'
+                return message(200, 0, $this->L->translate('user_cannot_operate_self'));    //'不可操作自身'
             }
 
             $filters = $this->database->select('svn_second_pri', [
@@ -1581,7 +1581,7 @@ class Svnrep extends Base
                 'objectType' => $objectType,
                 'objectName' => $objectName
             ], $filters)) {
-                return message(200, 0, \L::operating_object_without_privileges);    //'无权限的操作对象'
+                return message(200, 0, $this->L->translate('operating_object_without_privileges'));    //'无权限的操作对象'
             }
         }
 
@@ -1594,15 +1594,15 @@ class Svnrep extends Base
 
         if (is_numeric($result)) {
             if ($result == 751) {
-                return message(200, 0, \L::repo_path_not_exists);   //'不存在该仓库路径'
+                return message(200, 0, $this->L->translate('repo_path_not_exists'));   //'不存在该仓库路径'
             } elseif ($result == 752) {
-                return message(200, 0, \L::repo_path_must_start_with_slash);    //'仓库路径需以/开始'
+                return message(200, 0, $this->L->translate('repo_path_must_start_with_slash'));    //'仓库路径需以/开始'
             } elseif ($result == 901) {
-                return message(200, 0, \L::not_supported_permission_object_type);    //'不支持的授权对象类型'
+                return message(200, 0, $this->L->translate('not_supported_permission_object_type'));    //'不支持的授权对象类型'
             } elseif ($result == 701) {
-                return message(200, 0, \L::no_auth_record_for_object_under_repo_path);  //'仓库路径下不存在该对象的权限记录'
+                return message(200, 0, $this->L->translate('no_auth_record_for_object_under_repo_path'));  //'仓库路径下不存在该对象的权限记录'
             } else {
-                return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
             }
         }
 
@@ -1638,7 +1638,7 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $repName)) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         if ($this->userRoleId == 2) {
@@ -1651,10 +1651,10 @@ class Svnrep extends Base
 
             //校验1 路径长度校验
             if (strlen($this->payload['path']) < strlen($pri['pri_path'])) {
-                return message(200, 0, \L::no_admin_permission_for_path);    //'无路径管理权限'
+                return message(200, 0, $this->L->translate('no_admin_permission_for_path'));    //'无路径管理权限'
             }
             if (substr($this->payload['path'], 0, strlen($pri['pri_path'])) != $pri['pri_path']) {
-                return message(200, 0, \L::no_admin_permission_for_path);    //'无路径管理权限'
+                return message(200, 0, $this->L->translate('no_admin_permission_for_path'));    //'无路径管理权限'
             }
 
             //校验2 路径有权校验
@@ -1667,7 +1667,7 @@ class Svnrep extends Base
         //针对SVN用户可管理对象进行过滤
         if ($this->userRoleId == 2) {
             if ($objectType == 'user' && $objectName == $this->userName) {
-                return message(200, 0, \L::user_cannot_operate_self);    //'不可操作自身'
+                return message(200, 0, $this->L->translate('user_cannot_operate_self'));    //'不可操作自身'
             }
 
             $filters = $this->database->select('svn_second_pri', [
@@ -1683,7 +1683,7 @@ class Svnrep extends Base
                 'objectType' => $objectType,
                 'objectName' => $objectName
             ], $filters)) {
-                return message(200, 0, \L::operating_object_without_privileges);    //'无权限的操作对象'
+                return message(200, 0, $this->L->translate('operating_object_without_privileges'));    //'无权限的操作对象'
             }
         }
 
@@ -1691,15 +1691,15 @@ class Svnrep extends Base
 
         if (is_numeric($result)) {
             if ($result == 751) {
-                return message(200, 0, \L::no_record_for_the_repo_path);    //'不存在该仓库路径的记录'
+                return message(200, 0, $this->L->translate('no_record_for_the_repo_path'));    //'不存在该仓库路径的记录'
             } elseif ($result == 752) {
-                return message(200, 0, \L::repo_path_must_start_with_slash);    //'仓库路径需以/开始'
+                return message(200, 0, $this->L->translate('repo_path_must_start_with_slash'));    //'仓库路径需以/开始'
             } elseif ($result == 901) {
-                return message(200, 0, \L::not_supported_permission_object_type);    //'不支持的授权对象类型'
+                return message(200, 0, $this->L->translate('not_supported_permission_object_type'));    //'不支持的授权对象类型'
             } elseif ($result == 701) {
-                return message(200, 0, \L::deleted);    //'已删除'
+                return message(200, 0, $this->L->translate('deleted'));    //'已删除'
             } else {
-                return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
             }
         }
 
@@ -1724,12 +1724,12 @@ class Svnrep extends Base
         //检查原仓库是否不存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $this->payload['old_rep_name'])) {
-            return message(200, 0, \L::the_repo_to_modify_not_exists);   //'要修改的仓库不存在'
+            return message(200, 0, $this->L->translate('the_repo_to_modify_not_exists'));   //'要修改的仓库不存在'
         }
 
         //检查新仓库名是否存在
         if (is_dir($this->configSvn['rep_base_path'] . $this->payload['new_rep_name'])) {
-            return message(200, 0, \L::repo_with_same_name_exists); //'已经存在同名仓库'
+            return message(200, 0, $this->L->translate('repo_with_same_name_exists')); //'已经存在同名仓库'
         }
 
         //从仓库目录修改仓库名称
@@ -1738,7 +1738,7 @@ class Svnrep extends Base
         //检查修改过的仓库名称是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $this->payload['new_rep_name'])) {
-            return message(200, 0, \L::failed_to_modify_repo_name); //'修改仓库名称失败'
+            return message(200, 0, $this->L->translate('failed_to_modify_repo_name')); //'修改仓库名称失败'
         }
 
         //从数据库修改仓库名称
@@ -1752,9 +1752,9 @@ class Svnrep extends Base
         $result = $this->SVNAdmin->UpdRepFromAuthz($this->authzContent, $this->payload['old_rep_name'], $this->payload['new_rep_name']);
         if (is_numeric($result)) {
             if ($result == 751) {
-                return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+                return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
             } else {
-                return message(200, 0, \L::error_code . $result);  //"错误码$result"
+                return message(200, 0, $this->L->translate('error_code') . $result);  //"错误码$result"
             }
         }
 
@@ -1762,8 +1762,8 @@ class Svnrep extends Base
 
         //日志
         $this->ServiceLogs->InsertLog(
-            \L::modify_repo_name,   //'修改仓库名称'
-            sprintf(\L::old_name_new_name, $this->payload['old_rep_name'], $this->payload['new_rep_name']), //"原仓库名:%s 新仓库名:%s"
+            $this->L->translate('modify_repo_name'),   //'修改仓库名称'
+            sprintf($this->L->translate('old_name_new_name'), $this->payload['old_rep_name'], $this->payload['new_rep_name']), //"原仓库名:%s 新仓库名:%s"
             $this->userName
         );
 
@@ -1780,7 +1780,7 @@ class Svnrep extends Base
         if (is_numeric($authzContet)) {
             if ($authzContet == 751) {
             } else {
-                return message(200, 0, \L::error_code . $authzContet);  //"错误码$authzContet"
+                return message(200, 0, $this->L->translate('error_code') . $authzContet);  //"错误码$authzContet"
             }
         } else {
             funFilePutContents($this->configSvn['svn_authz_file'], $authzContet);
@@ -1795,13 +1795,13 @@ class Svnrep extends Base
         funShellExec('cd ' . $this->configSvn['rep_base_path'] . ' && rm -rf ./' . $this->payload['rep_name']);
         clearstatcache();
         if (is_dir($this->configSvn['rep_base_path'] .  $this->payload['rep_name'])) {
-            return message(200, 0,\L::failed_to_delete);    //'删除失败'
+            return message(200, 0,$this->L->translate('failed_to_delete'));    //'删除失败'
         }
 
         //日志
         $this->ServiceLogs->InsertLog(
-            \L::delete_repo,    //'删除仓库'
-            sprintf(\L::repo_name_is, $this->payload['rep_name']),  //"仓库名:%s"
+            $this->L->translate('delete_repo'),    //'删除仓库'
+            sprintf($this->L->translate('repo_name_is'), $this->payload['rep_name']),  //"仓库名:%s"
             $this->userName
         );
 
@@ -1817,7 +1817,7 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $this->payload['rep_name'])) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         $result = $this->GetRepDetail110($this->payload['rep_name']);
@@ -1853,7 +1853,7 @@ class Svnrep extends Base
             ];
         }
 
-        return message(200, 1, \L::success, $newArray);
+        return message(200, 1, $this->L->translate('success'), $newArray);
     }
 
     /**
@@ -1894,7 +1894,7 @@ class Svnrep extends Base
             $result[$key]['fileUrl'] = sprintf('api.php?c=Svnrep&a=DownloadRepBackup&t=web&fileName=%s&token=%s', $value['fileName'], $result[$key]['fileToken']);
         }
 
-        return message(200, 1, \L::success, $result);
+        return message(200, 1, $this->L->translate('success'), $result);
     }
 
     /**
@@ -1905,7 +1905,7 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $this->payload['rep_name'])) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         $task_unique = uniqid('task_svnadmin_dump_');
@@ -1917,7 +1917,7 @@ class Svnrep extends Base
         $task_cmd = sprintf("'%s' dump '%s' --quiet  > '%s'", $this->configBin['svnadmin'], $this->configSvn['rep_base_path'] .  $this->payload['rep_name'], $this->configSvn['backup_base_path'] .  $backupName);
 
         $this->database->insert('tasks', [
-            'task_name' => sprintf(\L::generate_repo_backup_file, $this->payload['rep_name']),  //'仓库[%s]备份文件生成'
+            'task_name' => sprintf($this->L->translate('generate_repo_backup_file'), $this->payload['rep_name']),  //'仓库[%s]备份文件生成'
             'task_status' => 1,
             'task_cmd' => $task_cmd,
             'task_type' => 'svnadmin:dump',
@@ -1928,7 +1928,7 @@ class Svnrep extends Base
             'task_update_time' => ''
         ]);
 
-        return message(200, 1, \L::added_to_task_schedule, [    //'已加入后台任务执行'
+        return message(200, 1, $this->L->translate('added_to_task_schedule'), [    //'已加入后台任务执行'
             'task_unique' => $task_unique
         ]);
     }
@@ -1957,22 +1957,22 @@ class Svnrep extends Base
     public function DownloadRepBackup()
     {
         if (empty($_GET['fileName'])) {
-            json1(200, 0, \L::lack_file_name);  //'缺少文件名'
+            json1(200, 0, $this->L->translate('lack_file_name'));  //'缺少文件名'
         }
         $fileName = $_GET['fileName'];
         $filePath = $this->configSvn['backup_base_path'] .  $fileName;
 
         if (empty($_GET['token'])) {
-            json1(200, 0, \L::lack_file_token); //'缺少文件token'
+            json1(200, 0, $this->L->translate('lack_file_token')); //'缺少文件token'
         }
         $token = $_GET['token'];
 
         if ($token !== hash_hmac('md5', $fileName, $this->configSign['signature'])) {
-            json1(200, 0, \L::invalid_file_token);  //'文件token无效'
+            json1(200, 0, $this->L->translate('invalid_file_token'));  //'文件token无效'
         }
 
         if (!file_exists($this->configSvn['backup_base_path'] .  $fileName)) {
-            json1(200, 0, \L::file_not_exists); //'文件不存在'
+            json1(200, 0, $this->L->translate('file_not_exists')); //'文件不存在'
         }
 
         set_time_limit(0);
@@ -2015,7 +2015,7 @@ class Svnrep extends Base
             $upload = true;
         }
 
-        return message(200, 1, \L::success, [    //‘成功'
+        return message(200, 1, $this->L->translate('success'), [    //‘成功'
             //文件上传功能开启状态
             'upload' => $upload,
             //分片上传大小
@@ -2032,7 +2032,7 @@ class Svnrep extends Base
     {
         $file_uploads = ini_get('file_uploads');
         if ($file_uploads == 0 || $file_uploads == false || strtolower($file_uploads) == 'off') {
-            return message(200, 0, \L::upload_feature_is_closed);   //'文件上传功能关闭'
+            return message(200, 0, $this->L->translate('upload_feature_is_closed'));   //'文件上传功能关闭'
         }
 
         //检查表单
@@ -2057,11 +2057,11 @@ class Svnrep extends Base
             if (!is_dir($nameDirTempSave)) {
                 mkdir($nameDirTempSave);
                 if (!is_dir($nameDirTempSave)) {
-                    return message(200, 0, sprintf(\L::folder_not_exists_and_cannot_create, $nameDirTempSave)); //'目录[%s]不存在且无法创建'
+                    return message(200, 0, sprintf($this->L->translate('folder_not_exists_and_cannot_create'), $nameDirTempSave)); //'目录[%s]不存在且无法创建'
                 }
             }
             if (!is_writable($nameDirTempSave)) {
-                return message(200, 0, sprintf(\L::cannot_write_into_folder, $nameDirTempSave));    //'目录[%s]无法写入'
+                return message(200, 0, sprintf($this->L->translate('cannot_write_into_folder'), $nameDirTempSave));    //'目录[%s]无法写入'
             }
 
             //限制拓展名 todo
@@ -2078,11 +2078,11 @@ class Svnrep extends Base
             if (!in_array(strtolower($endfix), [
                 'dump'
             ])) {
-                return json1(200, 0, \L::change_suffix_to_dump);    //'为了安全请将备份文件后缀改为dump后再试'
+                return json1(200, 0, $this->L->translate('change_suffix_to_dump'));    //'为了安全请将备份文件后缀改为dump后再试'
             }
 
             if (preg_match('/^[a-zA-Z0-9]+$/', $nameFileMd5, $matches) === false) {
-                return message(200, 0, \L::md5_correct_format); //'md5值需要由数字和大小写字母组成'
+                return message(200, 0, $this->L->translate('md5_correct_format')); //'md5值需要由数字和大小写字母组成'
             }
 
             $upload = new Upload($nameDirTempSave, $nameDirSave, $nameFileSave, $nameFileMd5, $nameFileCurrent, $numBlobCurrent, $numBlobTotal, $deleteOnMerge);
@@ -2091,7 +2091,7 @@ class Svnrep extends Base
 
             return message(200, $result['status'], $result['message'], $result['data']);
         } else {
-            return message(200, 0, \L::param_not_complete);    //'参数不完整'
+            return message(200, 0, $this->L->translate('param_not_complete'));    //'参数不完整'
         }
     }
 
@@ -2102,13 +2102,13 @@ class Svnrep extends Base
     {
         //检查备份文件是否存在
         if (!file_exists($this->configSvn['backup_base_path'] .  $this->payload['fileName'])) {
-            return message(200, 0, \L::backup_file_not_exists); //'备份文件不存在'
+            return message(200, 0, $this->L->translate('backup_file_not_exists')); //'备份文件不存在'
         }
 
         //检查操作的仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $this->payload['rep_name'])) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         $task_unique = uniqid('task_svnadmin_load_');
@@ -2118,7 +2118,7 @@ class Svnrep extends Base
         $task_cmd = sprintf("'%s' load --quiet '%s' < '%s'", $this->configBin['svnadmin'], $this->configSvn['rep_base_path'] .  $this->payload['rep_name'], $this->configSvn['backup_base_path'] .  $this->payload['fileName'], $task_log_file);
 
         $this->database->insert('tasks', [
-            'task_name' => sprintf(\L::repo_import_backup_file, $this->payload['rep_name'], $this->payload['fileName']),    //'仓库[%s]导入备份文件[%s]'
+            'task_name' => sprintf($this->L->translate('repo_import_backup_file'), $this->payload['rep_name'], $this->payload['fileName']),    //'仓库[%s]导入备份文件[%s]'
             'task_status' => 1,
             'task_cmd' => $task_cmd,
             'task_type' => 'svnadmin:load',
@@ -2131,7 +2131,7 @@ class Svnrep extends Base
 
         //更新仓库的版本 todo
 
-        return message(200, 1, \L::added_to_task_schedule, [    //'已加入后台任务执行'
+        return message(200, 1, $this->L->translate('added_to_task_schedule'), [    //'已加入后台任务执行'
             'task_unique' => $task_unique
         ]);
     }
@@ -2144,7 +2144,7 @@ class Svnrep extends Base
         //检查仓库是否存在
         clearstatcache();
         if (!is_dir($this->configSvn['rep_base_path'] . $this->payload['rep_name'])) {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         $repHooks =  [
@@ -2208,7 +2208,7 @@ class Svnrep extends Base
 
         clearstatcache();
         if (!is_dir($hooksPath)) {
-            return message(200, 0, \L::hooks_folder_not_exists_in_repo);    //'该仓库不存在hooks文件夹'
+            return message(200, 0, $this->L->translate('hooks_folder_not_exists_in_repo'));    //'该仓库不存在hooks文件夹'
         }
 
         foreach ($repHooks as $key => $value) {
@@ -2219,20 +2219,20 @@ class Svnrep extends Base
                 $repHooks[$key]['hasFile'] = true;
 
                 if (!is_readable($hookFile)) {
-                    return message(200, 0, \L::file . $hookFile . \L::unreadable);    //'不可读'
+                    return message(200, 0, $this->L->translate('file') . $hookFile . $this->L->translate('unreadable'));    //'不可读'
                 }
                 $repHooks[$key]['con'] = file_get_contents($hookFile);
             }
             if (file_exists($hookTmpleFile)) {
 
                 if (!is_readable($hookTmpleFile)) {
-                    return message(200, 0, \L::file . $hookTmpleFile . \L::unreadable);    //'不可读'
+                    return message(200, 0, $this->L->translate('file') . $hookTmpleFile . $this->L->translate('unreadable'));    //'不可读'
                 }
                 $repHooks[$key]['tmpl'] = file_get_contents($hookTmpleFile);
             }
         }
 
-        return message(200, 1, \L::success, $repHooks);
+        return message(200, 1, $this->L->translate('success'), $repHooks);
     }
 
     /**
@@ -2246,15 +2246,15 @@ class Svnrep extends Base
 
         if (is_dir($hooksPath)) {
             if (!file_exists($hooksPath . $this->payload['fileName'])) {
-                return message(200, 0, \L::the_repo_hook_removed);  //'已经移除该仓库钩子'
+                return message(200, 0, $this->L->translate('the_repo_hook_removed'));  //'已经移除该仓库钩子'
             }
         } else {
-            return message(200, 0, \L::repo_not_exists);    //'仓库不存在'
+            return message(200, 0, $this->L->translate('repo_not_exists'));    //'仓库不存在'
         }
 
         funShellExec(sprintf("cd '%s' && rm -f ./'%s'", $hooksPath, $this->payload['fileName']));
 
-        return message(200, 1, \L::remove_success); //'移除成功'
+        return message(200, 1, $this->L->translate('remove_success')); //'移除成功'
     }
 
     /**
@@ -2265,7 +2265,7 @@ class Svnrep extends Base
         $hooksPath = $this->configSvn['rep_base_path'] . $this->payload['rep_name'] . '/hooks/';
 
         if (!is_writable($hooksPath)) {
-            return message(200, 0, sprintf(\L::file_unwritable, $hooksPath));   //'文件[%s]不可写'
+            return message(200, 0, sprintf($this->L->translate('file_unwritable'), $hooksPath));   //'文件[%s]不可写'
         }
 
         funFilePutContents($hooksPath . $this->payload['fileName'], $this->payload['content']);
@@ -2289,11 +2289,11 @@ class Svnrep extends Base
         $recommend_hook_path = $this->configSvn['recommend_hook_path'];
         clearstatcache();
         if (!is_dir($recommend_hook_path)) {
-            return message(200, 0, \L::self_defined_hooks_folder_not_created);  //'未创建自定义钩子目录'
+            return message(200, 0, $this->L->translate('self_defined_hooks_folder_not_created'));  //'未创建自定义钩子目录'
         }
 
         if (!is_readable($recommend_hook_path)) {
-            return message(200, 0, \L::folder . $recommend_hook_path . \L::unreadable);    //'不可读'
+            return message(200, 0, $this->L->translate('folder') . $recommend_hook_path . $this->L->translate('unreadable'));    //'不可读'
         }
         $dirs = scandir($recommend_hook_path);
 
@@ -2309,7 +2309,7 @@ class Svnrep extends Base
             }
 
             if (!is_readable($recommend_hook_path . $dir)) {
-                return message(200, 0, \L::folder . $recommend_hook_path . $dir . \L::unreadable);    //'不可读'
+                return message(200, 0, $this->L->translate('folder') . $recommend_hook_path . $dir . $this->L->translate('unreadable'));    //'不可读'
             }
 
             $dirFiles = scandir($recommend_hook_path . $dir);
@@ -2319,7 +2319,7 @@ class Svnrep extends Base
             }
 
             if (!is_readable($recommend_hook_path . $dir . '/hookName')) {
-                return message(200, 0, \L::file . $recommend_hook_path . $dir . '/hookName' . \L::unreadable);    //'不可读'
+                return message(200, 0, $this->L->translate('file') . $recommend_hook_path . $dir . '/hookName' . $this->L->translate('unreadable'));    //'不可读'
             }
             $hookName = trim(file_get_contents($recommend_hook_path . $dir . '/hookName'));
 
@@ -2328,12 +2328,12 @@ class Svnrep extends Base
             }
 
             if (!is_readable($recommend_hook_path . $dir . '/' . $hookName)) {
-                return message(200, 0, \L::file . $recommend_hook_path . $dir . '/' . $hookName . \L::unreadable);    //'不可读'
+                return message(200, 0, $this->L->translate('file') . $recommend_hook_path . $dir . '/' . $hookName . $this->L->translate('unreadable'));    //'不可读'
             }
             $hookContent = trim(file_get_contents($recommend_hook_path . $dir . '/' . $hookName));
 
             if (!is_readable($recommend_hook_path . $dir . '/hookDescription')) {
-                return message(200, 0, \L::file . $recommend_hook_path . $dir . '/hookDescription' . \L::unreadable);    //'不可读'
+                return message(200, 0, $this->L->translate('file') . $recommend_hook_path . $dir . '/hookDescription' . $this->L->translate('unreadable'));    //'不可读'
             }
             $hookDescription = trim(file_get_contents($recommend_hook_path . $dir . '/hookDescription'));
 
@@ -2344,7 +2344,7 @@ class Svnrep extends Base
             ]);
         }
 
-        return message(200, 1, \L::success, $list);
+        return message(200, 1, $this->L->translate('success'), $list);
     }
 
     /**
@@ -2520,7 +2520,7 @@ class Svnrep extends Base
         }
 
         if (empty($svnUserPass)) {
-            return message(200, 0, \L::user_password_empty_not_synced); //'用户密码为空-未同步到本系统'
+            return message(200, 0, $this->L->translate('user_password_empty_not_synced')); //'用户密码为空-未同步到本系统'
         }
 
         $checkResult = $this->CheckSvnUserPathAutzh($checkoutHost, $repName, $repPath, $this->userName, $svnUserPass);
@@ -2529,7 +2529,7 @@ class Svnrep extends Base
         }
         $result = $checkResult['data'];
 
-        return message(200, 1, \L::success, $result);
+        return message(200, 1, $this->L->translate('success'), $result);
     }
 
     /**
@@ -2543,31 +2543,31 @@ class Svnrep extends Base
         if ($result['code'] != 0) {
             //: Authentication error from server: Password incorrect
             if (strstr($result['error'], 'svn: E170001') && strstr($result['error'], 'Password incorrect')) {
-                return ['code' => 200, 'status' => 0, 'message' => \L::wrong_password, 'data' => []];   //'密码错误'
+                return ['code' => 200, 'status' => 0, 'message' => $this->L->translate('wrong_password'), 'data' => []];   //'密码错误'
             }
             //: Authorization failed
             if (strstr($result['error'], 'svn: E170001') && strstr($result['error'], 'Authorization failed')) {
-                return ['code' => 200, 'status' => 0, 'message' => \L::no_access, 'data' => []];    //'无访问权限'
+                return ['code' => 200, 'status' => 0, 'message' => $this->L->translate('no_access'), 'data' => []];    //'无访问权限'
             }
             //svn: E170001类型的其它错误
             if (strstr($result['error'], 'svn: E170001')) {
-                return ['code' => 200, 'status' => 0, 'message' => \L::no_access.'-svn: E170001', 'data' => []];    //无访问权限
+                return ['code' => 200, 'status' => 0, 'message' => $this->L->translate('no_access.'-svn:') E170001', 'data' => []];    //无访问权限
             }
             //: Invalid authz configuration
             if (strstr($result['error'], 'svn: E220003')) {
-                return ['code' => 200, 'status' => 0, 'message' => \L::authz_config_error, 'data' => []];   //'authz文件配置错误 请使用svnauthz-validate工具检查'
+                return ['code' => 200, 'status' => 0, 'message' => $this->L->translate('authz_config_error'), 'data' => []];   //'authz文件配置错误 请使用svnauthz-validate工具检查'
             }
             //: Unable to connect to a repository at URL
             if (strstr($result['error'], 'svn: E170013')) {
-                return ['code' => 200, 'status' => 0, 'message' => \L::cannot_connect_repo_or_no_permission, 'data' => []]; //'无法连接到仓库或无权限'
+                return ['code' => 200, 'status' => 0, 'message' => $this->L->translate('cannot_connect_repo_or_no_permission'), 'data' => []]; //'无法连接到仓库或无权限'
             }
             //: Could not list all targets because some targets don't exist
             if (strstr($result['error'], 'svn: warning: W160013') || strstr($result['error'], "svn: E200009")) {
-                return ['code' => 200, 'status' => 0, 'message' => \L::the_path_not_exists_in_repo_need_refresh, 'data' => []]; //'该授权路径在仓库不存在 请刷新以同步'
+                return ['code' => 200, 'status' => 0, 'message' => $this->L->translate('the_path_not_exists_in_repo_need_refresh'), 'data' => []]; //'该授权路径在仓库不存在 请刷新以同步'
             }
-            return ['code' => 200, 'status' => 0, 'message' => \L::auth_error . $result['error'], 'data' => []];    //'认证出错'
+            return ['code' => 200, 'status' => 0, 'message' => $this->L->translate('auth_error') . $result['error'], 'data' => []];    //'认证出错'
         }
 
-        return ['code' => 200, 'status' => 1, 'message' => \L::success, 'data' => $result['result']];
+        return ['code' => 200, 'status' => 1, 'message' => $this->L->translate('success'), 'data' => $result['result']];
     }
 }

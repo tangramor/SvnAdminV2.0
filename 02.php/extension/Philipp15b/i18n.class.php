@@ -7,6 +7,9 @@
  * License: MIT
  */
 
+$cachePath;
+$prefix;
+
 class i18n {
 
     /**
@@ -94,6 +97,8 @@ class i18n {
      */
     protected $userLangs = array();
 
+    public $langs = array();
+
     protected $appliedLang = NULL;
     protected $langFilePath = NULL;
     protected $cacheFilePath = NULL;
@@ -114,7 +119,7 @@ class i18n {
         if ($filePath != NULL) {
             $this->filePath = $filePath;
         }
-
+        
         if ($cachePath != NULL) {
             $this->cachePath = $cachePath;
         }
@@ -128,15 +133,32 @@ class i18n {
         }
     }
 
+    public static function getTranslationFiles($filePath) {
+        $i18nPath = dirname($filePath);
+        $translations = [];
+        $i18nFiles = array_diff(scandir($i18nPath), [".", ".."]);
+        foreach ($i18nFiles as $key => $value) {
+            $langCode = pathinfo($value, PATHINFO_FILENAME);
+            $className = 'Lang' . ucfirst(str_replace('-', '', $langCode));
+            $translations[$langCode] = $className;
+        }
+        return $translations;
+    }
+
     public function init() {
+        $this->langs = $this->getTranslationFiles($this->filePath);
+        // check if we are already initialized
         if ($this->isInitialized()) {
             throw new BadMethodCallException('This object from class ' . __CLASS__ . ' is already initialized. It is not possible to init one object twice!');
         }
+        
+        global $cachePath, $prefix;
+        $cachePath = $this->cachePath;
+        $prefix = $this->prefix;
 
         $this->isInitialized = true;
 
         $this->userLangs = $this->getUserLangs();
-
         // search for language file
         $this->appliedLang = NULL;
         foreach ($this->userLangs as $priority => $langcode) {
@@ -150,40 +172,40 @@ class i18n {
             throw new RuntimeException('No language file was found.');
         }
 
-        // search for cache file
-        $this->cacheFilePath = $this->cachePath . '/php_i18n_' . md5_file(__FILE__) . '_' . $this->prefix . '_' . $this->appliedLang . '.cache.php';
-
-        // whether we need to create a new cache file
-        $outdated = !file_exists($this->cacheFilePath) ||
-            filemtime($this->cacheFilePath) < filemtime($this->langFilePath) || // the language config was updated
+        foreach ($this->langs as $lang => $langClass) {
+            $this->cacheFilePath = $this->cachePath . '/php_i18n_' . md5_file(__FILE__) . '_' . $this->prefix . '_' . $lang . '.cache.php';
+            $langFilePath = $this->getConfigFilename($lang);
+            // whether we need to create a new cache file
+            $outdated = !file_exists($this->cacheFilePath) || filemtime($this->cacheFilePath) < filemtime($langFilePath) || // the language config was updated
             ($this->mergeFallback && filemtime($this->cacheFilePath) < filemtime($this->getConfigFilename($this->fallbackLang))); // the fallback language config was updated
 
-        if ($outdated) {
-            $config = $this->load($this->langFilePath);
-            if ($this->mergeFallback)
-                $config = array_replace_recursive($this->load($this->getConfigFilename($this->fallbackLang)), $config);
+            if ($outdated) {
+                $config = $this->load($langFilePath);
+                if ($this->mergeFallback)
+                    $config = array_replace_recursive($this->load($this->getConfigFilename($this->fallbackLang)), $config);
 
-            $compiled = "<?php class " . $this->prefix . " {\n"
-            	. $this->compile($config)
-            	. 'public static function __callStatic($string, $args) {' . "\n"
-            	. '    return vsprintf(constant("self::" . $string), $args);'
-            	. "\n}\n}\n"
-            	. "function ".$this->prefix .'($string, $args=NULL) {'."\n"
-            	. '    $return = constant("'.$this->prefix.'::".$string);'."\n"
-            	. '    return $args ? vsprintf($return,$args) : $return;'
-            	. "\n}";
+                $compiled = "<?php class " . $langClass . " {\n"
+                    . $this->compile($config)
+                    . 'public static function __callStatic($string, $args) {' . "\n"
+                    . '    return vsprintf(constant("self::" . $string), $args);'
+                    . "\n}\n}\n";
+                    // . "function ".$langClass .'($string, $args=NULL) {'."\n"
+                    // . '    $return = constant("'.$langClass.'::".$string);'."\n"
+                    // . '    return $args ? vsprintf($return,$args) : $return;'
+                    // . "\n}";
 
-			if( ! is_dir($this->cachePath))
-				mkdir($this->cachePath, 0755, true);
+                if( ! is_dir($this->cachePath))
+                    mkdir($this->cachePath, 0755, true);
 
-            if (file_put_contents($this->cacheFilePath, $compiled) === FALSE) {
-                throw new Exception("Could not write cache file to path '" . $this->cacheFilePath . "'. Is it writable?");
+                if (file_put_contents($this->cacheFilePath, $compiled) === FALSE) {
+                    throw new Exception("Could not write cache file to path '" . $this->cacheFilePath . "'. Is it writable?");
+                }
+                chmod($this->cacheFilePath, 0755);
             }
-            chmod($this->cacheFilePath, 0755);
 
+            require_once $this->cacheFilePath;
         }
 
-        require_once $this->cacheFilePath;
     }
 
     public function isInitialized() {
@@ -385,6 +407,37 @@ class i18n {
     protected function fail_after_init() {
         if ($this->isInitialized()) {
             throw new BadMethodCallException('This ' . __CLASS__ . ' object is already initalized, so you can not change any settings.');
+        }
+    }
+}
+
+
+class LangManager {
+    private $langClass;
+    private static $instance;
+
+    private function __construct($lang) {
+        $this->langClass = $lang;
+    }
+
+    public static function getInstance($lang = 'en-US') {
+        if (self::$instance === null || self::$instance->langClass !== $lang) {
+            global $cachePath, $prefix;
+            $cacheFilePath = $cachePath . '/php_i18n_' . md5_file(__FILE__) . '_' . $prefix . '_' . $lang . '.cache.php';
+            require_once $cacheFilePath;    //"/$lang.php";
+            $className = "Lang" . ucfirst(str_replace('-', '', $lang));
+            self::$instance = new self($className);
+        }
+        return self::$instance;
+    }
+
+    public function translate($name) {
+        // 使用反射获取常量值，避免未声明的静态属性错误
+        $class = new ReflectionClass($this->langClass);
+        if ($class->hasConstant($name)) {
+            return $class->getConstant($name);
+        } else {
+            throw new Exception("Constant $name not found in class {$this->langClass}");
         }
     }
 }
