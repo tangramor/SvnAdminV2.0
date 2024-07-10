@@ -8,7 +8,6 @@
  */
 
 $cachePath;
-$prefix;
 
 class i18n {
 
@@ -18,7 +17,7 @@ class i18n {
      *
      * @var string
      */
-    protected $filePath = './lang/lang_{LANGUAGE}.ini';
+    protected $filePath = './lang/{LANGUAGE}.ini';
 
     /**
      * Cache file path
@@ -44,7 +43,7 @@ class i18n {
      *
      * @var string
      */
-    protected $fallbackLang = 'en';
+    protected $fallbackLang = 'en-US';
 
     /**
      * Merge in fallback language
@@ -53,12 +52,6 @@ class i18n {
      * @var bool
      */
     protected $mergeFallback = false;
-
-    /**
-     * The class name of the compiled class that contains the translated texts.
-     * @var string
-     */
-    protected $prefix = 'L';
 
     /**
      * Forced language
@@ -112,9 +105,8 @@ class i18n {
      * @param string [$filePath] This is the path for the language files. You must use the '{LANGUAGE}' placeholder for the language.
      * @param string [$cachePath] This is the path for all the cache files. Best is an empty directory with no other files in it. No placeholders.
      * @param string [$fallbackLang] This is the language which is used when there is no language file for all other user languages. It has the lowest priority.
-     * @param string [$prefix] The class name of the compiled class that contains the translated texts. Defaults to 'L'.
      */
-    public function __construct($filePath = NULL, $cachePath = NULL, $fallbackLang = NULL, $prefix = NULL) {
+    public function __construct($filePath = NULL, $cachePath = NULL, $fallbackLang = NULL) {
         // Apply settings
         if ($filePath != NULL) {
             $this->filePath = $filePath;
@@ -126,10 +118,6 @@ class i18n {
 
         if ($fallbackLang != NULL) {
             $this->fallbackLang = $fallbackLang;
-        }
-
-        if ($prefix != NULL) {
-            $this->prefix = $prefix;
         }
     }
 
@@ -152,9 +140,8 @@ class i18n {
             throw new BadMethodCallException('This object from class ' . __CLASS__ . ' is already initialized. It is not possible to init one object twice!');
         }
         
-        global $cachePath, $prefix;
+        global $cachePath;
         $cachePath = $this->cachePath;
-        $prefix = $this->prefix;
 
         $this->isInitialized = true;
 
@@ -173,7 +160,7 @@ class i18n {
         }
 
         foreach ($this->langs as $lang => $langClass) {
-            $this->cacheFilePath = $this->cachePath . '/php_i18n_' . md5_file(__FILE__) . '_' . $this->prefix . '_' . $lang . '.cache.php';
+            $this->cacheFilePath = $this->cachePath . '/php_i18n_' . md5_file(__FILE__) . '_' . $lang . '.cache.php';
             $langFilePath = $this->getConfigFilename($lang);
             // whether we need to create a new cache file
             $outdated = !file_exists($this->cacheFilePath) || filemtime($this->cacheFilePath) < filemtime($langFilePath) || // the language config was updated
@@ -189,10 +176,6 @@ class i18n {
                     . 'public static function translate($string, $args) {' . "\n"
                     . '    return vsprintf(constant("self::" . $string), $args);'
                     . "\n}\n}\n";
-                    // . "function ".$langClass .'($string, $args=NULL) {'."\n"
-                    // . '    $return = constant("'.$langClass.'::".$string);'."\n"
-                    // . '    return $args ? vsprintf($return,$args) : $return;'
-                    // . "\n}";
 
                 if( ! is_dir($this->cachePath))
                     mkdir($this->cachePath, 0755, true);
@@ -253,11 +236,6 @@ class i18n {
         $this->mergeFallback = $mergeFallback;
     }
 
-    public function setPrefix($prefix) {
-        $this->fail_after_init();
-        $this->prefix = $prefix;
-    }
-
     public function setForcedLang($forcedLang) {
         $this->fail_after_init();
         $this->forcedLang = $forcedLang;
@@ -280,11 +258,12 @@ class i18n {
      * Returns the user languages
      * Normally it returns an array like this:
      * 1. Forced language
-     * 2. Language in $_GET['lang']
-     * 3. Language in $_SESSION['lang']
-     * 4. HTTP_ACCEPT_LANGUAGE
-     * 5. Language in $_COOKIE['lang']
-     * 6. Fallback language
+     * 2. HTTP header 'current_language'
+     * 3. Language in $_GET['lang']
+     * 4. Language in $_SESSION['lang']
+     * 5. HTTP_ACCEPT_LANGUAGE
+     * 6. Language in $_COOKIE['lang']
+     * 7. Fallback language
      * Note: duplicate values are deleted.
      *
      * @return array with the user languages sorted by priority.
@@ -297,16 +276,7 @@ class i18n {
             $userLangs[] = $this->forcedLang;
         }
 
-        // // 2nd highest priority: GET parameter 'lang'
-        // if (isset($_GET['lang']) && is_string($_GET['lang'])) {
-        //     $userLangs[] = $_GET['lang'];
-        // }
-
-        // // 3rd highest priority: SESSION parameter 'lang'
-        // if (isset($_SESSION['lang']) && is_string($_SESSION['lang'])) {
-        //     $userLangs[] = $_SESSION['lang'];
-        // }
-
+        // 2nd highest priority: HTTP header 'current_language'
         if (!function_exists('apache_request_headers')) {
             eval('
                 function apache_request_headers() {
@@ -326,7 +296,18 @@ class i18n {
             $userLangs[] = $headers['current_language'];
         }
 
-        // 4th highest priority: HTTP_ACCEPT_LANGUAGE
+        
+        // 3rd highest priority: GET parameter 'lang'
+        if (isset($_GET['lang']) && is_string($_GET['lang'])) {
+            $userLangs[] = $_GET['lang'];
+        }
+
+        // 4th highest priority: SESSION parameter 'lang'
+        if (isset($_SESSION['lang']) && is_string($_SESSION['lang'])) {
+            $userLangs[] = $_SESSION['lang'];
+        }
+    
+        // 5th highest priority: HTTP_ACCEPT_LANGUAGE
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $part) {
                 $userLang = strtolower(explode(';q=', $part)[0]);
@@ -339,7 +320,7 @@ class i18n {
             }
         }
 
-        // 5th highest priority: COOKIE
+        // 6th highest priority: COOKIE
         if (isset($_COOKIE['lang'])) {
           $userLangs[] = $_COOKIE['lang'];
         }
@@ -388,13 +369,13 @@ class i18n {
     /**
      * Recursively compile an associative array to PHP code.
      */
-    protected function compile($config, $prefix = '') {
+    protected function compile($config) {
         $code = '';
         foreach ($config as $key => $value) {
             if (is_array($value)) {
-                $code .= $this->compile($value, $prefix . $key . $this->sectionSeparator);
+                $code .= $this->compile($value, $key . $this->sectionSeparator);
             } else {
-                $fullName = $prefix . $key;
+                $fullName = $key;
                 if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $fullName)) {
                     throw new InvalidArgumentException(__CLASS__ . ": Cannot compile translation key " . $fullName . " because it is not a valid PHP identifier.");
                 }
@@ -422,9 +403,9 @@ class LangManager {
 
     public static function getInstance($lang = 'en-US') {
         if (self::$instance === null || self::$instance->langClass !== $lang) {
-            global $cachePath, $prefix;
-            $cacheFilePath = $cachePath . '/php_i18n_' . md5_file(__FILE__) . '_' . $prefix . '_' . $lang . '.cache.php';
-            require_once $cacheFilePath;    //"/$lang.php";
+            global $cachePath;
+            $cacheFilePath = $cachePath . '/php_i18n_' . md5_file(__FILE__) . '_' . $lang . '.cache.php';
+            require_once $cacheFilePath;
             $className = "Lang" . ucfirst(str_replace('-', '', $lang));
             self::$instance = new self($className);
         }
