@@ -2012,8 +2012,8 @@ export default {
           var result = response.data;
           if (result.status == 1) {
             that.configList = result.data;
-            if(result.data[3].key == "svn_single_authz") {
-                that.formGlobalAuthz.enable = result.data[3].value;
+            if(result.data[4].key == "svn_single_authz") {
+                that.formGlobalAuthz.enable = result.data[4].value;
             }
           } else {
             that.$Message.error({ content: result.message, duration: 2 });
