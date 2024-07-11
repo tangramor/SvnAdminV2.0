@@ -228,6 +228,7 @@ class Common extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('user_login').' - '.sprintf($L->translate('account_and_ip'), $userName, funGetCip()));
         $this->Logs->InsertLog(
             $L->translate('user_login'), //'用户登录'
             sprintf($L->translate('account_and_ip'), $userName, funGetCip()),    //"账号:%s IP地址:%s"
@@ -311,6 +312,7 @@ class Common extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('user_logout').' - '.sprintf($L->translate('account_and_ip'), $this->userName, funGetCip()));
         $this->Logs->InsertLog(
             $L->translate('user_logout'),    //'用户注销'
             sprintf($L->translate('account_and_ip'), $this->userName, funGetCip()),  //"账号:%s IP地址:%s"

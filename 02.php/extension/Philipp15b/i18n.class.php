@@ -174,7 +174,8 @@ class i18n {
                 $compiled = "<?php class " . $langClass . " {\n"
                     . $this->compile($config)
                     . 'public static function translate($string, $args) {' . "\n"
-                    . '    return vsprintf(constant("self::" . $string), $args);'
+                    . '    $return = constant("self::".$string);'."\n"
+                    . '    return $args ? vsprintf($return, $args) : $return;'
                     . "\n}\n}\n";
 
                 if( ! is_dir($this->cachePath))

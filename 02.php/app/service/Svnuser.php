@@ -820,6 +820,7 @@ class Svnuser extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('create_user').' - '.sprintf($L->translate('username_is'), $this->payload['svn_user_name']));
         $this->ServiceLogs->InsertLog(
             $L->translate('create_user'),    //'创建用户'
             sprintf($L->translate('username_is'), $this->payload['svn_user_name']),  //"用户名:%s"
@@ -941,6 +942,7 @@ class Svnuser extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('delete_user').' - '.sprintf($L->translate('username_is'), $this->payload['svn_user_name']));
         $this->ServiceLogs->InsertLog(
             $L->translate('delete_user'),    //'删除用户'
             sprintf($L->translate('username_is'), $this->payload['svn_user_name']),  //"用户名:%s"

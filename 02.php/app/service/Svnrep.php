@@ -183,6 +183,7 @@ class Svnrep extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('create_repo').' - '.sprintf($L->translate('repo_name_is'), $repName));
         $this->ServiceLogs->InsertLog(
             $L->translate('create_repo'),    //'创建仓库'
             sprintf($L->translate('repo_name_is'), $repName),    //"仓库名:%s"
@@ -1763,6 +1764,7 @@ class Svnrep extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('modify_repo_name').' - '.sprintf($L->translate('old_name_new_name'), $this->payload['old_rep_name'], $this->payload['new_rep_name']));
         $this->ServiceLogs->InsertLog(
             $L->translate('modify_repo_name'),   //'修改仓库名称'
             sprintf($L->translate('old_name_new_name'), $this->payload['old_rep_name'], $this->payload['new_rep_name']), //"原仓库名:%s 新仓库名:%s"
@@ -1802,6 +1804,7 @@ class Svnrep extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($$L->translate('delete_repo').' - '.sprintf($L->translate('repo_name_is'), $this->payload['rep_name']));
         $this->ServiceLogs->InsertLog(
             $L->translate('delete_repo'),    //'删除仓库'
             sprintf($L->translate('repo_name_is'), $this->payload['rep_name']),  //"仓库名:%s"

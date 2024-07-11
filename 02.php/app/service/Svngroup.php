@@ -437,6 +437,7 @@ class Svngroup extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('create_group').' - '.sprintf($L->translate('repo_name_and_group_name'), $repName, $svnGroupName));
         $this->ServiceLogs->InsertLog(
             $L->translate('create_group'),   //'创建分组'
             sprintf($L->translate('repo_name_and_group_name'), $repName, $svnGroupName), //"仓库名:%s, 分组名:%s"
@@ -540,6 +541,7 @@ class Svngroup extends Base
 
             //日志
             $L = \LangManager::getInstance($this->configSvn['default_lang']);
+            logger($L->translate('delete_group').' - '.sprintf($L->translate('group_name_is'), $this->payload['svn_group_name']));
             $this->ServiceLogs->InsertLog(
                 $L->translate('delete_group'),   //'删除分组'
                 sprintf($L->translate('group_name_is'), $this->payload['svn_group_name']),   //"分组名:%s"
@@ -577,6 +579,7 @@ class Svngroup extends Base
 
             //日志
             $L = \LangManager::getInstance($this->configSvn['default_lang']);
+            logger($L->translate('delete_group').' - '.sprintf($L->translate('repo_name_and_group_name'), $repName, $this->payload['svn_group_name']));
             $this->ServiceLogs->InsertLog(
                 $L->translate('delete_group'),   //'删除分组'
                 sprintf($L->translate('repo_name_and_group_name'), $repName, $this->payload['svn_group_name']),  //"仓库名:%s, 分组名:%s"

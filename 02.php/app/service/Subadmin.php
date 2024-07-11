@@ -133,8 +133,9 @@ class Subadmin extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('create_subadmin').' - '.sprintf($L->translate('username_is'), $this->payload['subadmin_name']));
         $this->Logs->InsertLog(
-            $L->translate('创建子管理员'),   //'创建子管理员'
+            $L->translate('create_subadmin'),   //'创建子管理员'
             sprintf($L->translate('username_is'), $this->payload['subadmin_name']),  //"用户名:%s"
             $this->userName
         );
@@ -168,6 +169,7 @@ class Subadmin extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('delete_subadmin').' - '.sprintf($L->translate('username_is'), $subadminName));
         $this->Logs->InsertLog(
             $L->translate('delete_subadmin'),    //'删除子管理员'
             sprintf($L->translate('username_is'), $subadminName),    //"用户名:%s"
@@ -206,6 +208,7 @@ class Subadmin extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('modify_subadmin_password').' - '.sprintf($L->translate('username_is'), $subadminName));
         $this->Logs->InsertLog(
             $L->translate('modify_subadmin_password'),   //'修改子管理员密码'
             sprintf($L->translate('username_is'), $subadminName),    //"用户名:%s"
@@ -244,6 +247,7 @@ class Subadmin extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('modify_subadmin_status').' - '.sprintf($L->translate('username_and_status'), $subadminName, $this->payload['status'] == true ? $L->translate('status_activated') : $L->translate('status_deactivated') ));
         $this->Logs->InsertLog(
             $L->translate('modify_subadmin_status'),   //'修改子管理员状态'
             sprintf($L->translate('username_and_status'), $subadminName, $this->payload['status'] == true ? $L->translate('status_activated') : $L->translate('status_deactivated') ),
@@ -282,6 +286,7 @@ class Subadmin extends Base
 
         //日志
         $L = \LangManager::getInstance($this->configSvn['default_lang']);
+        logger($L->translate('modify_subadmin_note').' - '.sprintf($L->translate('username_is'), $subadminName));
         $this->Logs->InsertLog(
             $L->translate('modify_subadmin_note'),   //'修改子管理员备注'
             sprintf($L->translate('username_is'), $subadminName),    //"用户名:%s"
