@@ -35,21 +35,31 @@ require_once BASE_PATH . '/app/controller/base/Base.php';
 
 Config::load(BASE_PATH . '/config/');
 
+$i18n = new i18n();
+$i18n->setCachePath('/tmp/langcache');
+$i18n->setFilePath(BASE_PATH . '/app/lang/{LANGUAGE}.ini'); // language file path
+$i18n->setLangVariantEnabled(false); // trim region variant in language codes (e.g. en-us -> en)
+$i18n->setFallbackLang('en-US');
+$i18n->setSectionSeparator('_');
+$i18n->setMergeFallback(false); // make keys available from the fallback language
+$i18n->init();
+$L = LangManager::getInstance($i18n->getAppliedLang());
+
 $token = '';
 if (isset($_SERVER['HTTP_TOKEN'])) {
     $token = urldecode($_SERVER['HTTP_TOKEN']);
 }
 
 $controller_prefix = empty($_GET['c']) ? '' : $_GET['c'];
-!strstr($controller_prefix, '/') or json1(401, 0, Base::$L->t('include_special_character'));   //'包含特殊字符'
+!strstr($controller_prefix, '/') or json1(401, 0, $L->t('include_special_character'));   //'包含特殊字符'
 $controller = "\app\controller\\$controller_prefix";
 $controller_path = BASE_PATH . '/app/controller/' . $controller_prefix . '.php';
 
 $action = empty($_GET['a']) ? '' : $_GET['a'];
-!strstr($action, '/') or json1(401, 0, Base::$L->t('include_special_character'));   //'包含特殊字符'
+!strstr($action, '/') or json1(401, 0, $L->t('include_special_character'));   //'包含特殊字符'
 
 $type = empty($_GET['t']) ? '' : $_GET['t'];
-!strstr($type, '/') or json1(401, 0, Base::$L->t('include_special_character'));   //'包含特殊字符'
+!strstr($type, '/') or json1(401, 0, $L->t('include_special_character'));   //'包含特殊字符'
 
 $payload = file_get_contents("php://input");
 $payload = !empty($payload) ? json_decode($payload, true) : [];
@@ -57,32 +67,32 @@ $payload = !empty($payload) ? json_decode($payload, true) : [];
 $version = Config::get('version');
 if (isset($version['php']['lowest']) && !empty($version['php']['lowest'])) {
     if (PHP_VERSION < $version['php']['lowest']) {
-        json1(200, 0, sprintf(Base::$L->t('lowest_php_version_is'), $version['php']['lowest'], PHP_VERSION));  //'支持的最低PHP版本为[%s]当前的PHP版本为[%s]'
+        json1(200, 0, sprintf($L->t('lowest_php_version_is'), $version['php']['lowest'], PHP_VERSION));  //'支持的最低PHP版本为[%s]当前的PHP版本为[%s]'
     }
 }
 if (isset($version['php']['highest']) && !empty($version['php']['highest'])) {
     if (PHP_VERSION >= $version['php']['highest']) {
-        json1(200, 0, sprintf(Base::$L->t('highest_php_version_is'), $version['php']['highest'], PHP_VERSION));    //'支持的最高PHP版本为[%s]当前的PHP版本为[%s]'
+        json1(200, 0, sprintf($L->t('highest_php_version_is'), $version['php']['highest'], PHP_VERSION));    //'支持的最高PHP版本为[%s]当前的PHP版本为[%s]'
     }
 }
 
 if (ini_get('open_basedir') != '') {
-    json1(200, 0, Base::$L->t('need_close_open_basedir')); //'需要关闭open_basedir！如果已经关闭未生效，请重启php！'
+    json1(200, 0, $L->t('need_close_open_basedir')); //'需要关闭open_basedir！如果已经关闭未生效，请重启php！'
 }
 
 $require_functions = ['shell_exec', 'passthru'];
 $disable_functions = explode(',', ini_get('disable_functions'));
 foreach ($disable_functions as $disable) {
     if (in_array(trim($disable), $require_functions)) {
-        json1(200, 0, sprintf(Base::$L->t('function_disabled'), $disable));    //"需要的 %s 函数被禁用"
+        json1(200, 0, sprintf($L->t('function_disabled'), $disable));    //"需要的 %s 函数被禁用"
     }
 }
 
 $state = funDetectState();
 if ($state == 0) {
-    json1(401, 0, Base::$L->t('daemon_response_timed_out'));   //'守护进程响应超时'
+    json1(401, 0, $L->t('daemon_response_timed_out'));   //'守护进程响应超时'
 } elseif ($state == 2) {
-    json1(401, 0, Base::$L->t('backend_program_not_started')); //'后台程序未启动'
+    json1(401, 0, $L->t('backend_program_not_started')); //'后台程序未启动'
 }
 
 $configDatabase = Config::get('database');
@@ -107,8 +117,8 @@ if (file_exists($controller_path)) {
     if (is_callable(array($obj, $action))) {
         $obj->$action();
     } else {
-        json1(401, 0, Base::$L->t('invalid_method_name')); //'无效的方法名'
+        json1(401, 0, $L->t('invalid_method_name')); //'无效的方法名'
     }
 } else {
-    json1(401, 0, Base::$L->t('invalid_controller_name')); //'无效的控制器名'
+    json1(401, 0, $L->t('invalid_controller_name')); //'无效的控制器名'
 }
