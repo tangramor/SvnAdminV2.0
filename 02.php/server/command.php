@@ -16,7 +16,7 @@ auto_require(BASE_PATH . '/extension/Medoo-1.7.10/src/Medoo.php');
 auto_require(BASE_PATH . '/app/service/base/Base.php');
 auto_require(BASE_PATH . '/app/service/');
 
-auto_require(BASE_PATH . '/extension/Philipp15b/i18n.class.php');
+auto_require(BASE_PATH . '/extension/tangramor/i18n.php');
 
 function auto_require($path, $recursively = false)
 {

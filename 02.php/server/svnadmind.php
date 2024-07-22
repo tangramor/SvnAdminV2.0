@@ -26,7 +26,7 @@ define('IPC_SVNADMIN', BASE_PATH . '/server/svnadmind.socket');
 
 require_once BASE_PATH . '/app/util/Config.php';
 require_once BASE_PATH . '/extension/Medoo-1.7.10/src/Medoo.php';
-require_once BASE_PATH . '/extension/Philipp15b/i18n.class.php';
+require_once BASE_PATH . '/extension/tangramor/i18n.php';
 
 use Medoo\Medoo;
 
