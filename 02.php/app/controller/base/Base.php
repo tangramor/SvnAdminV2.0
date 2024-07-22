@@ -27,7 +27,7 @@ auto_require(BASE_PATH . '/app/service/');
 
 //require extension
 auto_require(BASE_PATH . '/extension/Medoo-1.7.10/src/Medoo.php');
-auto_require(BASE_PATH . '/extension/Philipp15b/i18n.class.php');
+auto_require(BASE_PATH . '/extension/tangramor/i18n.php');
 
 // auto_require(BASE_PATH . '/extension/PHPMailer-6.6.0/src/Exception.php');
 // auto_require(BASE_PATH . '/extension/PHPMailer-6.6.0/src/PHPMailer.php');
