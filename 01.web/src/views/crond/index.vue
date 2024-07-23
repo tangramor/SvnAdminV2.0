@@ -597,13 +597,17 @@ export default {
        * 下拉
        */
       //仓库列表
-      repList() {
-        return [
-        {
-          rep_key: "-1",
-          rep_name: i18n.t('crond.allRepos') //"所有仓库",
+      repList: {
+        get () {
+          return [
+          {
+            rep_key: "-1",
+            rep_name: i18n.t('crond.allRepos') //"所有仓库",
+          }
+          ]
         },
-      ]},
+        set () {}
+      },
   },
   created() {},
   mounted() {
@@ -770,8 +774,8 @@ export default {
         t_rep_name
         +
         "]";
-        console.log("2 ")
-        console.log(parseInt(this.cycle.rep_key) === -1);
+        // console.log("2 ")
+        // console.log(parseInt(this.cycle.rep_key) === -1);
     },
     /**
      * 设置任务计划

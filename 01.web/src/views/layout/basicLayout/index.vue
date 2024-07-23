@@ -383,8 +383,8 @@ export default {
   },
   methods: {
     translate(lng) {
-        console.log("browser language is "+navigator.language.substring(0, 5));
-        console.log("Translating to "+lng);
+        // console.log("browser language is "+navigator.language.substring(0, 5));
+        // console.log("Translating to "+lng);
         sessionStorage.setItem("lang", lng);
         this.lang = lng;
         this.$i18n.locale = this.lang
