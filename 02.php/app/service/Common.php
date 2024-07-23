@@ -55,7 +55,7 @@ class Common extends Base
         $userName = $this->payload['user_name'];
         $userPass = $this->payload['user_pass'];
         $userRole = $this->payload['user_role'];
-        $userRoleName = $userRole == 1 ? $this->L->translate('role_admin') : ($userRole == 2 ? $this->L->translate('role_user') : ($userRole == 3 ? $this->L->translate('role_subadmin') : $this->L->translate('role_unknown')));
+        $userRoleName = $userRole == 1 ? 'role_admin' : ($userRole == 2 ? 'role_user' : ($userRole == 3 ? 'role_subadmin' : 'role_unknown'));
 
         //清理过期token
         $this->CleanBlack();

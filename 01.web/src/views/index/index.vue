@@ -174,7 +174,7 @@
           <Col span="4">
             <Card :dis-hover="true">
               <div style="text-align: center">
-                <p>{{ $t('roles.管理员') }}</p>
+                <p>{{ $t('roles.role_admin') }}</p>
                 <h2 style="color: #28bcfe">{{ systemBrif.adminCount }}</h2>
               </div>
             </Card>
@@ -182,7 +182,7 @@
           <Col span="4">
             <Card :dis-hover="true">
               <div style="text-align: center">
-                <p>{{ $t('roles.子管理员') }}</p>
+                <p>{{ $t('roles.role_subadmin') }}</p>
                 <h2 style="color: #28bcfe">{{ systemBrif.subadminCount }}</h2>
               </div>
             </Card>
@@ -190,7 +190,7 @@
           <Col span="4">
             <Card :dis-hover="true">
               <div style="text-align: center">
-                <p>{{ $t('roles.SVN用户') }}</p>
+                <p>{{ $t('roles.role_user') }}</p>
                 <h2 style="color: #28bcfe">{{ systemBrif.userCount }}</h2>
               </div>
             </Card>

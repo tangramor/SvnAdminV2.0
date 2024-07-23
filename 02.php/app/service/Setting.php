@@ -370,7 +370,7 @@ class Setting extends Base
         $safe_config_null = [
             [
                 'name' => 'login_verify_code',
-                'note' => $this->L->translate('login_verify_code'),    //'登录验证码'
+                'note' => 'login_verify_code',    //'登录验证码'
                 'enable' => true,
             ]
         ];

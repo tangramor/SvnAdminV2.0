@@ -31,10 +31,10 @@ module.exports = {
     operator: '操作人',
     // 退出登录成功: '退出登录成功',
     roles: {
-        管理员: '管理员',
-        SVN用户: 'SVN用户',
-        子管理员: '子管理员',
-        未知: '未知',
+        role_admin: '管理员',
+        role_user: 'SVN用户',
+        role_subadmin: '子管理员',
+        role_unknown: '未知',
     },
     backendTasks: {
         realtimeBackendTasks: '实时后台任务',
@@ -549,7 +549,7 @@ user2:passwd2`,
         admin_modify_username: '管理人员修改账户名',
         admin_modify_password: '管理人员修改密码',
         svnuser_modify_password: 'SVN用户修改密码',
-        登录验证码: '登录验证码',
+        login_verify_code: '登录验证码',
     },
     subadmin: {
         createSubadmin: '新建子管理员',

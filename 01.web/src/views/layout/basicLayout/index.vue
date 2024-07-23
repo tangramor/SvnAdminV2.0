@@ -261,7 +261,7 @@ export default {
       logoContent: "SVN Admin",
       //用户名和角色
       currentUsername: sessionStorage.user_name,
-      currentRoleName: sessionStorage.user_role_name,
+      
       currentRoleId: sessionStorage.user_role_id,
       // 过滤后的导航
       navList: [],
@@ -322,6 +322,9 @@ export default {
     };
   },
   computed: {
+    currentRoleName() {
+      return i18n.t('roles.' + sessionStorage.user_role_name)
+    },
     //任务队列
     tableColumnTaskQueue() {
       return [

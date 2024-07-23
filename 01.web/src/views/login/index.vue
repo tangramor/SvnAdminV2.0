@@ -41,9 +41,9 @@
                 :transfer="true"
                 @on-change="ChangeSelect"
               >
-                <Option value="1">{{ $t('roles.管理员') }}</Option>
-                <Option value="3">{{ $t('roles.子管理员') }}</Option>
-                <Option value="2">{{ $t('roles.SVN用户') }}</Option>
+                <Option value="1">{{ $t('roles.role_admin') }}</Option>
+                <Option value="3">{{ $t('roles.role_subadmin') }}</Option>
+                <Option value="2">{{ $t('roles.role_user') }}</Option>
               </Select>
             </FormItem>
             <FormItem prop="code" v-if="verifyOption">
