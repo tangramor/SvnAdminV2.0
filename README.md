@@ -1,81 +1,81 @@
-# SVNAdmin2 - 基于web的SVN管理系统
+## [中文](README.zh-CN.md)
 
-### 1. 介绍
+# SVNAdmin2 - A Web-based SVN Management System
 
-- SVNAdmin2 是一款**通过图形界面管理服务端SVN的web程序**。
+## 1. Introduction
 
-- 正常情况下配置SVN仓库的人员权限需要登录到服务器手动修改 authz 和 passwd 两个文件，当仓库结构和人员权限上了规模后，手动管理就变的非常容易出错，本系统能够识别人员和权限并提供管理和拓展功能。
+- SVNAdmin2 is a web program for managing SVN repositories on the server through a graphical interface.
 
-- SVNAdmin2 支持**SVN协议检出、HTTP协议检出**，并且支持两种协议之间互相切换，支持docker部署或源码部署。
+- Under normal circumstances, the configuration of the SVN repository's personnel permissions requires logging into the server to manually modify the `authz` and `passwd` files. When the structure of the repository and the personnel permissions have expanded to a certain scale, manual management becomes very prone to errors. This system can recognize personnel and permissions and provide management and expansion functionalities.
 
-- SVNAdmin2 支持进行**LDAP的接入**，进而达到使用原有的人员架构和分组规则的目的。
+- SVNAdmin2 supports SVN protocol checkout, HTTP protocol checkout, and also supports the switch between the two protocols. It supports Docker deployment or source code deployment.
+
+- SVNAdmin2 supports the integration of LDAP, thereby achieving the goal of using the existing personnel structure and grouping rules.
 
 - [GitHub地址](https://github.com/witersen/SvnAdminV2.0)   [Gitee地址](https://gitee.com/witersen/SvnAdminV2.0)
 
-- 问题求助、功能建议、更新计划、SVN技术讨论，可加QQ群：**633108141**
+- Problem help, feature suggestions, update plans, SVN technical discussions, you can join QQ group: 633108141
 
-- 项目演示地址：http://svnadmin.witersen.com (管理人员/admin/admin)
+- Project demonstration address: [http://svnadmin.witersen.com (administrators/admin/admin)](http://svnadmin.witersen.com%20(administrators/admin/admin))
 
-- 系统截图
+- System Screenshots
 
 <img src="00.static/demo.jpg" alt="" width="100%" height="100%" />
 
 
+## 2. Compatibility
 
-### 2. 兼容性
+**Docker > CentOS7 > CentOS8 > Rocky > Ubuntu > ......**
 
-**docker > CentOS7 > CentOS8 > Rocky > Ubuntu**>...........
+If needed on Windows, a Docker version can be used.
 
-Windows下如有需求，可使用 docker 版本
+PHP Version: [php5.5, php8.2] (Developed based on php7.4, so it is recommended to use php7.4)
 
-PHP版本：[php5.5 , php8.2] （开发基于php7.4所以推荐使用php7.4）
+Database: SQLite, MySQL
 
-数据库：SQLite、MySQL
-
-Subversion：1.8+
-
+Subversion: 1.8+
 
 
-### 3. docker安装
+## 3. Docker Installation
 
-[nas用户的docker部署教程在这里](https://www.bilibili.com/video/BV1QM4y147b3/)
+Docker deployment instructions for NAS users are here.
 
-##### 3.1 适用于：快速部署看效果
+### 3.1 Suitable for: Quick deployment to see the effect
 
-*ps:镜像默认托管在docerhub，如果速度不佳，可以选择国内路线（docker pull registry.cn-hangzhou.aliyuncs.com/witersencom/svnadmin:[镜像版本号]）*
+Note: The image is default hosted on Dockerhub. If the speed is not good, you can choose the domestic route (`docker pull registry.cn-hangzhou.aliyuncs.com/witersencom/svnadmin:[Image Version Number]`)
 
-此方式可快速部署程序体验效果，数据不存储在宿主机，生产环境使用请看3.2
+This method allows you to quickly deploy the program and experience the effect. Data is not stored on the host machine. For production use, please see section 3.2.
 
-```
+```shell
 docker run -d --name svnadmintemp -p 80:80 -p 3690:3690 --privileged witersencom/svnadmin:2.5.9
 ```
 
-##### 3.2 适用于：新用户正式使用
+### 3.2 Suitable for: New users for official use
 
-- 启动一个临时的容器用于复制配置文件出来
+- Start a temporary container to copy the configuration file out.
 
-```
+```shell
 docker run -d --name svnadmintemp --privileged witersencom/svnadmin:2.5.9 /usr/sbin/init
 ```
 
-- 把配置文件复制到本机的 `/home/svnadmin` 目录
+- Copy the configuration files to the local machine's `/home/svnadmin` directory
 
-```
+```shell
 cd /home/
 docker cp svnadmintemp:/home/svnadmin ./
 docker cp svnadmintemp:/etc/httpd/conf.d ./svnadmin/
 docker cp svnadmintemp:/etc/sasl2 ./svnadmin/
 ```
 
-- 删除掉临时容器
+- Delete the temporary container
 
-```
+```shell
 docker stop svnadmintemp && docker rm svnadmintemp
 ```
 
-- 启动正式的容器
+- Start the official container
 
-```
+```shell
 docker run -d -p 80:80 -p 3690:3690 \
 -v /home/svnadmin/:/home/svnadmin/ \
 -v /home/svnadmin/conf.d/:/etc/httpd/conf.d/ \
@@ -85,53 +85,69 @@ docker run -d -p 80:80 -p 3690:3690 \
 witersencom/svnadmin:2.5.9
 ```
 
-- 进入容器内进行文件授权
+- Enter the container for file authorization
 
-```
+```shell
 docker exec -it svnadmin bash
 chown -R apache:apache /home/svnadmin
 ```
 
-##### 3.3 适用于：旧用户升级
+### 3.3 Suitable for: Upgrade for old users
 
-*ps: 2.4.3 及之前的用户要注意目录挂载多了 conf.d sasl2 升级之前要提前复制出来*
+Note: Users of 2.4.3 and before need to pay attention to the directory mounting of `conf.d sasl2`. Copy it out in advance before upgrading.
 
-- 2.3.x和2.4.x和2.5.x升级到2.5.9 （可以联网的用户）
-  - 进入容器内
-  - yum install -y unzip
-  - cd /var/www/html/server && php install.php
-  - 退出容器
-  - 停止旧的容器，拉取新容器，挂载本地的数据目录到新版本的容器即可
-- 2.3.x和2.4.x和2.5.x升级到2.5.9 （不可联网的用户）
-  - 在有网络的环境下下载升级包，注意下载 update.tar.gz 而不是 update.zip
-  - 提前下载好升级包并复制到容器中 /var/www/html/server/ 目录下
-  - cd /var/www/html/server/
-  - tar -zxvf update.tar.gz
-  - php update/index.php
-  - 退出容器
-  - 停止旧的容器，拉取新容器，挂载本地的数据目录到新版本的容器即可
+#### Upgrade from 2.3.x and 2.4.x to 2.5.9 (for users who can connect to the internet)
 
-### 4. 源码安装
+- Enter the container
 
-svnadmin = web系统 + 后台进程，因此安装注意噢
-
-##### 4.1 适用于：CentOS7、Rocky等
-
-- 安装解压缩等工具
-
+```shell
+yum install -y unzip
+cd /var/www/html/server && php install.php
 ```
+
+- Exit the container
+
+- Stop the old container, pull the new container, and mount the local data directory to the new version container
+
+#### Upgrade from 2.3.x and 2.4.x to 2.5.9 (for users who cannot connect to the internet)
+
+- Download the upgrade package in an environment with network access, note to download `update.tar.gz` instead of `update.zip`
+
+- Copy the upgrade package to the container's `/var/www/html/server/` directory in advance
+
+```shell
+cd /var/www/html/server/
+tar -zxvf update.tar.gz
+
+php update/index.php
+```
+
+- Exit the container
+
+- Stop the old container, pull the new container, and mount the local data directory to the new version container
+
+
+## 4. Source Code Installation
+
+`svnadmin` = web system + background process, so pay attention to the installation
+
+### 4.1 Suitable for: CentOS7, Rocky, etc.
+
+- Install tools such as decompression
+
+```shell
 yum install -y zip unzip wget vim which
 ```
 
-- 安装sasl相关依赖（svn协议检出配置sasl认证如ldap要用到）
+- Install sasl-related dependencies (svn protocol check-out configuration sasl authentication such as ldap is needed)
 
-```
+```shell
 yum install -y cyrus-sasl cyrus-sasl-lib cyrus-sasl-plain
 ```
 
-- 安装PHP和相关扩展（CentOS7默认源中提供的PHP版本为5.4，而我们需要 5.5+，因此使用remi源）
+- Install PHP and related extensions (CentOS7 provides PHP version 5.4 by default, and we need 5.5+, so use the remi repository)
 
-```
+```shell
 yum install -y epel-release yum-utils
 rpm -Uvh https://mirrors.aliyun.com/remi/enterprise/remi-release-7.rpm
 yum-config-manager --enable remi-php74
@@ -139,120 +155,129 @@ yum-config-manager --enable remi-php74
 yum install -y php php-common php-cli php-fpm php-mysqlnd php-mysql php-pdo php-process php-json php-gd php-bcmath php-ldap php-mbstring
 ```
 
-- 安装web服务器（推荐 apache 可使用http协议检出）
+- Install the web server (apache is recommended for http protocol check-out)
 
-```
+```shell
 yum install -y httpd mod_dav_svn mod_ldap
 systemctl start httpd
 systemctl enable httpd
 ```
 
-- 安装任务计划组件（任务计划功能用到）
+- Install the task scheduling component (task scheduling function is used)
 
-```
+```shell
 yum install -y cronie at
 
-#启动atd（如果 ps aux | grep -v 'grep' | grep atd 的结果为空需要执行）
+Start atd (if `ps aux | grep -v 'grep' | grep atd` result is empty, execute)
+
 atd
 
-#启动crond（如果 ps aux | grep -v 'grep' | grep crond 的结果为空需要执行）
+Start crond (if `ps aux | grep -v 'grep' | grep crond` result is empty, execute)
+
 crond
 ```
 
-- 下载解压代码包
+- Download and unzip the code package
 
-```
+```shell
 cd /var/www/html/ && wget https://gitee.com/witersen/SvnAdminV2.0/releases/download/2.5.9/2.5.9.zip
 
 unzip 2.5.9.zip
 ```
 
-- 安装Subversion（如果你安装过Subversion，本步骤可以略过）（注意需要Subversion >= 1.8）
+- Install Subversion (if you have installed Subversion, skip this step) (note that Subversion >= 1.8 is required)
 
-```
+```shell
 cd /var/www/html/server/
 chown -R apache:apache /var/www/html/
-#选项1
+
+Option 1
+
 php install.php
 ```
 
-- 修改Subversion的配置使其支持被本系统管理（如果你安装过Subversion，本步骤要执行）
+- Modify Subversion's configuration to support management by this system (if you have installed Subversion, this step must be executed)
 
-```
+```shell
 cd /var/www/html/server
-#选项1或选项2
+
+Option 1 or Option 2
+
 php install.php
 ```
 
-- 为数据目录授权属主和属组。php脚本web调用是以apache身份执行，因此apache用户需要对数据目录有权
-- 如果你使用其它web服务器如nginx tomcat 可以通过浏览器访问 你的机器IP/server/own.php 来获取属主和属组
+- Authorize the owner and group for the data directory. The PHP script's web call is executed as the apache identity, so the apache user needs rights to the data directory.
 
-```
+- If you use another web server such as nginx or Tomcat, you can obtain the owner and group by accessing your machine IP/server/own.php through the browser.
+
+```shell
 chown -R apache:apache /home/svnadmin
 ```
 
-- 手动启动后台进程（启动方式一）
+- Manually start the background process (start method 1)
 
-  ```
-  #pwd
-  #/var/www/html/server/
-  
-  #后台运行
-  nohup php svnadmind.php start >/dev/null 2>&1 &
-  #后台运行后输入exit退出一下 保证后台稳定运行
-  exit
-  
-  #停止后台
-  php svnadmind.php stop
-  
-  #调试模式
-  php svnadmind.php console
-  ```
+```shell
+# pwd
+# /var/www/html/server/
 
-- 通过系统管理启动后台进程（启动方式二）
+# Background running
+nohup php svnadmind.php start >/dev/null 2>&1 &
 
-  - 新建系统服务文件 svnserve.service（centos一般为 /usr/lib/systemd/system/svnadmind.service、ubuntu 一般为 /lib/systemd/system/svnadmind.service）
-    - 写入以下内容（注意根据自己的代码部署路径调整）
+# After running in the background, enter exit to ensure stable background operation
 
-  ```
-  [Unit]
-  Description=SVNAdmin
-  After=syslog.target network.target
-  
-  [Service]
-  Type=simple
-  ExecStart=/usr/bin/php /var/www/html/server/svnadmind.php start
-  
-  [Install]
-  WantedBy=multi-user.target
-  ```
+exit
 
-    - 操作服务
+# Stop the background
+php svnadmind.php stop
 
-  ```
-  #启动
-  systemctl daemon-reload
-  systemctl start svnadmind
-  
-  #查看状态
-  systemctl status svnadmind
-  
-  #加入开机自启动
-  systemctl enable svnadmind
-  ```
-
-##### 4.2 适用于：宝塔面板
-
-- 安装方式跟手动部署类似，只是宝塔系统了很多可视化操作很方便
-
-- 参考视频：[SVNAdmin V2.2.1 系统部署与使用演示视频【针对宝塔面板】]( https://www.bilibili.com/video/BV1XR4y1H7p3?share_source=copy_web&vd_source=f4620db503611c42618f1afd9c8afecd) 
-
-##### 4.3 适用于：ubutntu18
-
-- 步骤同1（注意需要以root用户执行 server/install.php 和 server/svnadmind.php ）
-- 在ubuntu中软件包名称多与CentOS系列不同，需要用户自行处理
-
+# Debug mode
+php svnadmind.php console
 ```
+
+- Start the background process through system management (start method 2)
+
+- Create a system service file svnserve.service (CentOS is generally `/usr/lib/systemd/system/svnadmind.service`, Ubuntu is generally `/lib/systemd/system/svnadmind.service`)
+
+- Write the following content (note to adjust according to your own code deployment path)
+
+```shell
+[Unit]
+Description=SVNAdmin
+After=syslog.target network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/php /var/www/html/server/svnadmind.php start
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```shell
+# Start
+systemctl daemon-reload
+systemctl start svnadmind
+
+# Check status
+systemctl status svnadmind
+
+# Add to startup on boot
+systemctl enable svnadmind
+```
+
+### 4.2 Suitable for: Baota panel
+
+- The installation method is similar to manual deployment, but Baota has a lot of visual operations that are very convenient.
+
+- Refer to the video: SVNAdmin V2.2.1 System Deployment and Usage Demo Video [for Baota panel]( https://www.bilibili.com/video/BV1XR4y1H7p3?share_source=copy_web&vd_source=f4620db503611c42618f1afd9c8afecd)
+
+### 4.3 Suitable for: Ubuntu18
+
+- The steps are the same as 1 (Note that the server/install.php and server/svnadmind.php need to be executed as the root user)
+
+- The software package name in Ubuntu is different from the CentOS series, which requires the user to handle it themselves
+
+```shell
 sudo apt-get update
 
 sudo apt-get install -y apache2
@@ -286,7 +311,8 @@ wget xxx.zip
 
 unzip xxx.zip
 
-#选项2
+Option 2
+
 sudo server/install.php
 
 chown -R apache:apache /home/svnadmin/
@@ -294,65 +320,80 @@ chown -R apache:apache /home/svnadmin/
 su root
 
 nohup php server/svnadmind.php start &
+
 ```
 
-##### 4.4 适用于：旧用户升级
+### 4.4 Suitable for: Upgrade for old users
 
-- 2.3.x和2.4.x和2.5.x升级到2.5.9
-  - yum install -y unzip
-  - cd /var/www/html/server && php install.php
+- 2.3.x and 2.4.x and 2.5.x upgrade to 2.5.9
 
-### 5. 常见问题解答
+```shell
+yum install -y unzip
 
-##### 5.1 使用此系统管理管理之前的仓库 ？
-
-- 确认之前SVN仓库的版本，如果是1.8+则无需担心，如果是1.8以下，则需要简单升级下仓库
-
-- 安装本系统
-- 执行 php server/install.php  使用内置的功能重新配置你的Subversion
-- 将已有的一个或多个SVN仓库移动到 /home/svnadmin/rep/ 目录下 
-- 在导航**SVN仓库**中执行**同步列表**，即可识别SVN仓库
-- 注意：如果你原来是一个仓库一套配置文件的方式，则还需要按照截图的方式稍微调整下你的配置文件。因为现在是多个仓库一套配置文件的管理方式。
-
-<img src="00.static/qianyi.png" alt="" width="45%" height="45%" />
-
-##### 5.2 如何将数据库切换为MySQL ？
-
-- 创建数据库 svnadmin
-- 将安装包中的MySQL文件 templete/database/mysql/svnadmind.sql 导入数据库
-- 修改 config/database.php 将sqlite部分注释并配置你的MySQL即可
-- 注意：若php版本过低而MySQL版本>=8.0，则会提示：The server requested authentication method unknown to the client，只需要升级php版本或者修改MySQL数据库的配置信息即可
-
-##### 5.3 为什么只支持管理Subversion1.8+ ？
-
-- 因为目前是通过多个仓库读取一套配置文件的方式，而subversion1.8+才支持这种方式
-- 预计在 2.5.x 版本向下适配，支持管理 Subversion 1.5+
-
-##### 5.4 为什么目前只支持Linux操作系统 ？
-
-- 系统中使用了一些多进程的方案，而这在Windows下实现需要花费更多的时间
-
-- 短期内没有支持Windows部署的计划
-- Windows下使用可通过docker版本
-
-##### 5.5 仓库初始化结构模板 ？
-
-- 我们可以在创建仓库的时候选择创建指定内容结构的仓库，如包含 "trunk" "branches" "tags" 文件夹的结构，这一结构是可选的并且可调整的，我们可以手动调整 /home/svnadmin/templete/initStruct/01/ 下的目录结构
-
-##### 5.6 常用钩子推荐 ？
-
-- 我们可以在目录 /home/svnadmin/hooks/ 下增加自己常用的钩子 
-  - /home/svnadmin/hooks/ 下建立文件夹 xx，名称任意
-  - 在 xx 下新建文件 hookDescription 写入对此钩子的描述文本内容
-  - 在 xx 下新建文件 hookName 写入钩子类型，如post-commit等
-  - 在 xx 下新建文件 ，以钩子类型命名，如 post-commit ，然后写入具体钩子内容
-
-##### 5.7 管理员找回密码
-
-- 使用默认的SQLite数据库
+cd /var/www/html/server && php install.php
 ```
-#使用sqlite数据库
 
+## 5. Frequently Asked Questions
+
+### 5.1 How to use this system to manage a repository previously managed by other means?
+
+Confirm the version of the previous SVN repository. If it is 1.8+, there is no need to worry. If it is below 1.8, a simple upgrade of the repository is required.
+
+Install this system
+
+Execute `php server/install.php` to use the built-in function to reconfigure your Subversion
+
+Move one or more existing SVN repositories to the `/home/svnadmin/rep/` directory
+
+In the navigation SVN repository, execute the sync list to recognize the SVN repository
+
+Note: If you originally had a set of configuration files for each repository, you will also need to adjust your configuration files slightly according to the screenshot. Because now it is a management method of multiple repositories with a set of configuration files.
+
+### 5.2 How to switch the database to MySQL?
+
+Create a database named `svnadmin`
+
+Import the `svnadmind.sql` file from the installation package's `templete/database/mysql/` directory into the database
+
+Modify `config/database.php` to comment out the SQLite part and configure your MySQL
+
+Note: If the PHP version is too low and the MySQL version is >= 8.0, it will prompt: The server requested authentication method unknown to the client. You only need to upgrade the PHP version or modify the MySQL database configuration information.
+
+### 5.3 Why does it only support managing Subversion 1.8+?
+
+Because the current method is to read a set of configuration files for multiple repositories, and this method is only supported by Subversion 1.8+
+
+It is expected to support managing Subversion 1.5+ in the 2.5.x version
+
+### 5.4 Why does it currently only support Linux operating systems?
+
+The system uses some multi-process schemes, which would take more time to implement on Windows
+
+There are no plans to support Windows deployment in the short term
+
+For Windows users, you can use the Docker version
+
+### 5.5 Repository initialization structure template?
+
+We can choose to create a repository with a specified content structure when creating a repository, such as a structure that includes "trunk", "branches", and "tags" folders. This structure is optional and adjustable. We can manually adjust the directory structure under `/home/svnadmin/templete/initStruct/01/`.
+
+### 5.6 Recommended common hooks?
+
+We can add our commonly used hooks in the directory `/home/svnadmin/hooks/`.
+
+Create a folder xx under `/home/svnadmin/hooks/`, the name is arbitrary.
+
+Create a file named `hookDescription` under xx to write a description of the hook.
+
+Create a file named `hookName` under xx to write the hook type, such as `post-commit`.
+
+Create a file named after the hook type under xx, such as `post-commit`, and then write the specific hook content.
+
+### 5.7 Administrator password recovery
+
+Using the default SQLite database
+
+```shell
 yum install -y sqlite-devel
 
 cd /home/svnadmin
@@ -366,81 +407,101 @@ sqlite3 svnadmin.db
 select * from admin_users;
 ```
 
-- 使用MySQL数据库
-  - 使用可视化工具登录到数据库查看 admin_users 数据表信息即可
+Using the MySQL database
 
-##### 5.8 关于大文件下载中断问题
+Use a visual tool to log in to the database and view the information in the `admin_users` table.
 
-- 当下载1G以及以上的大文件会出现下载被中断的问题，是因为文件下载为了安全没有使用http文件直链，而是通过php校验后读取文件流下载，所以会存在一个php-fpm最大执行时间的问题，因此你可以通过 设置 php-fpm.conf 配置文件的 request_terminate_timeout 为0 来取消超时限制
+### 5.8 Issues with downloading large files being interrupted
 
-##### 5.9 如果配置了多个仓库模板，如何在创建仓库时指定使用某个仓库模板？
+When downloading files of 1G or more, the download may be interrupted because the file download does not use an HTTP file direct link for security reasons, but reads the file stream through PHP verification. Therefore, there is a problem with the maximum execution time of php-fpm. You can set the `request_terminate_timeout` in the `php-fpm.conf` configuration file to 0 to cancel the timeout limit.
 
-```
-例如： 
-在 /home/svnadmin/templete/initStruct/01 下面配置第一个仓库结构模板
-在 /home/svnadmin/templete/initStruct/02 下面配置第二个仓库结构模板
-如果在web中创建时，如何选用默认的 /home/svnadmin/templete/initStruct/02 下面的仓库结构模板？
-【解决方案】
-由于时间问题，开发时并没有对此功能做更多的详细开发，因此只预留了配置文件层面的修改途径，后续会将仓库模板功能加入到web配置，无需手动命令行管理
-可以通过修改 config/svn.php 中的 templete_init_struct_01 值来修改
-```
+### 5.9 If multiple repository templates are configured, how to specify a particular repository template when creating a repository?
 
-##### 5.10 配置了自定义仓库模板但是创建仓库时没有生效
+- For example:
 
-```
-注意配置自定义仓库模板的位置 
-通常的位置在 /home/svnadmin/templete/initStruct/01 下面 
-而不是在项目代码相关的位置
-```
+    Configure the first repository structure template under `/home/svnadmin/templete/initStruct/01/`.
+    Configure the second repository structure template under `/home/svnadmin/templete/initStruct/02/`.
 
-##### 5.11 数据长度超过8192 请向上调整参数：SOCKET_READ_LENGTH
+    How to use the default `/home/svnadmin/templete/initStruct/02/` repository structure template when creating in the web?
 
-```
-【出现问题原因】
-svn的用户量和权限配置数量增加，超过了默认值
-【解决方案】
-修改 config/daemon.php 文件中的参数
-```
+- Solution
 
-##### 5.12 提示无法连接到LDAP服务器
+    Due to time constraints, this feature was not developed in detail during development, so only the configuration file level modification method was reserved. The repository template function will be added to the web configuration later, without the need for manual command line management.
 
-```
-确定以下两点
-1、你的 ldap 服务器地址和端口真实有效
-2、安装 svnadmin2 的机器确实可以通过 ldap 端口与你的 ldap 服务所在服务器通信
+    You can modify the `templete_init_struct_01` value in `config/svn.php` to change it.
 
-然后检查 svnadmin2 所在机器的 selinux 配置，通常 selinux 会禁止 http 连接 ldap
-执行：
+### 5.10 The custom repository template is not effective when creating a repository
+
+Note the location of the custom repository template
+
+The usual location is under `/home/svnadmin/templete/initStruct/01/`
+
+Not in the project code-related location
+
+### 5.11 Data length exceeds 8192, please adjust the parameter: SOCKET_READ_LENGTH upwards
+
+- Reason for the problem
+
+    The number of SVN users and permission configurations has increased, exceeding the default value
+
+- Solution
+
+    Modify the parameter in the `config/daemon.php` file.
+
+### 5.12 Unable to connect to the LDAP server
+
+
+Make sure of the following two points:
+
+1. Your ldap server address and port are truly valid.
+2. The machine where svnadmin2 is installed can indeed communicate with your ldap server through the ldap port.
+
+Then check the selinux configuration of the machine where svnadmin2 is located. Usually, `selinux` will prohibit http from connecting to ldap.
+
+Execute:
+
+```shell
 getsebool -a | grep ldap
-如果得到以下结果：
+```
+
+If you get the following result:
+
+```shell
 httpd_can_connect_ldap --> off
-证明需要我们手动开启 httpd_can_connect_ldap 这个选项
-执行以下指令允许连接即可
+```
+It proves that we need to manually turn on the `httpd_can_connect_ldap` option.
+
+Execute the following command to allow the connection:
+
+```shell
 setsebool -P httpd_can_connect_ldap=1
-
-以上情况为 selinux 开启可能出现的，当关闭 selinux 后以上配置不再起作用
 ```
 
-##### 5.13 LDAP启用状态下用户已授权但是无权限浏览仓库
+The above situation may occur when selinux is enabled. After selinux is turned off, the above configuration no longer takes effect.
 
-```
-这种情况通常是因为源码安装过程中，少装了有关ldap 的模块或依赖，建议详细看文档
-```
 
-##### 5.14 LDAP状态下用户列表同步成功但是无法登录（2.4.x版本之前的问题）
+### 5.13 LDAP is enabled, but users have permissions but no rights to browse the repository
 
-```
-这种情况下通常是因为你的 Base DN 配置问题
-假设
-你的 base dn 填写为：dc=witersen,dc=com
-你的 Attributes 填写为： cn
-然后你过滤出用户：blue
-那么 blue 作为一个 SVN 用户来登录系统的时候，系统会将 cn=blue,dc=witersen,dc=com 来作为用户 blue 的完整 dn 并且结合用户输入的密来一起请求 ldap 服务器进行校验，所以如果 blue 用户的真实 dn 是 cn=blue,ou=devGroup,dc=witersen,dc=com 就会造成同步成功登录失败的情况
-```
+This situation is usually because the source code installation process is missing some modules or dependencies related to ldap. It is recommended to read the document in detail.
 
-##### 5.15 LDAP可以获取到用户、分组，但是无法把用户同步为分组的成员
+### 5.14 LDAP is enabled, and the user list is synchronized successfully, but login is not possible (a problem before version 2.4.x)
 
-```
-参考文章：https://www.witersen.com/?p=1844
-其中关于如何对接LDAP作了详细解释
-```
+In this case, it is usually because of the configuration of your Base DN.
+
+Assume
+
+Your base dn is filled in as: `dc=witersen,dc=com`
+
+Your Attributes are filled in as: `cn`
+
+Then you filter out the user: `blue`
+
+So when the user blue logs in to the system as an SVN user, the system will use `cn=blue,dc=witersen,dc=com` as the complete dn of the user blue and combine it with the password entered by the user to request the ldap server for verification. So if the real dn of the blue user is `cn=blue,ou=devGroup,dc=witersen,dc=com`, it will cause the synchronization to succeed but the login to fail.
+
+### 5.15 LDAP can obtain users and groups, but cannot synchronize users as members of the group
+
+Refer to the article: [https://www.witersen.com/?p=1844](https://www.witersen.com/?p=1844)
+
+A detailed explanation of how to connect to LDAP is provided.
+
+
